@@ -15,17 +15,19 @@ class StreamingLoading extends StreamingState {}
 
 class StreamingLoaded extends StreamingState {
   final List<StreamingLink> links;
-  final String? selectedServer;
   final List<Subtitle>? subtitles;
+  final String? selectedServer;
+  final String activeProvider; // Added
 
   const StreamingLoaded({
     required this.links,
-    this.selectedServer,
     this.subtitles,
+    this.selectedServer,
+    this.activeProvider = 'Unknown',
   });
 
   @override
-  List<Object?> get props => [links, selectedServer, subtitles];
+  List<Object?> get props => [links, subtitles, selectedServer, activeProvider];
 }
 
 class StreamingError extends StreamingState {

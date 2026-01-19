@@ -69,7 +69,9 @@ class MovieRemoteDataSource {
     String? provider,
     String? type,
   }) async {
-    debugPrint('Getting details for ID: $id via TMDB (Type: $type)');
+    debugPrint(
+      'Getting details for ID: $id (Provider: $provider, Type: $type)',
+    );
 
     final queryParams = <String, dynamic>{};
     if (provider != null) {
@@ -79,8 +81,29 @@ class MovieRemoteDataSource {
       queryParams['type'] = type;
     }
 
+    String endpoint = ApiConstants.movieInfo; // Default to TMDB
+
+    if (provider != null && provider.toLowerCase() != 'tmdb') {
+      final providerKey = provider.toLowerCase().trim();
+      final animeProviders = [
+        'animepahe',
+        'animekai',
+        'gogoanime',
+        'animesaturn',
+        'animeunity',
+        'zoro',
+        'gogo',
+      ];
+      final isAnime =
+          animeProviders.contains(providerKey) ||
+          (type?.toLowerCase() == 'anime');
+      final category = isAnime ? 'anime' : 'movies';
+
+      endpoint = ApiConstants.getInfoEndpoint(category, providerKey);
+    }
+
     final response = await _dio.get(
-      '${ApiConstants.movieInfo}/$id',
+      '$endpoint/$id',
       queryParameters: queryParams,
     );
 

@@ -14,6 +14,7 @@ abstract class MovieRepository {
   Future<Either<Failure, List<Movie>>> searchMovies(
     String query, {
     int page = 1,
+    String? provider,
   });
 
   Future<Either<Failure, Movie>> getMovieDetails(

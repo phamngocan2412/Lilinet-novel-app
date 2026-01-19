@@ -127,15 +127,11 @@ class MovieDetailsBloc extends Bloc<MovieDetailsEvent, MovieDetailsState> {
               }
             },
             (movie) {
-              // Check for Animation genre (TMDB's way of marking anime)
               final hasAnimation = movie.genres.any(
                 (g) => g.toLowerCase().contains('animation'),
               );
 
               if (hasAnimation) {
-                // Additional heuristics to distinguish anime from western animation
-                // 1. TV Series + Animation = likely anime
-                // 2. Check for common anime keywords in title
                 final title = movie.title.toLowerCase();
                 final animeKeywords = [
                   'jujutsu',
@@ -152,18 +148,50 @@ class MovieDetailsBloc extends Bloc<MovieDetailsEvent, MovieDetailsState> {
                   'fullmetal',
                   'death note',
                   'code geass',
+                  'gintama',
+                  'fate',
+                  'evangelion',
+                  'tensura',
+                  'slime',
+                  'chainsaw',
+                  'spy',
+                  'family',
+                  'blue lock',
+                  'haikyu',
+                  'pokemon',
+                  'boruto',
+                  'clover',
+                  'kaisen',
+                  'titan',
+                  'slayer',
+                  'ghoul',
+                  'alchemist',
+                  'brotherhood',
+                  'shippuden',
+                  'piece',
+                  'ball',
+                  'zero',
+                  'stay night',
+                  'grisaia',
+                  'phantom',
+                  'trigger',
+                  'animation',
                 ];
 
                 final hasAnimeKeyword = animeKeywords.any(
                   (keyword) => title.contains(keyword),
                 );
 
+                final isJapan =
+                    movie.country?.toLowerCase().contains('japan') ?? false;
+
                 if (event.type.toLowerCase().contains('tv') ||
-                    hasAnimeKeyword) {
+                    hasAnimeKeyword ||
+                    isJapan) {
                   isAnime = true;
                   print('✅ Detected anime content: ${movie.title}');
                   print(
-                    '   Reason: Animation genre + ${event.type.toLowerCase().contains('tv') ? "TV Series" : "anime keyword"}',
+                    '   Reason: Animation genre + ${isJapan ? "Country: Japan" : (event.type.toLowerCase().contains('tv') ? "TV Series" : "anime keyword")}',
                   );
                 } else {
                   print('ℹ️ Detected western animation: ${movie.title}');

@@ -10,11 +10,18 @@ class SearchMovies {
 
   SearchMovies(this._repository);
 
-  Future<Either<Failure, List<Movie>>> call(String query,
-      {int page = 1}) async {
+  Future<Either<Failure, List<Movie>>> call(
+    String query, {
+    int page = 1,
+    String? provider,
+  }) async {
     if (query.isEmpty) {
       return const Left(ServerFailure('Query cannot be empty'));
     }
-    return await _repository.searchMovies(query, page: page);
+    return await _repository.searchMovies(
+      query,
+      page: page,
+      provider: provider,
+    );
   }
 }

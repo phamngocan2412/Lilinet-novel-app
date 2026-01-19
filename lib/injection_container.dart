@@ -88,6 +88,10 @@ Future<void> configureDependencies() async {
   final movieDetailsBox = await Hive.openBox<MovieModel>('movie_details_cache');
   getIt.registerLazySingleton(() => movieDetailsBox);
 
+  // Comments Box (Map to avoid custom adapter generation issues)
+  final commentsBox = await Hive.openBox<Map>('comments_storage');
+  getIt.registerLazySingleton(() => commentsBox, instanceName: 'commentsBox');
+
   // External
   final sharedPreferences = await SharedPreferences.getInstance();
   getIt.registerLazySingleton(() => sharedPreferences);
@@ -187,7 +191,9 @@ Future<void> configureDependencies() async {
   );
   getIt.registerFactory(() => MovieDetailsBloc(getIt(), getIt(), getIt()));
   getIt.registerFactory(() => SearchBloc(getIt()));
-  getIt.registerFactory(() => StreamingCubit(getIt()));
+  getIt.registerFactory(
+    () => StreamingCubit(getIt(), getIt(), getIt()),
+  ); // Added SearchMovies
   getIt.registerLazySingleton(
     () => ExploreBloc(
       getGenres: getIt(),
@@ -220,7 +226,9 @@ Future<void> configureDependencies() async {
   );
   // Video Player
   getIt.registerLazySingleton<VideoPlayerBloc>(() => VideoPlayerBloc());
-  getIt.registerLazySingleton<CommentsCubit>(() => CommentsCubit());
+  getIt.registerLazySingleton<CommentsCubit>(
+    () => CommentsCubit(getIt(instanceName: 'commentsBox')),
+  );
 
   // Navigation
   getIt.registerFactory(() => NavigationCubit());

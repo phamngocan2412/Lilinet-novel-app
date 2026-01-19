@@ -184,10 +184,23 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
     final provider =
         widget.state.movie?.provider ?? _determineProviderByGenres();
 
+    // Determine episode number
+    int episodeNumber = 1;
+    if (widget.state.movie?.episodes != null) {
+      try {
+        final ep = widget.state.movie!.episodes!.firstWhere(
+          (e) => e.id == widget.state.episodeId,
+        );
+        episodeNumber = ep.number;
+      } catch (_) {}
+    }
+
     _streamingCubit.loadLinks(
       episodeId: widget.state.episodeId!,
       mediaId: widget.state.mediaId!,
+      episodeNumber: episodeNumber,
       provider: provider,
+      type: widget.state.mediaType ?? 'TV Series',
     );
   }
 
@@ -213,11 +226,24 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
     final provider =
         widget.state.movie?.provider ?? _determineProviderByGenres();
 
+    // Determine episode number
+    int episodeNumber = 1;
+    if (widget.state.movie?.episodes != null) {
+      try {
+        final ep = widget.state.movie!.episodes!.firstWhere(
+          (e) => e.id == widget.state.episodeId,
+        );
+        episodeNumber = ep.number;
+      } catch (_) {}
+    }
+
     _streamingCubit.loadLinks(
       episodeId: widget.state.episodeId!,
       mediaId: widget.state.mediaId!,
+      episodeNumber: episodeNumber,
       server: server,
       provider: provider,
+      type: widget.state.mediaType ?? 'TV Series',
     );
   }
 
@@ -274,7 +300,7 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
     // Listen for errors
     _errorSub = player.stream.error.listen((error) {
       if (!_isDisposed) {
-        print('❌ Media Player Error: $error');
+        debugPrint('❌ Media Player Error: $error');
       }
     });
   }
@@ -454,7 +480,7 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
 
       _errorSub = player.stream.error.listen((error) {
         if (!_isDisposed) {
-          print('❌ Media Player Error: $error');
+          debugPrint('❌ Media Player Error: $error');
         }
       });
 
@@ -535,24 +561,28 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
                   // Expanded Content Area (Refactored)
                   if (!widget.isMini)
                     Expanded(
-                      child: 250 >= widget.height
-                          ? const SizedBox.shrink()
-                          : ExpandedPlayerContent(
-                              state: widget.state,
-                              currentServer: _currentServer ?? 'vidcloud',
-                              defaultQuality: _defaultQuality,
-                              onServerSelected: _switchServer,
-                              onQualitySelected:
-                                  (url, subUrl, subLang, headers) {
-                                    _playVideo(
-                                      url,
-                                      subtitleUrl: subUrl,
-                                      subtitleLang: subLang,
-                                      headers: headers,
-                                      isQualitySwitch: true,
-                                    );
-                                  },
-                            ),
+                      child: GestureDetector(
+                        onTap:
+                            () {}, // Consume taps to prevent Miniplayer from handling them
+                        child: 250 >= widget.height
+                            ? const SizedBox.shrink()
+                            : ExpandedPlayerContent(
+                                state: widget.state,
+                                currentServer: _currentServer ?? 'vidcloud',
+                                defaultQuality: _defaultQuality,
+                                onServerSelected: _switchServer,
+                                onQualitySelected:
+                                    (url, subUrl, subLang, headers) {
+                                      _playVideo(
+                                        url,
+                                        subtitleUrl: subUrl,
+                                        subtitleLang: subLang,
+                                        headers: headers,
+                                        isQualitySwitch: true,
+                                      );
+                                    },
+                              ),
+                      ),
                     ),
                 ],
               ),
@@ -585,7 +615,6 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
         qualityTarget = '360p';
         break;
       case VideoQuality.auto:
-      default:
         qualityTarget = 'auto';
         break;
     }
@@ -609,23 +638,6 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
   Widget _buildVideoPlayer() {
     return BlocConsumer<StreamingCubit, StreamingState>(
       listener: (context, state) {
-        if (state is StreamingError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${state.message}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              action: SnackBarAction(
-                label: 'Retry',
-                textColor: Colors.white,
-                onPressed: () {
-                  _loadVideo();
-                },
-              ),
-            ),
-          );
-        }
-
         if (state is StreamingLoaded && state.links.isNotEmpty) {
           // Sync local state with actual server used by Cubit
           if (state.selectedServer != null) {
@@ -646,14 +658,6 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
             } catch (_) {}
           }
 
-          // Debug logging
-          print('🎬 Playing video:');
-          print('  URL: ${link.url}');
-          print('  Quality: ${link.quality}');
-          print('  isM3U8: ${link.isM3U8}');
-          print('  Headers: ${link.headers}');
-          print('  Subtitle: $subUrl');
-
           _playVideo(
             link.url,
             subtitleUrl: subUrl,
@@ -663,6 +667,61 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
         }
       },
       builder: (context, state) {
+        if (state is StreamingError) {
+          return Container(
+            color: Colors.black,
+            child: Stack(
+              children: [
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        color: Colors.red,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Playback Error',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          state.message,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white70, fontSize: 12),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        onPressed: () => _loadVideo(),
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () {
+                      context.read<VideoPlayerBloc>().add(CloseVideo());
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
         if (state is StreamingLoading || state is StreamingInitial) {
           return Stack(
             children: [

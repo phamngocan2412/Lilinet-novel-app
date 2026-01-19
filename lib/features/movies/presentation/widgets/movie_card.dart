@@ -56,6 +56,41 @@ class MovieCard extends StatelessWidget {
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
+                    errorWidget: (context, url, error) => Container(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                      padding: const EdgeInsets.all(8),
+                      alignment: Alignment.center,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            movie.type == 'Movie'
+                                ? Icons.movie_outlined
+                                : Icons.tv,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.5),
+                            size: 24,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            movie.title,
+                            textAlign: TextAlign.center,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
+                                  fontSize: 10,
+                                ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   // 2. Gradient Overlay (Bottom)
                   // Use theme-aware gradient or keep black for text readability

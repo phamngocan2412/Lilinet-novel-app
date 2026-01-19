@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../../widgets/comment_section.dart'; // Import CommentModel
+import '../../../data/models/comment_model.dart';
 
 abstract class CommentsState extends Equatable {
   const CommentsState();

@@ -111,6 +111,7 @@ class MovieRepositoryImpl implements MovieRepository {
   Future<Either<Failure, List<Movie>>> searchMovies(
     String query, {
     int page = 1,
+    String? provider,
   }) async {
     try {
       final response = await _remoteDataSource.searchMovies(query, page: page);

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:get_it/get_it.dart';
+import '../../../video_player/presentation/bloc/comments/comments_cubit.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../domain/entities/app_settings.dart' as domain;
 import '../bloc/settings_bloc.dart';
@@ -166,6 +168,32 @@ class SettingsView extends StatelessWidget {
                       leading: const Icon(Icons.delete_sweep),
                       onTap: () {
                         _showClearCacheDialog(context);
+                      },
+                    ),
+                    ListTile(
+                      title: const Text('Clean Comments Database'),
+                      subtitle: const Text('Delete all saved comments'),
+                      leading: const Icon(Icons.delete_forever),
+                      onTap: () async {
+                        try {
+                          final cubit = GetIt.I<CommentsCubit>();
+                          await cubit.clearAllComments();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Comments database cleared!'),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Failed to clear database: $e'),
+                              ),
+                            );
+                          }
+                        }
                       },
                     ),
                   ],

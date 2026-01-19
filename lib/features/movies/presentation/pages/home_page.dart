@@ -11,7 +11,7 @@ import '../bloc/trending_movies/trending_movies_state.dart';
 import '../widgets/trending_carousel.dart';
 import '../widgets/movie_list.dart';
 import '../widgets/movie_card.dart';
-import '../widgets/featured_comment_banner.dart'; // Added
+import '../widgets/featured_comments_section.dart'; // Correct import
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -152,14 +152,14 @@ class HomePageView extends StatelessWidget {
                             TrendingCarousel(
                               movies: trendingMovies.take(5).toList(),
                               onMovieTap: (movie) => context.push(
-                                '/movie/${movie.id}?type=${movie.type}',
+                                '/movie/${Uri.encodeComponent(movie.id)}?type=${movie.type}',
                                 extra: movie,
                               ),
                             ),
+                            const SizedBox(height: 24),
+                            // Featured Comments Section (Corrected)
+                            const FeaturedCommentsSection(),
                             const SizedBox(height: 16),
-                            // Featured Comment Banner
-                            const FeaturedCommentBanner(),
-                            const SizedBox(height: 32),
                           ],
                         ],
                       ),
@@ -243,7 +243,7 @@ class HomePageView extends StatelessWidget {
                                     child: MovieCard(
                                       movie: movie,
                                       onTap: () => context.push(
-                                        '/movie/${movie.id}?type=${movie.type}',
+                                        '/movie/${Uri.encodeComponent(movie.id)}?type=${movie.type}',
                                         extra: movie,
                                       ),
                                     ),

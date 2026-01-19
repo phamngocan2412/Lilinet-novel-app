@@ -4,7 +4,7 @@ import '../../../movies/presentation/bloc/streaming/streaming_cubit.dart';
 import '../../../movies/presentation/bloc/streaming/streaming_state.dart';
 import '../bloc/video_player_state.dart';
 import 'package:lilinet_app/features/settings/domain/entities/app_settings.dart';
-import 'comment_section.dart'; // Import CommentSection
+import 'comment_section.dart';
 
 const kOrangeColor = Color(0xFFC6A664);
 const kGreenVIP = Color(0xFF43A047);
@@ -31,6 +31,25 @@ class ExpandedPlayerContent extends StatelessWidget {
     required this.onServerSelected,
     required this.onQualitySelected,
   });
+
+  Widget _buildVipButton(
+    String label,
+    Color color,
+    bool isSelected,
+    VoidCallback onTap,
+  ) {
+    return ElevatedButton(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected ? color : Colors.transparent,
+        foregroundColor: isSelected ? Colors.white : color,
+        side: BorderSide(color: color),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        visualDensity: VisualDensity.compact,
+      ),
+      onPressed: onTap,
+      child: Text(label),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,6 +78,26 @@ class ExpandedPlayerContent extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
+
+                  // Provider & Server Info
+                  if (streamingState is StreamingLoaded)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.cloud_done, size: 14, color: kGreenVIP),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Source: ${streamingState.activeProvider.toUpperCase()}',
+                            style: TextStyle(
+                              color: kGreenVIP,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
                   // Server Selector
                   SingleChildScrollView(
@@ -202,40 +241,15 @@ class ExpandedPlayerContent extends StatelessWidget {
             // Bottom Section: Comments
             Expanded(
               flex: 6,
-              child: CommentSection(videoId: state.mediaId ?? 'unknown'),
+              child: CommentSection(
+                videoId: state.mediaId ?? 'unknown',
+                movieTitle: state.title ?? 'Unknown Title',
+                movieType: state.mediaType ?? 'TV Series',
+              ),
             ),
           ],
         );
       },
-    );
-  }
-
-  Widget _buildVipButton(
-    String label,
-    Color color,
-    bool isSelected,
-    VoidCallback onTap,
-  ) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        decoration: BoxDecoration(
-          color: isSelected ? color : color.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(4),
-          border: isSelected
-              ? Border.all(color: Colors.white, width: 1)
-              : Border.all(color: Colors.transparent),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.white70,
-            fontWeight: FontWeight.bold,
-            fontSize: 13,
-          ),
-        ),
-      ),
     );
   }
 }
