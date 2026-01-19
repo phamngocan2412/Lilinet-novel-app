@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../explore/presentation/widgets/category_chip.dart';
@@ -9,7 +10,8 @@ import '../bloc/trending_movies/trending_movies_event.dart';
 import '../bloc/trending_movies/trending_movies_state.dart';
 import '../widgets/trending_carousel.dart';
 import '../widgets/movie_list.dart';
-import '../widgets/movie_card.dart'; // Add this import
+import '../widgets/movie_card.dart';
+import '../widgets/featured_comment_banner.dart'; // Added
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -64,7 +66,7 @@ class HomePageView extends StatelessWidget {
         child: BlocBuilder<TrendingMoviesBloc, TrendingMoviesState>(
           builder: (context, state) {
             if (state is TrendingMoviesLoading) {
-              return const Center(child: LoadingIndicator());
+              return _buildShimmerLoading(context);
             }
 
             if (state is TrendingMoviesError) {
@@ -81,9 +83,7 @@ class HomePageView extends StatelessWidget {
             }
 
             if (state is TrendingMoviesLoaded) {
-              final trendingMovies = state.trending
-                  .toSet()
-                  .toList(); // Deduplicate
+              final trendingMovies = state.trending.toSet().toList();
               final categories = state.categories;
 
               final genres = {
@@ -156,6 +156,9 @@ class HomePageView extends StatelessWidget {
                                 extra: movie,
                               ),
                             ),
+                            const SizedBox(height: 16),
+                            // Featured Comment Banner
+                            const FeaturedCommentBanner(),
                             const SizedBox(height: 32),
                           ],
                         ],
@@ -224,7 +227,7 @@ class HomePageView extends StatelessWidget {
                               ),
                             ),
                             SizedBox(
-                              height: 200, // Adjust based on card height
+                              height: 200,
                               child: ListView.separated(
                                 scrollDirection: Axis.horizontal,
                                 padding: const EdgeInsets.symmetric(
@@ -236,8 +239,7 @@ class HomePageView extends StatelessWidget {
                                 itemBuilder: (context, index) {
                                   final movie = categoryMovies[index];
                                   return SizedBox(
-                                    width:
-                                        130, // Fixed width for horizontal items
+                                    width: 130,
                                     child: MovieCard(
                                       movie: movie,
                                       onTap: () => context.push(
@@ -255,9 +257,7 @@ class HomePageView extends StatelessWidget {
                       }, childCount: categories.length),
                     ),
 
-                  const SliverToBoxAdapter(
-                    child: SizedBox(height: 80),
-                  ), // Bottom padding
+                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],
               );
             }
@@ -265,6 +265,86 @@ class HomePageView extends StatelessWidget {
             return const SizedBox.shrink();
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading(BuildContext context) {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Filter Chips Shimmer
+          SizedBox(
+            height: 60,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: 6,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (_, __) => Shimmer.fromColors(
+                baseColor: Colors.white10,
+                highlightColor: Colors.white24,
+                child: Container(
+                  width: 80,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Carousel Shimmer
+          Shimmer.fromColors(
+            baseColor: Colors.white10,
+            highlightColor: Colors.white24,
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              height: 200,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          // Rows Shimmer
+          for (int i = 0; i < 3; i++) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Shimmer.fromColors(
+                baseColor: Colors.white10,
+                highlightColor: Colors.white24,
+                child: Container(width: 150, height: 20, color: Colors.white),
+              ),
+            ),
+            SizedBox(
+              height: 200,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                itemCount: 4,
+                separatorBuilder: (_, __) => const SizedBox(width: 12),
+                itemBuilder: (_, __) => Shimmer.fromColors(
+                  baseColor: Colors.white10,
+                  highlightColor: Colors.white24,
+                  child: Container(
+                    width: 130,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+        ],
       ),
     );
   }

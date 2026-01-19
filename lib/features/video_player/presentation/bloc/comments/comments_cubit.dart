@@ -10,49 +10,53 @@ class CommentsCubit extends Cubit<CommentsState> {
 
   CommentsCubit() : super(CommentsInitial());
 
-  Future<void> loadComments(String videoId) async {
-    // Return cached if available
-    if (_cache.containsKey(videoId)) {
+  Future<void> loadComments(String videoId, {bool forceRefresh = false}) async {
+    // Return cached if available and not forcing refresh
+    if (!forceRefresh && _cache.containsKey(videoId)) {
       emit(CommentsLoaded(videoId, _cache[videoId]!));
       return;
     }
 
     emit(CommentsLoading(videoId));
 
-    // --- MOCK API ---
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      // --- MOCK API CALL ---
+      await Future.delayed(const Duration(seconds: 1));
 
-    final List<CommentModel> mockComments = [
-      CommentModel(
-        id: '1',
-        userName: 'Sarah Jenkins',
-        userAvatarUrl: 'https://i.pravatar.cc/150?u=1',
-        content:
-            'This episode was absolutely mind-blowing! The animation quality has improved so much.',
-        createdAt: DateTime.now().subtract(const Duration(minutes: 45)),
-      ),
-      CommentModel(
-        id: '2',
-        userName: 'OtakuKing99',
-        content: 'Does anyone know the name of the OST playing at 12:30?',
-        createdAt: DateTime.now().subtract(const Duration(hours: 2)),
-      ),
-      CommentModel(
-        id: '3',
-        userName: 'AnimeLover',
-        userAvatarUrl: 'https://i.pravatar.cc/150?u=3',
-        content: 'Can\'t wait for the next season!',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-      ),
-    ];
-    // ----------------
+      final List<CommentModel> mockComments = [
+        CommentModel(
+          id: '1',
+          userName: 'Sarah Jenkins',
+          userAvatarUrl: 'https://i.pravatar.cc/150?u=1',
+          content:
+              'This episode was absolutely mind-blowing! The animation quality has improved so much.',
+          createdAt: DateTime.now().subtract(const Duration(minutes: 45)),
+        ),
+        CommentModel(
+          id: '2',
+          userName: 'OtakuKing99',
+          content: 'Does anyone know the name of the OST playing at 12:30?',
+          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+        ),
+        CommentModel(
+          id: '3',
+          userName: 'AnimeLover',
+          userAvatarUrl: 'https://i.pravatar.cc/150?u=3',
+          content: 'Can\'t wait for the next season!',
+          createdAt: DateTime.now().subtract(const Duration(days: 1)),
+        ),
+      ];
+      // ----------------
 
-    _cache[videoId] = mockComments;
-    emit(CommentsLoaded(videoId, mockComments));
+      _cache[videoId] = mockComments;
+      emit(CommentsLoaded(videoId, mockComments));
+    } catch (e) {
+      emit(const CommentsError('Failed to load comments'));
+    }
   }
 
   Future<void> addComment(String videoId, String content) async {
-    // --- MOCK POST ---
+    // --- MOCK POST CALL ---
     await Future.delayed(const Duration(milliseconds: 500));
 
     final newComment = CommentModel(

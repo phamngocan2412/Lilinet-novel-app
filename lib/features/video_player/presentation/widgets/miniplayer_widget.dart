@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
+import 'dart:ui'; // Added for Glassmorphism
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -512,44 +513,50 @@ class _VideoPlayerContentState extends State<_VideoPlayerContent>
   Widget build(BuildContext context) {
     return BlocProvider.value(
       value: _streamingCubit,
-      child: Material(
-        color: kBgColor,
-        child: SizedBox(
-          height: widget.height,
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: [
-              // Video Area
-              if (widget.isMini)
-                Expanded(child: _buildVideoPlayer())
-              else
-                SizedBox(
-                  height: 250 > widget.height ? widget.height : 250,
-                  child: _buildVideoPlayer(),
-                ),
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Material(
+            color: kBgColor.withOpacity(0.9),
+            child: SizedBox(
+              height: widget.height,
+              width: MediaQuery.of(context).size.width,
+              child: Column(
+                children: [
+                  // Video Area
+                  if (widget.isMini)
+                    Expanded(child: _buildVideoPlayer())
+                  else
+                    SizedBox(
+                      height: 250 > widget.height ? widget.height : 250,
+                      child: _buildVideoPlayer(),
+                    ),
 
-              // Expanded Content Area (Refactored)
-              if (!widget.isMini)
-                Expanded(
-                  child: 250 >= widget.height
-                      ? const SizedBox.shrink()
-                      : ExpandedPlayerContent(
-                          state: widget.state,
-                          currentServer: _currentServer ?? 'vidcloud',
-                          defaultQuality: _defaultQuality,
-                          onServerSelected: _switchServer,
-                          onQualitySelected: (url, subUrl, subLang, headers) {
-                            _playVideo(
-                              url,
-                              subtitleUrl: subUrl,
-                              subtitleLang: subLang,
-                              headers: headers,
-                              isQualitySwitch: true,
-                            );
-                          },
-                        ),
-                ),
-            ],
+                  // Expanded Content Area (Refactored)
+                  if (!widget.isMini)
+                    Expanded(
+                      child: 250 >= widget.height
+                          ? const SizedBox.shrink()
+                          : ExpandedPlayerContent(
+                              state: widget.state,
+                              currentServer: _currentServer ?? 'vidcloud',
+                              defaultQuality: _defaultQuality,
+                              onServerSelected: _switchServer,
+                              onQualitySelected:
+                                  (url, subUrl, subLang, headers) {
+                                    _playVideo(
+                                      url,
+                                      subtitleUrl: subUrl,
+                                      subtitleLang: subLang,
+                                      headers: headers,
+                                      isQualitySwitch: true,
+                                    );
+                                  },
+                            ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
       ),
