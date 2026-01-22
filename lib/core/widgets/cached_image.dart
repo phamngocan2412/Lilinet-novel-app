@@ -42,41 +42,58 @@ class AppCachedImage extends StatelessWidget {
       return errorWidget;
     }
 
-    final image = CachedNetworkImage(
-      imageUrl: imageUrl,
-      width: width,
-      height: height,
-      fit: fit,
-      fadeInDuration: const Duration(milliseconds: 300),
-      fadeOutDuration: const Duration(milliseconds: 100),
-      memCacheWidth: (width != null && width!.isFinite)
-          ? (width! * 2).toInt()
-          : 700, // Fallback to prevent OOM with infinite width
-      memCacheHeight:
-          (height != null && height!.isFinite) ? (height! * 2).toInt() : null,
-      maxWidthDiskCache: 800, // Limit disk cache size
-      maxHeightDiskCache: 1200,
-      placeholder: (context, url) => Container(
-        color: Colors.grey[850],
-        child: const Center(
-          child: LoadingIndicator(size: 30),
-        ),
-      ),
-      errorWidget: (context, url, error) => Container(
-        width: width,
-        height: height,
-        color: Colors.grey[800],
-        child: const Icon(Icons.broken_image, color: Colors.white54),
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final double pixelRatio = MediaQuery.of(context).devicePixelRatio;
+        int? cacheWidth;
+        int? cacheHeight;
+
+        if (width != null && width!.isFinite) {
+          cacheWidth = (width! * pixelRatio).toInt();
+        } else if (constraints.maxWidth.isFinite) {
+          cacheWidth = (constraints.maxWidth * pixelRatio).toInt();
+        } else {
+          cacheWidth = 700;
+        }
+
+        if (height != null && height!.isFinite) {
+          cacheHeight = (height! * pixelRatio).toInt();
+        }
+
+        final image = CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: width,
+          height: height,
+          fit: fit,
+          fadeInDuration: const Duration(milliseconds: 300),
+          fadeOutDuration: const Duration(milliseconds: 100),
+          memCacheWidth: cacheWidth,
+          memCacheHeight: cacheHeight,
+          maxWidthDiskCache: 800, // Limit disk cache size
+          maxHeightDiskCache: 1200,
+          placeholder: (context, url) => Container(
+            color: Colors.grey[850],
+            child: const Center(
+              child: LoadingIndicator(size: 30),
+            ),
+          ),
+          errorWidget: (context, url, error) => Container(
+            width: width,
+            height: height,
+            color: Colors.grey[800],
+            child: const Icon(Icons.broken_image, color: Colors.white54),
+          ),
+        );
+
+        if (borderRadius != null) {
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(borderRadius!),
+            child: image,
+          );
+        }
+
+        return image;
+      },
     );
-
-    if (borderRadius != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius!),
-        child: image,
-      );
-    }
-
-    return image;
   }
 }
