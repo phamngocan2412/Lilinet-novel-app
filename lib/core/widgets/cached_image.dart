@@ -8,6 +8,8 @@ class AppCachedImage extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final double? borderRadius;
+  final int? memCacheWidth;
+  final int? memCacheHeight;
 
   const AppCachedImage({
     super.key,
@@ -16,6 +18,8 @@ class AppCachedImage extends StatelessWidget {
     this.height,
     this.fit = BoxFit.cover,
     this.borderRadius,
+    this.memCacheWidth,
+    this.memCacheHeight,
   });
 
   @override
@@ -42,9 +46,38 @@ class AppCachedImage extends StatelessWidget {
       return errorWidget;
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
+
+    final image = CachedNetworkImage(
+      imageUrl: imageUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      fadeInDuration: const Duration(milliseconds: 300),
+      fadeOutDuration: const Duration(milliseconds: 100),
+      memCacheWidth: memCacheWidth ??
+          ((width != null && width!.isFinite)
+              ? (width! * pixelRatio).toInt()
+              : 700), // Fallback to prevent OOM with infinite width
+      memCacheHeight: memCacheHeight ??
+          ((height != null && height!.isFinite)
+              ? (height! * pixelRatio).toInt()
+              : null),
+      maxWidthDiskCache: 800, // Limit disk cache size
+      maxHeightDiskCache: 1200,
+      placeholder: (context, url) => Container(
+        color: Colors.grey[850],
+        child: const Center(
+          child: LoadingIndicator(size: 30),
+        ),
+      ),
+      errorWidget: (context, url, error) => Container(
+        width: width,
+        height: height,
+        color: Colors.grey[800],
+        child: const Icon(Icons.broken_image, color: Colors.white54),
+      ),
+    );
 
         // Calculate optimal cache width
         int? memCacheWidth;

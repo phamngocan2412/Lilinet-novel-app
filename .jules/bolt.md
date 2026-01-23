@@ -1,3 +1,3 @@
-## 2024-05-23 - [Flutter Image Caching Optimization]
-**Learning:** `CachedNetworkImage` defaults to full resolution or suboptimal fallbacks if `memCacheWidth` is not explicitly set or set based on logical width without pixel ratio. Wrapping it in `LayoutBuilder` allows us to size the memory cache to the exact physical pixels needed (`constraints.maxWidth * devicePixelRatio`), saving significant memory on grids/lists.
-**Action:** Always wrap `CachedNetworkImage` (or custom wrappers) in `LayoutBuilder` when `width` is dynamic/infinite to determine optimal cache size.
+## 2024-05-23 - Image Memory Optimization
+**Learning:** `CachedNetworkImage`'s `memCacheWidth` / `memCacheHeight` are critical for memory performance. Hardcoded multipliers (e.g., `width * 2`) are suboptimal. Using `devicePixelRatio` yields precise memory usage.
+**Action:** Always calculate `memCacheWidth` as `(targetWidth * devicePixelRatio).toInt()` to minimize memory footprint without sacrificing quality.
