@@ -24,7 +24,6 @@ class NetworkModule {
 
     dio.interceptors.add(RetryInterceptor(dio: dio));
 
-    // SENTINEL: Only log in debug mode to prevent sensitive data leakage in production
     if (kDebugMode) {
       dio.interceptors.add(
         PrettyDioLogger(
