@@ -16,24 +16,21 @@ class MovieList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Optimization: Calculate optimal memory cache size for images.
-    // The grid is 2 columns with 16px padding on sides and 12px spacing.
-    // Width = (ScreenWidth - 32 - 12) / 2
-    final screenWidth = MediaQuery.of(context).size.width;
-    final itemWidth = (screenWidth - 32 - 12) / 2;
-    final pixelRatio = MediaQuery.of(context).devicePixelRatio;
-    // Cap cache width to avoid excessive memory on very large screens (though tablet is fine),
-    // and ensure minimum quality.
-    // Default logic in AppCachedImage uses 700 if width is infinite.
-    // For a phone (360px wide), item is ~158px. 158 * 3 (high density) = 474px.
-    // 474px < 700px, so we save memory.
-    final memCacheWidth = (itemWidth * pixelRatio).toInt();
+    const int crossAxisCount = 2;
+    const double crossAxisSpacing = 12;
+    const double padding = 16;
+
+    // Calculate precise memory cache size based on screen width and device pixel ratio.
+    // Logic: (Screen Width - Padding - Spacing) / Columns * DevicePixelRatio
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double itemWidth = (screenWidth - (padding * 2) - ((crossAxisCount - 1) * crossAxisSpacing)) / crossAxisCount;
+    final int memCacheWidth = (itemWidth * MediaQuery.of(context).devicePixelRatio).toInt();
 
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
+        crossAxisCount: crossAxisCount,
         childAspectRatio: 0.7,
-        crossAxisSpacing: 12,
+        crossAxisSpacing: crossAxisSpacing,
         mainAxisSpacing: 12,
       ),
       delegate: SliverChildBuilderDelegate(

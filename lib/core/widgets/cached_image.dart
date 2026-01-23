@@ -46,6 +46,22 @@ class AppCachedImage extends StatelessWidget {
       return errorWidget;
     }
 
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+
+    // Calculate memory cache sizes
+    // If explicit size provided, use it.
+    // Otherwise if layout size is finite, use that scaled by DPR.
+    // Fallback to 700 only if no explicit or finite size available (to prevent OOM).
+    final int? calculatedMemCacheWidth = memCacheWidth ??
+        ((width != null && width!.isFinite)
+            ? (width! * devicePixelRatio).toInt()
+            : 700);
+
+    final int? calculatedMemCacheHeight = memCacheHeight ??
+        ((height != null && height!.isFinite)
+            ? (height! * devicePixelRatio).toInt()
+            : null);
+
     final image = CachedNetworkImage(
       imageUrl: imageUrl,
       width: width,
@@ -53,12 +69,8 @@ class AppCachedImage extends StatelessWidget {
       fit: fit,
       fadeInDuration: const Duration(milliseconds: 300),
       fadeOutDuration: const Duration(milliseconds: 100),
-      memCacheWidth: memCacheWidth ??
-          ((width != null && width!.isFinite)
-              ? (width! * 2).toInt()
-              : 700), // Fallback to prevent OOM with infinite width
-      memCacheHeight: memCacheHeight ??
-          ((height != null && height!.isFinite) ? (height! * 2).toInt() : null),
+      memCacheWidth: calculatedMemCacheWidth,
+      memCacheHeight: calculatedMemCacheHeight,
       maxWidthDiskCache: 800, // Limit disk cache size
       maxHeightDiskCache: 1200,
       placeholder: (context, url) => Container(
