@@ -1,3 +1,3 @@
-## 2026-01-17 - [Adaptive Image Memory Caching]
-**Learning:** Hardcoding memory cache sizes in image widgets (e.g., `memCacheWidth: width * 2`) is inefficient. It over-consumes memory on low-density screens and under-delivers quality on high-density ones. The optimal approach is to calculate the precise render size (Logical Width * DevicePixelRatio) and pass it explicitly to the image provider.
-**Action:** When implementing grid or list views with images, always calculate the exact item width in the parent widget and pass it down as `memCacheWidth` to the image component.
+## 2024-05-23 - Image Memory Optimization
+**Learning:** Hardcoded cache sizes (e.g., `700px`) in image widgets can lead to significant memory waste on smaller devices or in grid layouts.
+**Action:** Always calculate `memCacheWidth` based on the target display size (Screen Width / Columns * Pixel Density) to minimize memory usage without sacrificing quality.

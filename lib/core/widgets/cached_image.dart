@@ -69,8 +69,10 @@ class AppCachedImage extends StatelessWidget {
       fit: fit,
       fadeInDuration: const Duration(milliseconds: 300),
       fadeOutDuration: const Duration(milliseconds: 100),
-      memCacheWidth: calculatedMemCacheWidth,
-      memCacheHeight: calculatedMemCacheHeight,
+      memCacheWidth: memCacheWidth ??
+          ((width != null && width!.isFinite) ? (width! * 2).toInt() : 700),
+      memCacheHeight: memCacheHeight ??
+          ((height != null && height!.isFinite) ? (height! * 2).toInt() : null),
       maxWidthDiskCache: 800, // Limit disk cache size
       maxHeightDiskCache: 1200,
       placeholder: (context, url) => Container(

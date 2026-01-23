@@ -16,15 +16,13 @@ class MovieList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const int crossAxisCount = 2;
-    const double crossAxisSpacing = 12;
-    const double padding = 16;
-
-    // Calculate precise memory cache size based on screen width and device pixel ratio.
-    // Logic: (Screen Width - Padding - Spacing) / Columns * DevicePixelRatio
-    final double screenWidth = MediaQuery.of(context).size.width;
-    final double itemWidth = (screenWidth - (padding * 2) - ((crossAxisCount - 1) * crossAxisSpacing)) / crossAxisCount;
-    final int memCacheWidth = (itemWidth * MediaQuery.of(context).devicePixelRatio).toInt();
+    // Calculate optimal cache width for grid items
+    // (Screen Width - Padding) / Columns * Pixel Density
+    final screenWidth = MediaQuery.of(context).size.width;
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    // Assuming 32px horizontal padding (16*2) and 12px spacing.
+    // Being slightly generous to be safe.
+    final cacheWidth = ((screenWidth - 32) / 2 * devicePixelRatio).ceil();
 
     return SliverGrid(
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -41,7 +39,7 @@ class MovieList extends StatelessWidget {
             heroTag:
                 heroTagPrefix != null ? '${heroTagPrefix}_${movie.id}' : null,
             onTap: () => onMovieTap(movie),
-            memCacheWidth: memCacheWidth,
+            memCacheWidth: cacheWidth,
           );
         },
         childCount: movies.length,
