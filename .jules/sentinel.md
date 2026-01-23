@@ -6,3 +6,8 @@
 **Vulnerability:** The `PrettyDioLogger` was being added to the Dio interceptors unconditionally, which means all network requests and responses (including potential sensitive data like tokens or PII) would be logged to the console in production builds.
 **Learning:** Development tools that log sensitive information must always be guarded by environment checks (e.g., `kDebugMode`). Developers often forget that "Release" builds strip some debugging info but `print` or `log` statements might still function depending on the implementation, and specifically `PrettyDioLogger` uses `log` which can leak info if not disabled.
 **Prevention:** Always wrap logging interceptors or verbose logging logic in `if (kDebugMode) { ... }` blocks. Review `Dio` client setup during code reviews.
+
+## 2026-01-23 - Client-Side Validation Hardening Risks
+**Vulnerability:** Weak password requirements (< 8 chars) allowed weak passwords.
+**Learning:** Simply increasing client-side validation length (e.g., 6 -> 8) on a shared `AuthDialog` (used for both Login and Register) can lock out existing users with legacy passwords.
+**Prevention:** Decouple Login and Registration validation logic. Enforce strict policies on Registration/Password Change, but allow legacy passwords on Login (potentially with a warning/prompt to upgrade).
