@@ -9,3 +9,7 @@
 ## 2024-05-25 - Conditional LayoutBuilder Optimization
 **Learning:** `LayoutBuilder` adds unnecessary overhead (layout pass) when dimensions are already known via explicit parameters (e.g. `memCacheWidth` or finite `width`).
 **Action:** Skip `LayoutBuilder` wrapper in `AppCachedImage` when `memCacheWidth` is provided or `width` is finite, reducing widget depth and layout callbacks for list/grid items.
+
+## 2024-05-26 - Lazy Auth State Access
+**Learning:** `BlocBuilder` is often overused. If a widget's appearance doesn't depend on a Bloc's state, but its interaction does, use `context.read<Bloc>().state` inside the callback instead of wrapping the whole widget in `BlocBuilder`.
+**Action:** Audit `BlocBuilder` usage. If `state` is only used in `onTap`/`onPressed`, remove `BlocBuilder` and access state lazily.
