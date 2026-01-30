@@ -300,7 +300,7 @@ CREATE TRIGGER on_auth_user_created
     EXECUTE FUNCTION public.handle_new_user();
 
 -- ============================================================================
--- ROW LEVEL SECURITY (RLS) POLICIES
+-- ROW LEVEL SECURITY (RLS) POLICIES (UPDATED)
 -- ============================================================================
 
 -- Enable RLS on all tables
@@ -311,65 +311,62 @@ ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comment_rate_limits ENABLE ROW LEVEL SECURITY;
 
--- Comments policies
-CREATE POLICY "comments_select_policy" ON public.comments
-    FOR SELECT USING (true);
+-- 1. Comments policies
+DROP POLICY IF EXISTS "comments_select_policy" ON public.comments;
+CREATE POLICY "comments_select_policy" ON public.comments FOR SELECT USING (true);
 
-CREATE POLICY "comments_insert_policy" ON public.comments
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
+DROP POLICY IF EXISTS "comments_insert_policy" ON public.comments;
+CREATE POLICY "comments_insert_policy" ON public.comments FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
 
-CREATE POLICY "comments_update_policy" ON public.comments
-    FOR UPDATE USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "comments_update_policy" ON public.comments;
+CREATE POLICY "comments_update_policy" ON public.comments FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
 
-CREATE POLICY "comments_delete_policy" ON public.comments
-    FOR DELETE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "comments_delete_policy" ON public.comments;
+CREATE POLICY "comments_delete_policy" ON public.comments FOR DELETE USING (auth.uid() = user_id);
 
--- Comment likes policies
-CREATE POLICY "comment_likes_select_policy" ON public.comment_likes
-    FOR SELECT USING (true);
+-- 2. Comment likes policies
+DROP POLICY IF EXISTS "comment_likes_select_policy" ON public.comment_likes;
+CREATE POLICY "comment_likes_select_policy" ON public.comment_likes FOR SELECT USING (true);
 
-CREATE POLICY "comment_likes_insert_policy" ON public.comment_likes
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
+DROP POLICY IF EXISTS "comment_likes_insert_policy" ON public.comment_likes;
+CREATE POLICY "comment_likes_insert_policy" ON public.comment_likes FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
 
-CREATE POLICY "comment_likes_delete_policy" ON public.comment_likes
-    FOR DELETE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "comment_likes_delete_policy" ON public.comment_likes;
+CREATE POLICY "comment_likes_delete_policy" ON public.comment_likes FOR DELETE USING (auth.uid() = user_id);
 
--- Comment dislikes policies
-CREATE POLICY "comment_dislikes_select_policy" ON public.comment_dislikes
-    FOR SELECT USING (true);
+-- 3. Comment dislikes policies
+DROP POLICY IF EXISTS "comment_dislikes_select_policy" ON public.comment_dislikes;
+CREATE POLICY "comment_dislikes_select_policy" ON public.comment_dislikes FOR SELECT USING (true);
 
-CREATE POLICY "comment_dislikes_insert_policy" ON public.comment_dislikes
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
+DROP POLICY IF EXISTS "comment_dislikes_insert_policy" ON public.comment_dislikes;
+CREATE POLICY "comment_dislikes_insert_policy" ON public.comment_dislikes FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = user_id);
 
-CREATE POLICY "comment_dislikes_delete_policy" ON public.comment_dislikes
-    FOR DELETE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "comment_dislikes_delete_policy" ON public.comment_dislikes;
+CREATE POLICY "comment_dislikes_delete_policy" ON public.comment_dislikes FOR DELETE USING (auth.uid() = user_id);
 
--- Profiles policies
-CREATE POLICY "profiles_select_policy" ON public.profiles
-    FOR SELECT USING (true);
+-- 4. Profiles policies
+DROP POLICY IF EXISTS "profiles_select_policy" ON public.profiles;
+CREATE POLICY "profiles_select_policy" ON public.profiles FOR SELECT USING (true);
 
-CREATE POLICY "profiles_insert_policy" ON public.profiles
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = id);
+DROP POLICY IF EXISTS "profiles_insert_policy" ON public.profiles;
+CREATE POLICY "profiles_insert_policy" ON public.profiles FOR INSERT WITH CHECK (auth.role() = 'authenticated' AND auth.uid() = id);
 
-CREATE POLICY "profiles_update_policy" ON public.profiles
-    FOR UPDATE USING (auth.uid() = id)
-    WITH CHECK (auth.uid() = id);
+DROP POLICY IF EXISTS "profiles_update_policy" ON public.profiles;
+CREATE POLICY "profiles_update_policy" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 
--- Notifications policies
-CREATE POLICY "notifications_select_policy" ON public.notifications
-    FOR SELECT USING (auth.uid() = user_id);
+-- 5. Notifications policies
+DROP POLICY IF EXISTS "notifications_select_policy" ON public.notifications;
+CREATE POLICY "notifications_select_policy" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
 
-CREATE POLICY "notifications_insert_policy" ON public.notifications
-    FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+DROP POLICY IF EXISTS "notifications_insert_policy" ON public.notifications;
+CREATE POLICY "notifications_insert_policy" ON public.notifications FOR INSERT WITH CHECK (auth.role() = 'authenticated');
 
-CREATE POLICY "notifications_update_policy" ON public.notifications
-    FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "notifications_update_policy" ON public.notifications;
+CREATE POLICY "notifications_update_policy" ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
 
--- Rate limits policies (user can only see their own)
-CREATE POLICY "rate_limits_select_policy" ON public.comment_rate_limits
-    FOR SELECT USING (auth.uid() = user_id);
-
+-- 6. Rate limits policies
+DROP POLICY IF EXISTS "rate_limits_select_policy" ON public.comment_rate_limits;
+CREATE POLICY "rate_limits_select_policy" ON public.comment_rate_limits FOR SELECT USING (auth.uid() = user_id);
 -- ============================================================================
 -- INDEXES
 -- ============================================================================

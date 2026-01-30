@@ -90,9 +90,9 @@ class CommentCubit extends Cubit<CommentState> {
       return;
     }
 
-    await state.mapOrNull(
-      loaded: (currentState) async {
-        emit(currentState.copyWith(isAddingComment: true));
+    await state.maybeMap(
+      loaded: (loadedState) async {
+        emit(loadedState.copyWith(isAddingComment: true));
         debugPrint('⏳ Emitting loading state');
 
         final result = await _addComment(
@@ -106,32 +106,28 @@ class CommentCubit extends Cubit<CommentState> {
         result.fold(
           (failure) {
             debugPrint('❌ Failed to add comment: ${failure.message}');
-            emit(currentState.copyWith(isAddingComment: false));
+            emit(loadedState.copyWith(isAddingComment: false));
             // Emit error as a separate state that preserves comments
             emit(
               CommentState.loaded(
-                comments: currentState.comments,
-                sortType: currentState.sortType,
+                comments: loadedState.comments,
+                sortType: loadedState.sortType,
                 errorMessage: 'Không thể gửi bình luận: ${failure.message}',
               ),
             );
           },
-          (newComment) {
+          (newComment) async {
             debugPrint('✅ Comment added successfully: ${newComment.id}');
-            final updatedComments = List<Comment>.from(currentState.comments)
-              ..insert(0, newComment);
 
-            final sorted = _sortComments(
-              updatedComments,
-              currentState.sortType,
-            );
-
-            emit(
-              currentState.copyWith(comments: sorted, isAddingComment: false),
-            );
-            debugPrint('✅ State updated with new comment');
+            // Reload comments from server to ensure we have the latest data
+            debugPrint('🔄 Reloading comments to refresh list...');
+            await loadComments(_currentVideoId!);
           },
         );
+      },
+      orElse: () async {
+        debugPrint('⚠️ State is not loaded, reloading comments first...');
+        await loadComments(_currentVideoId!);
       },
     );
   }

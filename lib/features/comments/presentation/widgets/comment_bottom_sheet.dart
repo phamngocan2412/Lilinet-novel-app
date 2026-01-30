@@ -33,14 +33,11 @@ class _CommentBottomSheetView extends StatefulWidget {
       _CommentBottomSheetViewState();
 }
 
-class _CommentBottomSheetWrapper extends StatelessWidget {
+class CommentBottomSheetWrapper extends StatelessWidget {
   final String videoId;
   final Widget child;
 
-  const _CommentBottomSheetWrapper({
-    required this.videoId,
-    required this.child,
-  });
+  const CommentBottomSheetWrapper({required this.videoId, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +82,11 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
   void _showLoginPrompt() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Row(
+        content: const Row(
           children: [
-            const Icon(Icons.lock_outline, color: Colors.white),
-            const SizedBox(width: 8),
-            const Text('Vui lòng đăng nhập để thực hiện thao tác này'),
+            Icon(Icons.lock_outline, color: Colors.white),
+            SizedBox(width: 8),
+            Text('Vui lòng đăng nhập để thực hiện thao tác này'),
           ],
         ),
         backgroundColor: Colors.orangeAccent,

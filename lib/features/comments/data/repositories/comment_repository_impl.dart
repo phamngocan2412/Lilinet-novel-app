@@ -51,13 +51,11 @@ class CommentRepositoryImpl implements CommentRepository {
     required String videoId,
     required String content,
     String? parentId,
-    String? userId,
+    String? userId, // No longer used - Supabase handles auth internally
   }) {
     return safeCall(() async {
-      // Require authentication - no guest comments allowed
-      if (userId == null) {
-        throw Exception('Vui lòng đăng nhập để bình luận');
-      }
+      // Note: Authentication is handled in SupabaseCommentDataSource
+      // which checks _supabase.auth.currentUser
 
       // Try to sync to server first
       try {

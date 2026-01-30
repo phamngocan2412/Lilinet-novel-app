@@ -94,10 +94,22 @@ class _HomeTrendingSectionView extends StatelessWidget {
                 comment: comment,
                 onTap: () {
                   // Navigate to video with comment highlight
-                  // Use mediaType from comment, default to 'TV Series' if not available
                   final mediaType = comment.mediaType ?? 'TV Series';
+                  final videoId = comment.videoId;
+
+                  // Validate videoId
+                  if (videoId.isEmpty || videoId.startsWith('mock-')) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Không thể mở phim này (dữ liệu mẫu)'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    return;
+                  }
+
                   context.push(
-                    '/movie/${comment.videoId}?type=$mediaType',
+                    '/movie/$videoId?type=$mediaType',
                     extra: {'highlightCommentId': comment.id},
                   );
                 },
