@@ -22,12 +22,10 @@ class CommentModel {
     required this.createdAt,
   });
 
-  // Factory to create from Supabase JSON later
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
       id: json['id'] as String,
-      userName:
-          json['user_name'] ?? 'Anonymous', // Adjust based on your DB schema
+      userName: json['user_name'] ?? 'Anonymous',
       userAvatarUrl: json['avatar_url'],
       content: json['content'] as String,
       createdAt: DateTime.parse(json['created_at']),
@@ -278,7 +276,7 @@ class _CommentSectionViewState extends State<_CommentSectionView> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
-        color: Color(0xFF1E1E1E), // Slightly lighter than background
+        color: Color(0xFF1E1E1E),
         border: Border(top: BorderSide(color: Colors.white10)),
       ),
       child: Row(

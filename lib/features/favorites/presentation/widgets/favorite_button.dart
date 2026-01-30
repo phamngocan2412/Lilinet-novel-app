@@ -27,41 +27,43 @@ class FavoriteButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<AuthBloc, AuthState>(
-      builder: (context, authState) {
-        return BlocSelector<FavoritesBloc, FavoritesState, bool>(
-          selector: (state) {
-            if (state is FavoritesLoaded) {
-              return state.isFavorite(movieId);
-            }
-            return false;
-          },
-          builder: (context, isFavorite) {
-            return Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
-                shape: BoxShape.circle,
-              ),
-              child: IconButton(
-                icon: Icon(
-                  isFavorite ? Icons.favorite : Icons.favorite_border,
-                  color: isFavorite
-                      ? Theme.of(context)
-                            .colorScheme
-                            .error // Red
-                      : Theme.of(context).colorScheme.onSurface,
-                  size: size,
-                ),
-                onPressed: () {
-                  // ★★★ LAZY LOGIN LOGIC HERE ★★★
-                  if (authState is! Authenticated) {
-                    // User NOT logged in → Show login dialog
-                    showDialog(
-                      context: context,
-                      builder: (dialogContext) => AuthDialog(
-                        onLoginSuccess: () {
-                          // After login success, add to favorites automatically
-                          context.read<FavoritesBloc>().add(
+    // Optimization: Removed redundant BlocBuilder<AuthBloc, AuthState> wrapper.
+    // The button doesn't change appearance based on auth state, only behavior.
+    // Auth state is now checked lazily in onPressed.
+    return BlocSelector<FavoritesBloc, FavoritesState, bool>(
+      selector: (state) {
+        if (state is FavoritesLoaded) {
+          return state.isFavorite(movieId);
+        }
+        return false;
+      },
+      builder: (context, isFavorite) {
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface.withOpacity(0.5),
+            shape: BoxShape.circle,
+          ),
+          child: IconButton(
+            icon: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              color: isFavorite
+                  ? Theme.of(context)
+                      .colorScheme
+                      .error // Red
+                  : Theme.of(context).colorScheme.onSurface,
+              size: size,
+            ),
+            onPressed: () {
+              final authState = context.read<AuthBloc>().state;
+              // ★★★ LAZY LOGIN LOGIC HERE ★★★
+              if (authState is! Authenticated) {
+                // User NOT logged in → Show login dialog
+                showDialog(
+                  context: context,
+                  builder: (dialogContext) => AuthDialog(
+                    onLoginSuccess: () {
+                      // After login success, add to favorites automatically
+                      context.read<FavoritesBloc>().add(
                             AddFavoriteEvent(
                               movieId: movieId,
                               movieTitle: movieTitle,
@@ -69,17 +71,17 @@ class FavoriteButton extends StatelessWidget {
                               movieType: movieType,
                             ),
                           );
-                        },
-                      ),
-                    );
-                  } else {
-                    // User IS logged in → Toggle favorite
-                    if (isFavorite) {
-                      context.read<FavoritesBloc>().add(
+                    },
+                  ),
+                );
+              } else {
+                // User IS logged in → Toggle favorite
+                if (isFavorite) {
+                  context.read<FavoritesBloc>().add(
                         RemoveFavoriteEvent(movieId),
                       );
-                    } else {
-                      context.read<FavoritesBloc>().add(
+                } else {
+                  context.read<FavoritesBloc>().add(
                         AddFavoriteEvent(
                           movieId: movieId,
                           movieTitle: movieTitle,
@@ -87,12 +89,10 @@ class FavoriteButton extends StatelessWidget {
                           movieType: movieType,
                         ),
                       );
-                    }
-                  }
-                },
-              ),
-            );
-          },
+                }
+              }
+            },
+          ),
         );
       },
     );

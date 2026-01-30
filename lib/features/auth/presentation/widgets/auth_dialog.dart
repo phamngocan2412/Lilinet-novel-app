@@ -18,6 +18,8 @@ class _AuthDialogState extends State<AuthDialog> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _isObscured = true;
+  bool _isLogin = true;
 
   @override
   void dispose() {
@@ -65,17 +67,39 @@ class _AuthDialogState extends State<AuthDialog> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Welcome',
+                      _isLogin ? 'Welcome Back' : 'Create Account',
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     const SizedBox(height: 8),
-                    Text(
-                      'Enter your details to continue',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                      textAlign: TextAlign.center,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        TextButton(
+                          onPressed: () => setState(() => _isLogin = true),
+                          child: Text(
+                            'Login',
+                            style: TextStyle(
+                              fontWeight: _isLogin ? FontWeight.bold : null,
+                              decoration:
+                                  _isLogin ? TextDecoration.underline : null,
+                            ),
+                          ),
+                        ),
+                        const Text('|'),
+                        TextButton(
+                          onPressed: () => setState(() => _isLogin = false),
+                          child: Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              fontWeight: !_isLogin ? FontWeight.bold : null,
+                              decoration:
+                                  !_isLogin ? TextDecoration.underline : null,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 24),
-                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _usernameController,
                       decoration: const InputDecoration(
@@ -97,19 +121,32 @@ class _AuthDialogState extends State<AuthDialog> {
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _passwordController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Password',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.lock),
+                        border: const OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscured
+                                ? Icons.visibility
+                                : Icons.visibility_off,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscured = !_isObscured;
+                            });
+                          },
+                        ),
                       ),
-                      obscureText: true,
+                      obscureText: _isObscured,
                       enabled: !isLoading,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Please enter your password';
                         }
-                        if (value.length < 6) {
-                          return 'Password must be at least 6 characters';
+                        // Only enforce length on registration to avoid blocking legacy users
+                        if (!_isLogin && value.length < 8) {
+                          return 'Password must be at least 8 characters';
                         }
                         return null;
                       },
@@ -128,7 +165,7 @@ class _AuthDialogState extends State<AuthDialog> {
                                   color: Colors.white,
                                 ),
                               )
-                            : const Text('Continue'),
+                            : Text(_isLogin ? 'Login' : 'Sign Up'),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -156,6 +193,7 @@ class _AuthDialogState extends State<AuthDialog> {
             AuthSubmitted(
               username: _usernameController.text.trim(),
               password: _passwordController.text,
+              isLogin: _isLogin,
             ),
           );
     }

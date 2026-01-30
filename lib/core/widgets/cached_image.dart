@@ -8,6 +8,8 @@ class AppCachedImage extends StatelessWidget {
   final double? height;
   final BoxFit fit;
   final double? borderRadius;
+  final int? memCacheWidth;
+  final int? memCacheHeight;
 
   const AppCachedImage({
     super.key,
@@ -16,6 +18,8 @@ class AppCachedImage extends StatelessWidget {
     this.height,
     this.fit = BoxFit.cover,
     this.borderRadius,
+    this.memCacheWidth,
+    this.memCacheHeight,
   });
 
   @override
@@ -42,6 +46,70 @@ class AppCachedImage extends StatelessWidget {
       return errorWidget;
     }
 
+    // Optimization: Skip LayoutBuilder if we already have explicit dimensions.
+    // This reduces the widget tree depth and RenderObject overhead.
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+
+    if (memCacheWidth != null || (width != null && width!.isFinite)) {
+      int? optimalMemCacheWidth = memCacheWidth;
+      if (optimalMemCacheWidth == null && width != null && width!.isFinite) {
+        optimalMemCacheWidth = (width! * devicePixelRatio).toInt();
+      }
+
+      if (optimalMemCacheWidth != null && optimalMemCacheWidth < 1) {
+        optimalMemCacheWidth = 1;
+      }
+
+      int? optimalMemCacheHeight = _calculateOptimalHeight(devicePixelRatio);
+
+      return _buildImage(
+        context,
+        optimalMemCacheWidth,
+        optimalMemCacheHeight,
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Calculate optimal cache width based on constraints
+        int? optimalMemCacheWidth;
+
+        if (constraints.hasBoundedWidth) {
+          optimalMemCacheWidth =
+              (constraints.maxWidth * devicePixelRatio).toInt();
+        } else {
+          optimalMemCacheWidth = 700; // Fallback
+        }
+
+        if (optimalMemCacheWidth < 1) {
+          optimalMemCacheWidth = 1;
+        }
+
+        int? optimalMemCacheHeight = _calculateOptimalHeight(devicePixelRatio);
+
+        return _buildImage(
+          context,
+          optimalMemCacheWidth,
+          optimalMemCacheHeight,
+        );
+      },
+    );
+  }
+
+  int? _calculateOptimalHeight(double devicePixelRatio) {
+    int? optimalMemCacheHeight = memCacheHeight;
+    if (optimalMemCacheHeight == null && height != null && height!.isFinite) {
+      optimalMemCacheHeight = (height! * devicePixelRatio).toInt();
+      if (optimalMemCacheHeight < 1) optimalMemCacheHeight = 1;
+    }
+    return optimalMemCacheHeight;
+  }
+
+  Widget _buildImage(
+    BuildContext context,
+    int? optimalMemCacheWidth,
+    int? optimalMemCacheHeight,
+  ) {
     final image = CachedNetworkImage(
       imageUrl: imageUrl,
       width: width,
@@ -49,11 +117,8 @@ class AppCachedImage extends StatelessWidget {
       fit: fit,
       fadeInDuration: const Duration(milliseconds: 300),
       fadeOutDuration: const Duration(milliseconds: 100),
-      memCacheWidth: (width != null && width!.isFinite)
-          ? (width! * 2).toInt()
-          : 700, // Fallback to prevent OOM with infinite width
-      memCacheHeight:
-          (height != null && height!.isFinite) ? (height! * 2).toInt() : null,
+      memCacheWidth: optimalMemCacheWidth,
+      memCacheHeight: optimalMemCacheHeight,
       maxWidthDiskCache: 800, // Limit disk cache size
       maxHeightDiskCache: 1200,
       placeholder: (context, url) => Container(
