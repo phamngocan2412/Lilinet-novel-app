@@ -335,7 +335,15 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                         ),
                       ),
                       loaded:
-                          (comments, sortType, expandedReplies, isAdding, _) {
+                          (
+                            comments,
+                            sortType,
+                            expandedReplies,
+                            isAdding,
+                            _,
+                            likedCommentIds,
+                            __,
+                          ) {
                             if (comments.isEmpty) {
                               return Center(
                                 child: Column(
@@ -405,6 +413,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                                       .read<CommentCubit>()
                                       .toggleReplies(comment.id),
                                   isRepliesExpanded: isExpanded,
+                                  isLiked: likedCommentIds.contains(comment.id),
                                 );
                               },
                             );
@@ -488,6 +497,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
             ),
           ),
           const SizedBox(width: 8),
+          // Send button - keep same appearance but disable when sending (spam prevention)
           BlocBuilder<CommentCubit, CommentState>(
             builder: (context, state) {
               final isSending = state.maybeMap(
@@ -495,25 +505,18 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                 orElse: () => false,
               );
 
-              if (isSending) {
-                return const SizedBox(
-                  width: 40,
-                  height: 40,
-                  child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                );
-              }
-
               return Container(
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: isSending
+                      ? Theme.of(context).disabledColor
+                      : Theme.of(context).colorScheme.primary,
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
                   icon: const Icon(Icons.send, color: Colors.white, size: 20),
-                  onPressed: _sendReply,
+                  onPressed: isSending
+                      ? null // Disable when sending to prevent spam
+                      : _sendReply,
                   padding: const EdgeInsets.all(8),
                   constraints: const BoxConstraints(),
                 ),

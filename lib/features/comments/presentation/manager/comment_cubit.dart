@@ -133,9 +133,24 @@ class CommentCubit extends Cubit<CommentState> {
   }
 
   Future<void> likeComment(String commentId) async {
-    // Optimistic update
     state.mapOrNull(
       loaded: (currentState) {
+        // Prevent multiple likes
+        if (currentState.likedCommentIds.contains(commentId)) {
+          return;
+        }
+        if (currentState.likingInProgress.contains(commentId)) {
+          return;
+        }
+
+        // Add to likingInProgress
+        final newLikingInProgress = Set<String>.from(
+          currentState.likingInProgress,
+        )..add(commentId);
+
+        emit(currentState.copyWith(likingInProgress: newLikingInProgress));
+
+        // Optimistic update
         final updatedComments = currentState.comments.map((c) {
           if (c.id == commentId) {
             return c.copyWith(likes: c.likes + 1);
@@ -143,11 +158,21 @@ class CommentCubit extends Cubit<CommentState> {
           return c;
         }).toList();
 
-        emit(currentState.copyWith(comments: updatedComments));
+        // Add to liked and remove from inProgress
+        final newLikedIds = Set<String>.from(currentState.likedCommentIds)
+          ..add(commentId);
+        final finalLikingInProgress = Set<String>.from(newLikingInProgress)
+          ..remove(commentId);
 
-        _likeComment(
-          commentId,
-        ); // Fire and forget (or handle rollback on error)
+        emit(
+          currentState.copyWith(
+            comments: updatedComments,
+            likedCommentIds: newLikedIds,
+            likingInProgress: finalLikingInProgress,
+          ),
+        );
+
+        _likeComment(commentId);
       },
     );
   }

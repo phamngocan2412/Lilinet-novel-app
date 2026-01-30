@@ -8,6 +8,8 @@ class CommentItem extends StatelessWidget {
   final VoidCallback onReply;
   final VoidCallback onToggleReplies;
   final bool isRepliesExpanded;
+  final bool isLiked;
+  final bool isReply;
 
   const CommentItem({
     super.key,
@@ -17,6 +19,8 @@ class CommentItem extends StatelessWidget {
     required this.onReply,
     required this.onToggleReplies,
     this.isRepliesExpanded = false,
+    this.isLiked = false,
+    this.isReply = false,
   });
 
   @override
@@ -28,6 +32,8 @@ class CommentItem extends StatelessWidget {
       onReply: onReply,
       onToggleReplies: onToggleReplies,
       isRepliesExpanded: isRepliesExpanded,
+      isLiked: isLiked,
+      isReply: isReply,
     );
   }
 }
@@ -39,6 +45,8 @@ class _CommentContent extends StatefulWidget {
   final VoidCallback onReply;
   final VoidCallback onToggleReplies;
   final bool isRepliesExpanded;
+  final bool isLiked;
+  final bool isReply;
 
   const _CommentContent({
     required this.comment,
@@ -47,6 +55,8 @@ class _CommentContent extends StatefulWidget {
     required this.onReply,
     required this.onToggleReplies,
     required this.isRepliesExpanded,
+    required this.isLiked,
+    required this.isReply,
   });
 
   @override
@@ -60,13 +70,19 @@ class _CommentContentState extends State<_CommentContent> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: widget.isReply ? 12 : 16,
+        vertical: widget.isReply ? 6 : 8,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Compact Avatar
-          _Avatar(imageUrl: widget.comment.avatarUrl),
+          // Avatar - smaller for replies
+          _Avatar(
+            imageUrl: widget.comment.avatarUrl,
+            radius: widget.isReply ? 14 : 16,
+          ),
           const SizedBox(width: 10),
 
           // Content Column
@@ -75,46 +91,69 @@ class _CommentContentState extends State<_CommentContent> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Header Row - Name, Time, Edited
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        widget.comment.userName,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                        overflow: TextOverflow.ellipsis,
+                // Comment Container with background
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header Row - Name, Time
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Text(
+                              widget.comment.userName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: widget.isReply ? 12 : 13,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            '• ${widget.comment.displayTimeAgo}',
+                            style: TextStyle(
+                              fontSize: widget.isReply ? 10 : 11,
+                              color: theme.hintColor,
+                            ),
+                          ),
+                          if (widget.comment.isPinned) ...[
+                            const SizedBox(width: 4),
+                            Icon(
+                              Icons.push_pin,
+                              size: 10,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ],
+                        ],
                       ),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '• ${widget.comment.displayTimeAgo}',
-                      style: TextStyle(fontSize: 11, color: theme.hintColor),
-                    ),
-                    if (widget.comment.isPinned) ...[
-                      const SizedBox(width: 6),
-                      const Icon(
-                        Icons.push_pin,
-                        size: 12,
-                        color: Color(0xFFC6A664),
+
+                      const SizedBox(height: 4),
+
+                      // Comment Text
+                      _CommentText(
+                        content: widget.comment.content,
+                        showFull: _showFullText,
+                        onToggle: () =>
+                            setState(() => _showFullText = !_showFullText),
+                        fontSize: widget.isReply ? 12 : 13,
                       ),
                     ],
-                  ],
+                  ),
                 ),
 
                 const SizedBox(height: 4),
-
-                // Comment Text with expand/collapse
-                _CommentText(
-                  content: widget.comment.content,
-                  showFull: _showFullText,
-                  onToggle: () =>
-                      setState(() => _showFullText = !_showFullText),
-                ),
-
-                const SizedBox(height: 6),
 
                 // Action Buttons Row
                 _ActionButtons(
@@ -126,12 +165,17 @@ class _CommentContentState extends State<_CommentContent> {
                       ? widget.onToggleReplies
                       : null,
                   isRepliesExpanded: widget.isRepliesExpanded,
+                  isLiked: widget.isLiked,
+                  isReply: widget.isReply,
                 ),
 
-                // Replies Section
+                // Replies Section - nested and indented
                 if (widget.isRepliesExpanded &&
                     widget.comment.replies.isNotEmpty)
-                  _RepliesList(replies: widget.comment.replies),
+                  _RepliesSection(
+                    replies: widget.comment.replies,
+                    repliesCount: widget.comment.repliesCount,
+                  ),
               ],
             ),
           ),
@@ -143,23 +187,24 @@ class _CommentContentState extends State<_CommentContent> {
 
 class _Avatar extends StatelessWidget {
   final String imageUrl;
+  final double radius;
 
-  const _Avatar({required this.imageUrl});
+  const _Avatar({required this.imageUrl, this.radius = 16});
 
   @override
   Widget build(BuildContext context) {
     return CircleAvatar(
-      radius: 16,
+      radius: radius,
       backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: ClipOval(
         child: Image.network(
           imageUrl,
-          width: 32,
-          height: 32,
+          width: radius * 2,
+          height: radius * 2,
           fit: BoxFit.cover,
           errorBuilder: (_, __, ___) => Icon(
             Icons.person,
-            size: 18,
+            size: radius * 0.9,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
@@ -172,49 +217,49 @@ class _CommentText extends StatelessWidget {
   final String content;
   final bool showFull;
   final VoidCallback onToggle;
+  final double fontSize;
 
   const _CommentText({
     required this.content,
     required this.showFull,
     required this.onToggle,
+    this.fontSize = 13,
   });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Nếu text ngắn, hiển thị full
-    if (content.length <= 100) {
+    if (content.length <= 120) {
       return Text(
         content,
         style: TextStyle(
-          fontSize: 13,
+          fontSize: fontSize,
           height: 1.3,
           color: theme.textTheme.bodyMedium?.color,
         ),
       );
     }
 
-    // Text dài: có thể thu gọn
     return GestureDetector(
       onTap: onToggle,
       child: RichText(
         text: TextSpan(
           style: TextStyle(
-            fontSize: 13,
+            fontSize: fontSize,
             height: 1.3,
             color: theme.textTheme.bodyMedium?.color,
           ),
           children: [
             TextSpan(
-              text: showFull ? content : '${content.substring(0, 100)}... ',
+              text: showFull ? content : '${content.substring(0, 120)}... ',
             ),
             TextSpan(
-              text: showFull ? ' Thu gọn' : ' Xem thêm',
+              text: showFull ? 'Thu gọn' : 'Xem thêm',
               style: TextStyle(
                 color: theme.colorScheme.primary,
                 fontWeight: FontWeight.w500,
-                fontSize: 12,
+                fontSize: fontSize - 1,
               ),
             ),
           ],
@@ -231,6 +276,8 @@ class _ActionButtons extends StatelessWidget {
   final VoidCallback onReply;
   final VoidCallback? onToggleReplies;
   final bool isRepliesExpanded;
+  final bool isLiked;
+  final bool isReply;
 
   const _ActionButtons({
     required this.likes,
@@ -239,6 +286,8 @@ class _ActionButtons extends StatelessWidget {
     required this.onReply,
     this.onToggleReplies,
     required this.isRepliesExpanded,
+    required this.isLiked,
+    required this.isReply,
   });
 
   @override
@@ -248,46 +297,96 @@ class _ActionButtons extends StatelessWidget {
     return Row(
       children: [
         // Like Button
-        _CompactButton(
-          icon: Icons.thumb_up_outlined,
-          label: likes > 0 ? likes.toString() : null,
+        GestureDetector(
           onTap: onLike,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
+                size: isReply ? 12 : 14,
+                color: isLiked ? theme.colorScheme.primary : theme.hintColor,
+              ),
+              if (likes > 0) ...[
+                const SizedBox(width: 4),
+                Text(
+                  likes.toString(),
+                  style: TextStyle(
+                    fontSize: isReply ? 11 : 12,
+                    color: isLiked
+                        ? theme.colorScheme.primary
+                        : theme.hintColor,
+                    fontWeight: isLiked ? FontWeight.w600 : FontWeight.normal,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
 
         const SizedBox(width: 16),
 
         // Reply Button
-        _CompactButton(
-          icon: Icons.chat_bubble_outline,
-          label: 'Trả lời',
+        GestureDetector(
           onTap: onReply,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.chat_bubble_outline,
+                size: isReply ? 12 : 14,
+                color: theme.hintColor,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'Phản hồi',
+                style: TextStyle(
+                  fontSize: isReply ? 11 : 12,
+                  color: theme.hintColor,
+                ),
+              ),
+            ],
+          ),
         ),
 
-        // Replies Toggle (if has replies)
-        if (repliesCount > 0) ...[
+        // Replies Toggle with count
+        if (repliesCount > 0 && onToggleReplies != null) ...[
           const SizedBox(width: 16),
           GestureDetector(
             onTap: onToggleReplies,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  isRepliesExpanded
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  size: 16,
-                  color: theme.colorScheme.primary,
-                ),
-                const SizedBox(width: 2),
-                Text(
-                  '$repliesCount',
-                  style: TextStyle(
-                    fontSize: 12,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+              decoration: BoxDecoration(
+                color: isRepliesExpanded
+                    ? theme.colorScheme.primary.withValues(alpha: 0.1)
+                    : theme.colorScheme.surfaceContainerHighest.withValues(
+                        alpha: 0.5,
+                      ),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isRepliesExpanded
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    size: isReply ? 12 : 14,
                     color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.w500,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 2),
+                  Text(
+                    isRepliesExpanded
+                        ? 'Ẩn $repliesCount phản hồi'
+                        : '$repliesCount phản hồi',
+                    style: TextStyle(
+                      fontSize: isReply ? 11 : 12,
+                      color: theme.colorScheme.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -296,65 +395,51 @@ class _ActionButtons extends StatelessWidget {
   }
 }
 
-class _CompactButton extends StatelessWidget {
-  final IconData icon;
-  final String? label;
-  final VoidCallback onTap;
-
-  const _CompactButton({required this.icon, this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: theme.hintColor),
-          if (label != null) ...[
-            const SizedBox(width: 4),
-            Text(
-              label!,
-              style: TextStyle(fontSize: 12, color: theme.hintColor),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-class _RepliesList extends StatelessWidget {
+class _RepliesSection extends StatelessWidget {
   final List<Comment> replies;
+  final int repliesCount;
 
-  const _RepliesList({required this.replies});
+  const _RepliesSection({required this.replies, required this.repliesCount});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 8, left: 8),
-      padding: const EdgeInsets.only(left: 8),
-      decoration: BoxDecoration(
-        border: Border(
-          left: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.3),
-            width: 2,
-          ),
-        ),
-      ),
+      margin: const EdgeInsets.only(top: 8, left: 36),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: replies.map((reply) {
-          return CommentItem(
-            comment: reply,
-            onLike: () {},
-            onDislike: () {},
-            onReply: () {},
-            onToggleReplies: () {},
-          );
-        }).toList(),
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Replies list
+          ...replies.map((reply) {
+            return CommentItem(
+              comment: reply,
+              onLike: () {},
+              onDislike: () {},
+              onReply: () {},
+              onToggleReplies: () {},
+              isReply: true,
+            );
+          }),
+
+          // "View more replies" button if there are more replies than shown
+          if (replies.length < repliesCount)
+            Padding(
+              padding: const EdgeInsets.only(left: 12, top: 4),
+              child: GestureDetector(
+                onTap: () {
+                  // TODO: Load more replies
+                },
+                child: Text(
+                  'Xem thêm ${repliesCount - replies.length} phản hồi',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

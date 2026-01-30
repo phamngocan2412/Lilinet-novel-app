@@ -15,6 +15,8 @@ class CommentState with _$CommentState {
     @Default({}) Map<String, List<Comment>> expandedReplies,
     @Default(false) bool isAddingComment,
     String? errorMessage,
+    @Default({}) Set<String> likedCommentIds,
+    @Default({}) Set<String> likingInProgress,
   }) = _Loaded;
   const factory CommentState.error(String message) = _Error;
 }

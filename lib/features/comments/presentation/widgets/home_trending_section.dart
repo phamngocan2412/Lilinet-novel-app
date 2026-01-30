@@ -13,13 +13,13 @@ class HomeTrendingSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => getIt<HomeTrendingCubit>()..loadTrendingComments(),
-      child: const _HomeTrendingSectionView(),
+      child: const HomeTrendingSectionView(),
     );
   }
 }
 
-class _HomeTrendingSectionView extends StatelessWidget {
-  const _HomeTrendingSectionView({super.key});
+class HomeTrendingSectionView extends StatelessWidget {
+  const HomeTrendingSectionView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -63,11 +63,11 @@ class _HomeTrendingSectionView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Row(
             children: [
-              const Text(
+              Text(
                 'BÌNH LUẬN NỔI BẬT',
                 style: TextStyle(
                   fontSize: 16,
@@ -75,8 +75,8 @@ class _HomeTrendingSectionView extends StatelessWidget {
                   letterSpacing: 1.0,
                 ),
               ),
-              const SizedBox(width: 8),
-              const Text('🔥', style: TextStyle(fontSize: 18)),
+              SizedBox(width: 8),
+              Text('🔥', style: TextStyle(fontSize: 18)),
             ],
           ),
         ),
@@ -90,7 +90,7 @@ class _HomeTrendingSectionView extends StatelessWidget {
             itemCount: comments.length,
             itemBuilder: (context, index) {
               final comment = comments[index];
-              return _TrendingCommentCard(
+              return TrendingCommentCard(
                 comment: comment,
                 onTap: () {
                   // Navigate to video with comment highlight
@@ -123,11 +123,11 @@ class _HomeTrendingSectionView extends StatelessWidget {
   }
 }
 
-class _TrendingCommentCard extends StatelessWidget {
+class TrendingCommentCard extends StatelessWidget {
   final Comment comment;
   final VoidCallback onTap;
 
-  const _TrendingCommentCard({
+  const TrendingCommentCard({
     super.key,
     required this.comment,
     required this.onTap,
@@ -261,11 +261,13 @@ abstract class HomeTrendingState {
   }) {
     if (this is HomeTrendingInitial) return initial();
     if (this is HomeTrendingLoading) return loading();
-    if (this is HomeTrendingLoaded)
+    if (this is HomeTrendingLoaded) {
       return loaded((this as HomeTrendingLoaded).comments);
+    }
     if (this is HomeTrendingEmpty) return empty();
-    if (this is HomeTrendingError)
+    if (this is HomeTrendingError) {
       return error((this as HomeTrendingError).message);
+    }
     throw Exception('Unknown state');
   }
 }

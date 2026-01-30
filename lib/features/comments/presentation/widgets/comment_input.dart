@@ -101,24 +101,23 @@ class _CommentInputState extends State<CommentInput> {
                   ),
           ),
           const SizedBox(width: 8),
-          if (_hasText || widget.isSending)
-            widget.isSending
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : IconButton(
-                    icon: Icon(
-                      Icons.send,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () {
+          // Send button - always visible but disabled when sending (spam prevention)
+          if (_hasText)
+            IconButton(
+              icon: Icon(
+                Icons.send,
+                color: widget.isSending
+                    ? Theme.of(context).disabledColor
+                    : Theme.of(context).colorScheme.primary,
+              ),
+              onPressed: widget.isSending
+                  ? null // Disable when sending to prevent spam
+                  : () {
                       widget.onSend(_controller.text);
                       _controller.clear();
                       FocusScope.of(context).unfocus();
                     },
-                  ),
+            ),
         ],
       ),
     );
