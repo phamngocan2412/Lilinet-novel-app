@@ -137,33 +137,35 @@ class HomePageView extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // Trending carousel
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverToBoxAdapter(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (trendingMovies.isNotEmpty) ...[
-                              Text(
-                                'TRENDING NOW',
-                                style: Theme.of(context).textTheme.headlineSmall
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                      letterSpacing: 1.2,
-                                    ),
-                              ),
-                              const SizedBox(height: 16),
-                              TrendingCarousel(
-                                movies: trendingMovies.take(5).toList(),
-                                onMovieTap: (movie) => context.push(
-                                  '/movie/${movie.id}?type=${movie.type}',
-                                  extra: movie,
-                                ),
+                  ),
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    sliver: SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (trendingMovies.isNotEmpty) ...[
+                            Text(
+                              'TRENDING NOW',
+                              style: Theme.of(context).textTheme.headlineSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w900,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    letterSpacing: 1.2,
+                                  ),
+                            ),
+                            const SizedBox(height: 16),
+                            TrendingCarousel(
+                              movies: trendingMovies.take(5).toList(),
+                              // Optimization: Calculate explicit cache width to avoid LayoutBuilder overhead
+                              memCacheWidth: ((MediaQuery.of(context).size.width - 32) *
+                                      MediaQuery.of(context).devicePixelRatio)
+                                  .toInt(),
+                              onMovieTap: (movie) => context.push(
+                                '/movie/${movie.id}?type=${movie.type}',
+                                extra: movie,
                               ),
                               const SizedBox(height: 32),
                             ],
