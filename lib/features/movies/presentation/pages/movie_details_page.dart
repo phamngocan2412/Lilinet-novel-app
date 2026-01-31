@@ -105,6 +105,16 @@ class _MovieDetailsViewState extends State<MovieDetailsView> {
 
   @override
   Widget build(BuildContext context) {
+    // Optimization: Calculate optimal memory cache size for recommendation items.
+    // (Screen Width - Padding - Spacing) / Columns * Pixel Density
+    final screenWidth = MediaQuery.of(context).size.width;
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    // Padding: 16 (left) + 16 (right) = 32
+    // CrossAxisSpacing: 12
+    // Columns: 2
+    final itemWidth = (screenWidth - 32 - 12) / 2;
+    final memCacheWidth = (itemWidth * devicePixelRatio).toInt();
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
       body: BlocBuilder<MovieDetailsBloc, MovieDetailsState>(
@@ -396,6 +406,7 @@ class _MovieDetailsViewState extends State<MovieDetailsView> {
                                             item.poster ?? item.cover ?? '',
                                         fit: BoxFit.cover,
                                         width: double.infinity,
+                                        memCacheWidth: memCacheWidth,
                                       ),
                                     ),
                                   ),
