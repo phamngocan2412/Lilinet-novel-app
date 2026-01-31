@@ -26,3 +26,8 @@
 **Vulnerability:** The custom `SecureInterceptor` only redacted sensitive keys in top-level JSON maps, leaking sensitive data nested in objects or lists (e.g., `user.password` or `[{"token": "..."}]`).
 **Learning:** Shallow redaction is insufficient for complex API payloads. Security logging must account for recursive data structures.
 **Prevention:** Implement recursive redaction logic that traverses Maps and Lists to locate and scrub sensitive keys at any depth.
+
+## 2026-10-27 - Error Message Sanitization in Repositories
+**Vulnerability:** Generic `catch (e)` blocks in Repositories were returning `e.toString()` to the UI, potentially exposing sensitive stack traces or internal details (e.g. database IP, table names) to the user.
+**Learning:** While user-friendly errors are good, raw exception messages are dangerous. `AuthRepository` is a critical boundary where this leakage happens.
+**Prevention:** In Repository implementations, catch specific exceptions (like `AuthException`) for user-friendly messages, but for generic `catch (e)`, log the error securely (using `dart:developer`) and return a sanitized, generic failure message (e.g. "An unexpected error occurred").

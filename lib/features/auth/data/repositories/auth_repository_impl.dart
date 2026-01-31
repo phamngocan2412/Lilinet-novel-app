@@ -1,3 +1,4 @@
+import 'dart:developer' as developer;
 import 'package:dartz/dartz.dart';
 import 'package:injectable/injectable.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
@@ -26,7 +27,10 @@ class AuthRepositoryImpl implements AuthRepository {
     } on supabase.AuthException catch (e) {
       return Left(Failure.server(e.message));
     } catch (e) {
-      return Left(Failure.server('Sign in failed: ${e.toString()}'));
+      developer.log('Sign in failed', error: e, name: 'AuthRepository');
+      return const Left(
+        Failure.server('An unexpected error occurred during sign in.'),
+      );
     }
   }
 
@@ -46,7 +50,10 @@ class AuthRepositoryImpl implements AuthRepository {
     } on supabase.AuthException catch (e) {
       return Left(Failure.server(e.message));
     } catch (e) {
-      return Left(Failure.server('Sign up failed: ${e.toString()}'));
+      developer.log('Sign up failed', error: e, name: 'AuthRepository');
+      return const Left(
+        Failure.server('An unexpected error occurred during sign up.'),
+      );
     }
   }
 
@@ -56,7 +63,10 @@ class AuthRepositoryImpl implements AuthRepository {
       await dataSource.signOut();
       return const Right(null);
     } catch (e) {
-      return Left(Failure.server('Sign out failed: ${e.toString()}'));
+      developer.log('Sign out failed', error: e, name: 'AuthRepository');
+      return const Left(
+        Failure.server('An unexpected error occurred during sign out.'),
+      );
     }
   }
 
@@ -66,7 +76,10 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await dataSource.getCurrentUser();
       return Right(user?.toEntity());
     } catch (e) {
-      return Left(Failure.server('Get current user failed: ${e.toString()}'));
+      developer.log('Get current user failed', error: e, name: 'AuthRepository');
+      return const Left(
+        Failure.server('An unexpected error occurred while fetching user.'),
+      );
     }
   }
 
