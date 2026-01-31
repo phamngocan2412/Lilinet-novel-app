@@ -14,6 +14,7 @@ abstract class CommentRemoteDataSource {
   Future<void> dislikeComment(String commentId);
   Future<List<CommentModel>> getReplies(String commentId);
   Future<List<CommentModel>> getTrendingComments({int limit = 5});
+  Future<List<String>> getLikedCommentIds(String videoId);
 }
 
 @LazySingleton(as: CommentRemoteDataSource)
@@ -257,6 +258,39 @@ class SupabaseCommentDataSource implements CommentRemoteDataSource {
 
   List<CommentModel> _mapToCommentModels(List<dynamic> data) {
     return data.map((item) => _mapToCommentModel(item)).toList();
+  }
+
+  @override
+  Future<List<String>> getLikedCommentIds(String videoId) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) return [];
+
+      // Get all comments for this video
+      final commentsResponse = await _supabase
+          .from('comments')
+          .select('id')
+          .eq('video_id', videoId)
+          .eq('is_deleted', false);
+
+      if (commentsResponse.isEmpty) return [];
+
+      final commentIds = commentsResponse
+          .map((c) => c['id'] as String)
+          .toList();
+
+      // Get likes for these comments by current user
+      final likesResponse = await _supabase
+          .from('comment_likes')
+          .select('comment_id')
+          .eq('user_id', user.id)
+          .filter('comment_id', 'in', commentIds);
+
+      return likesResponse.map((like) => like['comment_id'] as String).toList();
+    } catch (e) {
+      debugPrint('⚠️ Get liked comment IDs error: $e');
+      return [];
+    }
   }
 
   CommentModel _mapToCommentModel(Map<String, dynamic> item) {

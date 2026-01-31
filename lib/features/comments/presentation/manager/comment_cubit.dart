@@ -1,7 +1,10 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../core/errors/failures.dart';
 import '../../domain/entities/comment.dart';
+import '../../domain/repositories/comment_repository.dart';
 import '../../domain/usecases/add_comment.dart';
 import '../../domain/usecases/get_comments.dart';
 import '../../domain/usecases/get_replies.dart';
@@ -14,12 +17,14 @@ class CommentCubit extends Cubit<CommentState> {
   final AddComment _addComment;
   final LikeComment _likeComment;
   final GetReplies _getReplies;
+  final CommentRepository _repository;
 
   CommentCubit(
     this._getComments,
     this._addComment,
     this._likeComment,
     this._getReplies,
+    this._repository,
   ) : super(const CommentState.initial());
 
   String? _currentVideoId;
@@ -28,20 +33,38 @@ class CommentCubit extends Cubit<CommentState> {
     _currentVideoId = videoId;
     emit(const CommentState.loading());
 
-    final result = await _getComments(videoId);
+    // Fetch comments and liked IDs in parallel
+    final results = await Future.wait([
+      _getComments(videoId),
+      _repository.getLikedCommentIds(videoId),
+    ]);
 
-    result.fold((failure) => emit(CommentState.error(failure.message)), (
-      comments,
-    ) {
-      // Default sort is Trending
-      final sortedComments = _sortComments(comments, CommentSortType.trending);
-      emit(
-        CommentState.loaded(
-          comments: sortedComments,
-          sortType: CommentSortType.trending,
-        ),
-      );
-    });
+    final commentsResult = results[0] as Either<Failure, List<Comment>>;
+    final likedIdsResult = results[1] as Either<Failure, List<String>>;
+
+    commentsResult.fold(
+      (failure) => emit(CommentState.error(failure.message)),
+      (comments) {
+        // Get liked IDs (ignore error, just use empty set if failed)
+        final likedIds = likedIdsResult.fold(
+          (failure) => <String>{},
+          (ids) => ids.toSet(),
+        );
+
+        // Default sort is Trending
+        final sortedComments = _sortComments(
+          comments,
+          CommentSortType.trending,
+        );
+        emit(
+          CommentState.loaded(
+            comments: sortedComments,
+            sortType: CommentSortType.trending,
+            likedCommentIds: likedIds,
+          ),
+        );
+      },
+    );
   }
 
   void changeSortType(CommentSortType type) {
@@ -135,13 +158,12 @@ class CommentCubit extends Cubit<CommentState> {
   Future<void> likeComment(String commentId) async {
     state.mapOrNull(
       loaded: (currentState) {
-        // Prevent multiple likes
-        if (currentState.likedCommentIds.contains(commentId)) {
-          return;
-        }
+        // Prevent multiple simultaneous operations
         if (currentState.likingInProgress.contains(commentId)) {
           return;
         }
+
+        final isAlreadyLiked = currentState.likedCommentIds.contains(commentId);
 
         // Add to likingInProgress
         final newLikingInProgress = Set<String>.from(
@@ -150,17 +172,23 @@ class CommentCubit extends Cubit<CommentState> {
 
         emit(currentState.copyWith(likingInProgress: newLikingInProgress));
 
-        // Optimistic update
+        // Optimistic update - toggle like state
         final updatedComments = currentState.comments.map((c) {
           if (c.id == commentId) {
-            return c.copyWith(likes: c.likes + 1);
+            return c.copyWith(
+              likes: isAlreadyLiked ? c.likes - 1 : c.likes + 1,
+            );
           }
           return c;
         }).toList();
 
-        // Add to liked and remove from inProgress
-        final newLikedIds = Set<String>.from(currentState.likedCommentIds)
-          ..add(commentId);
+        // Toggle liked state and remove from inProgress
+        final newLikedIds = Set<String>.from(currentState.likedCommentIds);
+        if (isAlreadyLiked) {
+          newLikedIds.remove(commentId);
+        } else {
+          newLikedIds.add(commentId);
+        }
         final finalLikingInProgress = Set<String>.from(newLikingInProgress)
           ..remove(commentId);
 
@@ -172,6 +200,7 @@ class CommentCubit extends Cubit<CommentState> {
           ),
         );
 
+        // Call backend - it handles toggle logic (like/unlike)
         _likeComment(commentId);
       },
     );

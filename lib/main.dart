@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
@@ -140,7 +141,9 @@ Future<void> _initializeApp() async {
                   Text(
                     stackTrace.toString(),
                     style: const TextStyle(
-                        fontSize: 12, fontFamily: 'monospace'),
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                    ),
                   ),
                 ],
               ],

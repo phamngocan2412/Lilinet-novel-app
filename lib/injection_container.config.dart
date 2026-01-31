@@ -284,16 +284,17 @@ extension GetItInjectableX on _i174.GetIt {
         authRepository: gh<_i1015.AuthRepository>(),
       ),
     );
-    gh.lazySingleton<_i30.ExploreRepository>(
-      () => _i942.ExploreRepositoryImpl(gh<_i726.ExploreRemoteDataSource>()),
-    );
     gh.factory<_i886.CommentCubit>(
       () => _i886.CommentCubit(
         gh<_i90.GetComments>(),
         gh<_i802.AddComment>(),
         gh<_i137.LikeComment>(),
         gh<_i412.GetReplies>(),
+        gh<_i876.CommentRepository>(),
       ),
+    );
+    gh.lazySingleton<_i30.ExploreRepository>(
+      () => _i942.ExploreRepositoryImpl(gh<_i726.ExploreRemoteDataSource>()),
     );
     gh.lazySingleton<_i618.HistoryBloc>(
       () => _i618.HistoryBloc(

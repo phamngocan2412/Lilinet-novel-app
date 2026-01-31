@@ -202,6 +202,13 @@ class CommentRepositoryImpl implements CommentRepository {
     });
   }
 
+  @override
+  Future<Either<Failure, List<String>>> getLikedCommentIds(String videoId) {
+    return safeCall(() async {
+      return await _remoteDataSource.getLikedCommentIds(videoId);
+    });
+  }
+
   // Helper to convert LocalCommentModel to Comment entity
   Comment _localCommentToEntity(LocalCommentModel local) {
     return Comment(

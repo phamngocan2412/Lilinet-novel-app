@@ -17,7 +17,9 @@ extension RepositoryHelper on Object {
       if (message.contains('JWT') ||
           message.contains('auth') ||
           e.code == '42501') {
-        return Left(Failure.server('Không thể truy cập. Vui lòng đăng nhập.'));
+        return const Left(
+          Failure.server('Không thể truy cập. Vui lòng đăng nhập.'),
+        );
       }
       return Left(Failure.server(message));
     } on SocketException {
