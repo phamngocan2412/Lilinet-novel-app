@@ -28,6 +28,13 @@ class FavoritesView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Optimization: Calculate optimal cache width for grid items to avoid LayoutBuilder overhead
+    // and reduce memory usage.
+    // (Screen Width - Padding) / Columns * Pixel Density
+    final screenWidth = MediaQuery.of(context).size.width;
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final memCacheWidth = ((screenWidth - 32) / 2 * devicePixelRatio).ceil();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -134,6 +141,7 @@ class FavoritesView extends StatelessWidget {
 
                         return MovieCard(
                           movie: movie,
+                          memCacheWidth: memCacheWidth,
                           onTap: () {
                             context.push(
                               '/movie/${movie.id}?type=${movie.type}',
