@@ -48,6 +48,13 @@ android
 .agent
 SUPABASE_FAVORITES_GUIDE.md
 supabase/
+docs/
+ISSUES_TRACKING.md
+FEATURES_README.md
+CLAUDE.md
+.claude/
+.jules/
+
 
 # Flutter repo-specific
 /bin/cache/

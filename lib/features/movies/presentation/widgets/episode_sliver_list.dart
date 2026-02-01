@@ -51,7 +51,7 @@ class EpisodeSliverList extends StatelessWidget {
 
           return Container(
             color: isSelected
-                ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+                ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.15)
                 : null,
             child: ListTile(
               selected: isSelected,

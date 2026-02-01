@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
+import '../../domain/entities/comment.dart';
 import '../../presentation/manager/comment_cubit.dart';
 import '../../presentation/manager/comment_state.dart';
 import 'comment_bottom_sheet.dart';
@@ -60,17 +61,17 @@ class _CollapsedCommentViewContent extends StatelessWidget {
     );
   }
 
-  Widget _buildCompactCard(BuildContext context, dynamic comment, int count) {
+  Widget _buildCompactCard(BuildContext context, Comment? comment, int count) {
     return GestureDetector(
       onTap: () => _openCommentSheet(context),
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor.withOpacity(0.8),
+          color: Theme.of(context).cardColor.withValues(alpha: 0.8),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: Theme.of(context).dividerColor.withOpacity(0.1),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.1),
           ),
         ),
         child: Row(
@@ -121,7 +122,7 @@ class _CollapsedCommentViewContent extends StatelessWidget {
     );
   }
 
-  Widget _buildCompactPreview(dynamic comment) {
+  Widget _buildCompactPreview(Comment comment) {
     return RichText(
       maxLines: 1,
       overflow: TextOverflow.ellipsis,

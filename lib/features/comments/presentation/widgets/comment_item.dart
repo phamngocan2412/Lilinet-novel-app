@@ -10,6 +10,10 @@ class CommentItem extends StatelessWidget {
   final bool isRepliesExpanded;
   final bool isLiked;
   final bool isReply;
+  final void Function(String commentId)? onReplyLike;
+  final void Function(String commentId, String userName)? onReplyReply;
+  final VoidCallback? onLoadMoreReplies;
+  final Set<String> likedReplyIds;
 
   const CommentItem({
     super.key,
@@ -21,6 +25,10 @@ class CommentItem extends StatelessWidget {
     this.isRepliesExpanded = false,
     this.isLiked = false,
     this.isReply = false,
+    this.onReplyLike,
+    this.onReplyReply,
+    this.onLoadMoreReplies,
+    this.likedReplyIds = const {},
   });
 
   @override
@@ -34,6 +42,10 @@ class CommentItem extends StatelessWidget {
       isRepliesExpanded: isRepliesExpanded,
       isLiked: isLiked,
       isReply: isReply,
+      onReplyLike: onReplyLike,
+      onReplyReply: onReplyReply,
+      onLoadMoreReplies: onLoadMoreReplies,
+      likedReplyIds: likedReplyIds,
     );
   }
 }
@@ -47,6 +59,10 @@ class _CommentContent extends StatefulWidget {
   final bool isRepliesExpanded;
   final bool isLiked;
   final bool isReply;
+  final void Function(String commentId)? onReplyLike;
+  final void Function(String commentId, String userName)? onReplyReply;
+  final VoidCallback? onLoadMoreReplies;
+  final Set<String> likedReplyIds;
 
   const _CommentContent({
     required this.comment,
@@ -57,6 +73,10 @@ class _CommentContent extends StatefulWidget {
     required this.isRepliesExpanded,
     required this.isLiked,
     required this.isReply,
+    this.onReplyLike,
+    this.onReplyReply,
+    this.onLoadMoreReplies,
+    this.likedReplyIds = const {},
   });
 
   @override
@@ -175,6 +195,10 @@ class _CommentContentState extends State<_CommentContent> {
                   _RepliesSection(
                     replies: widget.comment.replies,
                     repliesCount: widget.comment.repliesCount,
+                    onReplyLike: widget.onReplyLike,
+                    onReplyReply: widget.onReplyReply,
+                    onLoadMoreReplies: widget.onLoadMoreReplies,
+                    likedReplyIds: widget.likedReplyIds,
                   ),
               ],
             ),
@@ -398,8 +422,19 @@ class _ActionButtons extends StatelessWidget {
 class _RepliesSection extends StatelessWidget {
   final List<Comment> replies;
   final int repliesCount;
+  final void Function(String commentId)? onReplyLike;
+  final void Function(String commentId, String userName)? onReplyReply;
+  final VoidCallback? onLoadMoreReplies;
+  final Set<String> likedReplyIds;
 
-  const _RepliesSection({required this.replies, required this.repliesCount});
+  const _RepliesSection({
+    required this.replies,
+    required this.repliesCount,
+    this.onReplyLike,
+    this.onReplyReply,
+    this.onLoadMoreReplies,
+    this.likedReplyIds = const {},
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -413,11 +448,12 @@ class _RepliesSection extends StatelessWidget {
           ...replies.map((reply) {
             return CommentItem(
               comment: reply,
-              onLike: () {},
+              onLike: () => onReplyLike?.call(reply.id),
               onDislike: () {},
-              onReply: () {},
+              onReply: () => onReplyReply?.call(reply.id, reply.userName),
               onToggleReplies: () {},
               isReply: true,
+              isLiked: likedReplyIds.contains(reply.id),
             );
           }),
 
@@ -426,9 +462,7 @@ class _RepliesSection extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(left: 12, top: 4),
               child: GestureDetector(
-                onTap: () {
-                  // TODO: Load more replies
-                },
+                onTap: onLoadMoreReplies,
                 child: Text(
                   'Xem thêm ${repliesCount - replies.length} phản hồi',
                   style: TextStyle(

@@ -66,8 +66,19 @@ class HistoryLocalDataSourceImpl implements HistoryLocalDataSource {
   }
 
   @override
-  Future<void> deleteProgress(String mediaId) async {
-    await _box.delete(mediaId);
+  Future<void> deleteProgress(String mediaId, {String? episodeId}) async {
+    if (episodeId != null) {
+      final key = '${mediaId}_$episodeId';
+      await _box.delete(key);
+    } else {
+      final keys = _box.keys
+          .where((k) => k.toString().startsWith('${mediaId}_'))
+          .cast<String>()
+          .toList();
+      if (keys.isNotEmpty) {
+        await _box.deleteAll(keys);
+      }
+    }
   }
 
   @override
@@ -80,11 +91,45 @@ class HistoryLocalDataSourceImpl implements HistoryLocalDataSource {
     final now = DateTime.now();
     final sevenDaysAgo = now.subtract(const Duration(days: 7));
 
-    final keysToDelete = _box.values
-        .where((e) => e.lastUpdated.isBefore(sevenDaysAgo))
-        .map((e) => e.mediaId)
-        .toList();
+    final keysToDelete = <String>[];
 
-    await _box.deleteAll(keysToDelete);
+    for (var i = 0; i < _box.length; i++) {
+      final entry = _box.getAt(i);
+      if (entry != null && entry.lastUpdated.isBefore(sevenDaysAgo)) {
+        final key = _box.keyAt(i);
+        if (key != null) {
+          keysToDelete.add(key);
+        }
+      }
+    }
+
+    if (keysToDelete.isNotEmpty) {
+      await _box.deleteAll(keysToDelete);
+    }
+  }
+
+  @override
+  Future<void> migrateLegacyData() async {
+    final keys = _box.keys.toList();
+
+    for (final key in keys) {
+      final keyStr = key.toString();
+      final entry = _box.get(key);
+
+      if (entry == null) continue;
+
+      // If key doesn't contain '_' and entry has episodeId, migrate it
+      if (!keyStr.contains('_') && entry.episodeId != null) {
+        final newKey = '${entry.mediaId}_${entry.episodeId}';
+
+        // Only migrate if new key doesn't already exist
+        if (!_box.containsKey(newKey)) {
+          await _box.put(newKey, entry);
+        }
+
+        // Delete old entry
+        await _box.delete(key);
+      }
+    }
   }
 }

@@ -157,7 +157,7 @@ class RecentlyWatchedPage extends StatelessWidget {
                                   style: TextStyle(
                                     color: Theme.of(
                                       context,
-                                    ).colorScheme.onSurface.withOpacity(0.6),
+                                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -177,6 +177,7 @@ class RecentlyWatchedPage extends StatelessWidget {
                           onPressed: () {
                             context.read<HistoryBloc>().deleteProgress(
                               item.mediaId,
+                              episodeId: item.episodeId,
                             );
                           },
                         ),

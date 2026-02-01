@@ -24,7 +24,7 @@ class MovieDetailsHeader extends StatelessWidget {
       leading: Padding(
         padding: const EdgeInsets.all(8.0),
         child: CircleAvatar(
-          backgroundColor: Colors.black.withOpacity(0.5),
+          backgroundColor: Colors.black.withValues(alpha: 0.5),
           child: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => context.pop(),
@@ -50,7 +50,7 @@ class MovieDetailsHeader extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    Theme.of(context).colorScheme.surface.withOpacity(0.5),
+                    Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
                     Theme.of(context).colorScheme.surface,
                   ],
                   stops: const [0.0, 0.6, 1.0],
@@ -77,7 +77,7 @@ class MovieDetailsHeader extends StatelessWidget {
                           blurRadius: 10.0,
                           color: Theme.of(
                             context,
-                          ).colorScheme.surface.withOpacity(0.8),
+                          ).colorScheme.surface.withValues(alpha: 0.8),
                           offset: const Offset(2.0, 2.0),
                         ),
                       ],
@@ -103,7 +103,7 @@ class MovieDetailsHeader extends StatelessWidget {
                             style: TextStyle(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withOpacity(0.7),
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -112,7 +112,7 @@ class MovieDetailsHeader extends StatelessWidget {
                             style: TextStyle(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withOpacity(0.3),
+                              ).colorScheme.onSurface.withValues(alpha: 0.3),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -123,7 +123,7 @@ class MovieDetailsHeader extends StatelessWidget {
                             style: TextStyle(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withOpacity(0.7),
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -132,7 +132,7 @@ class MovieDetailsHeader extends StatelessWidget {
                             style: TextStyle(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withOpacity(0.3),
+                              ).colorScheme.onSurface.withValues(alpha: 0.3),
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -146,7 +146,7 @@ class MovieDetailsHeader extends StatelessWidget {
                             border: Border.all(
                               color: Theme.of(
                                 context,
-                              ).colorScheme.onSurface.withOpacity(0.5),
+                              ).colorScheme.onSurface.withValues(alpha: 0.5),
                             ),
                             borderRadius: BorderRadius.circular(4),
                           ),

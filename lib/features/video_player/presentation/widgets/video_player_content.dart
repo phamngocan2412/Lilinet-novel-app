@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, unreachable_switch_default
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -132,8 +133,10 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
 
   String _determineProviderByGenres() {
     final genres = widget.state.movie?.genres ?? [];
-    print('🧐 Determining provider for movie: ${widget.state.movie?.title}');
-    print('  Genres: $genres');
+    if (kDebugMode) {
+      debugPrint('🧐 Determining provider for movie: ${widget.state.movie?.title}');
+      debugPrint('  Genres: $genres');
+    }
 
     final isAnime = genres.any(
       (g) =>
@@ -141,15 +144,19 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
           g.toLowerCase().contains('animation'),
     );
 
-    print('  isAnime: $isAnime');
-    print('  Movie Provider User Pref: $_movieProvider');
-    print('  Anime Provider User Pref: $_animeProvider');
+    if (kDebugMode) {
+      debugPrint('  isAnime: $isAnime');
+      debugPrint('  Movie Provider User Pref: $_movieProvider');
+      debugPrint('  Anime Provider User Pref: $_animeProvider');
+    }
 
     final selected = isAnime
         ? (_animeProvider ?? 'animepahe')
         : (_movieProvider ?? 'flixhq');
 
-    print('  Selected Provider: $selected');
+    if (kDebugMode) {
+      debugPrint('  Selected Provider: $selected');
+    }
     return selected;
   }
 
@@ -222,7 +229,9 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     // Listen for errors
     _errorSub = player.stream.error.listen((error) {
       if (!_isDisposed) {
-        print('❌ Media Player Error: $error');
+        if (kDebugMode) {
+          debugPrint('❌ Media Player Error: $error');
+        }
       }
     });
   }
@@ -287,7 +296,17 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     }
   }
 
+  DateTime? _lastSaveTime;
+  static const _saveDebounceDuration = Duration(seconds: 5);
+
   void _saveProgress(Duration position) {
+    final now = DateTime.now();
+    if (_lastSaveTime != null &&
+        now.difference(_lastSaveTime!) < _saveDebounceDuration) {
+      return; // Skip nếu chưa đủ 5 giây
+    }
+    _lastSaveTime = now;
+
     final duration = player.state.duration;
     if (duration == Duration.zero) return;
 
@@ -402,7 +421,9 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
 
       _errorSub = player.stream.error.listen((error) {
         if (!_isDisposed) {
-          print('❌ Media Player Error: $error');
+          if (kDebugMode) {
+            debugPrint('❌ Media Player Error: $error');
+          }
         }
       });
 
@@ -582,12 +603,14 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
           }
 
           // Debug logging
-          print('🎬 Playing video:');
-          print('  URL: ${link.url}');
-          print('  Quality: ${link.quality}');
-          print('  isM3U8: ${link.isM3U8}');
-          print('  Headers: ${link.headers}');
-          print('  Subtitle: $subUrl');
+          if (kDebugMode) {
+            debugPrint('🎬 Playing video:');
+            debugPrint('  URL: ${link.url}');
+            debugPrint('  Quality: ${link.quality}');
+            debugPrint('  isM3U8: ${link.isM3U8}');
+            debugPrint('  Headers: ${link.headers}');
+            debugPrint('  Subtitle: $subUrl');
+          }
 
           _playVideo(
             link.url,

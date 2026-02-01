@@ -74,4 +74,16 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<AppUser?> get authStateChanges {
     return dataSource.authStateChanges.map((user) => user?.toEntity());
   }
+
+  @override
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email) async {
+    try {
+      await dataSource.sendPasswordResetEmail(email);
+      return const Right(null);
+    } on supabase.AuthException catch (e) {
+      return Left(Failure.server(e.message));
+    } catch (e) {
+      return Left(Failure.server('Gửi email đặt lại mật khẩu thất bại: ${e.toString()}'));
+    }
+  }
 }

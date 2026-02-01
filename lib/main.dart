@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,22 +14,112 @@ import 'features/explore/presentation/bloc/explore_event.dart';
 import 'injection_container.dart';
 
 void main() {
-  // Ensure Flutter is initialized
-  WidgetsFlutterBinding.ensureInitialized();
+  // Wrap everything in runZonedGuarded to catch async errors
+  runZonedGuarded(
+    () {
+      // Ensure Flutter is initialized
+      WidgetsFlutterBinding.ensureInitialized();
 
-  // Set system UI mode early
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      systemNavigationBarColor: Colors.transparent,
+      // Set up Flutter error handler
+      FlutterError.onError = _handleFlutterError;
+
+      // Set up custom error widget for release mode
+      ErrorWidget.builder = _buildErrorWidget;
+
+      // Set system UI mode early
+      SystemChrome.setSystemUIOverlayStyle(
+        const SystemUiOverlayStyle(
+          statusBarColor: Colors.transparent,
+          systemNavigationBarColor: Colors.transparent,
+        ),
+      );
+
+      // Run the app with a splash/loading screen first
+      runApp(const SplashApp());
+
+      // Initialize everything in the background
+      _initializeApp();
+    },
+    _handleUncaughtError,
+  );
+}
+
+/// Handles Flutter framework errors
+void _handleFlutterError(FlutterErrorDetails details) {
+  if (kDebugMode) {
+    // In debug mode, print to console
+    FlutterError.dumpErrorToConsole(details);
+  } else {
+    // In release mode, log silently (could send to crash reporting service)
+    debugPrint('Flutter Error: ${details.exceptionAsString()}');
+  }
+}
+
+/// Handles uncaught async errors
+void _handleUncaughtError(Object error, StackTrace stackTrace) {
+  if (kDebugMode) {
+    debugPrint('═══════════════════════════════════════════════════════');
+    debugPrint('🚨 UNCAUGHT ERROR');
+    debugPrint('Error: $error');
+    debugPrint('Stack trace:\n$stackTrace');
+    debugPrint('═══════════════════════════════════════════════════════');
+  } else {
+    // In release mode, log silently (could send to crash reporting service)
+    debugPrint('Uncaught Error: $error');
+  }
+}
+
+/// Builds a user-friendly error widget for release mode
+Widget _buildErrorWidget(FlutterErrorDetails details) {
+  if (kDebugMode) {
+    // In debug mode, show the default red error screen with details
+    return ErrorWidget(details.exception);
+  }
+
+  // In release mode, show a friendly error UI
+  return Material(
+    child: Container(
+      color: const Color(0xFF101010),
+      padding: const EdgeInsets.all(24),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 48,
+              ),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Đã xảy ra lỗi',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Vui lòng thử lại sau',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 14,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     ),
   );
-
-  // Run the app with a splash/loading screen first
-  runApp(const SplashApp());
-
-  // Initialize everything in the background
-  _initializeApp();
 }
 
 class SplashApp extends StatelessWidget {

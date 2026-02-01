@@ -28,11 +28,11 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     LoadGenres event,
     Emitter<ExploreState> emit,
   ) async {
-    emit(ExploreLoading());
+    emit(const ExploreState.loading());
     final result = await getGenres();
     result.fold(
-      (failure) => emit(ExploreError(failure.message)),
-      (genres) => emit(GenresLoaded(genres)),
+      (failure) => emit(ExploreState.error(message: failure.message)),
+      (genres) => emit(ExploreState.genresLoaded(genres: genres)),
     );
   }
 
@@ -41,7 +41,7 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     Emitter<ExploreState> emit,
   ) async {
     if (event.page == 1) {
-      emit(ExploreLoading());
+      emit(const ExploreState.loading());
     }
 
     final result = await getMoviesByGenre(
@@ -49,27 +49,33 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
       page: event.page,
     );
 
-    result.fold((failure) => emit(ExploreError(failure.message)), (movies) {
-      if (state is MoviesLoaded && event.page > 1) {
-        final currentState = state as MoviesLoaded;
-        emit(
-          currentState.copyWith(
-            movies: [...currentState.movies, ...movies],
-            currentPage: event.page,
-            hasMore: movies.isNotEmpty,
-          ),
+    result.fold(
+      (failure) => emit(ExploreState.error(message: failure.message)),
+      (movies) {
+        final currentState = state.maybeMap(
+          moviesLoaded: (s) => s,
+          orElse: () => null,
         );
-      } else {
-        emit(
-          MoviesLoaded(
-            movies: movies,
-            category: event.genreName,
-            currentPage: event.page,
-            hasMore: movies.isNotEmpty,
-          ),
-        );
-      }
-    });
+        if (currentState != null && event.page > 1) {
+          emit(
+            currentState.copyWithMore(
+              movies: [...currentState.movies, ...movies],
+              currentPage: event.page,
+              hasMore: movies.isNotEmpty,
+            ),
+          );
+        } else {
+          emit(
+            ExploreState.moviesLoaded(
+              movies: movies,
+              category: event.genreName,
+              currentPage: event.page,
+              hasMore: movies.isNotEmpty,
+            ),
+          );
+        }
+      },
+    );
   }
 
   Future<void> _onLoadPopularMovies(
@@ -77,32 +83,38 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     Emitter<ExploreState> emit,
   ) async {
     if (event.page == 1) {
-      emit(ExploreLoading());
+      emit(const ExploreState.loading());
     }
 
     final result = await repository.getPopularMovies(page: event.page);
 
-    result.fold((failure) => emit(ExploreError(failure.message)), (movies) {
-      if (state is MoviesLoaded && event.page > 1) {
-        final currentState = state as MoviesLoaded;
-        emit(
-          currentState.copyWith(
-            movies: [...currentState.movies, ...movies],
-            currentPage: event.page,
-            hasMore: movies.isNotEmpty,
-          ),
+    result.fold(
+      (failure) => emit(ExploreState.error(message: failure.message)),
+      (movies) {
+        final currentState = state.maybeMap(
+          moviesLoaded: (s) => s,
+          orElse: () => null,
         );
-      } else {
-        emit(
-          MoviesLoaded(
-            movies: movies,
-            category: 'Popular',
-            currentPage: event.page,
-            hasMore: movies.isNotEmpty,
-          ),
-        );
-      }
-    });
+        if (currentState != null && event.page > 1) {
+          emit(
+            currentState.copyWithMore(
+              movies: [...currentState.movies, ...movies],
+              currentPage: event.page,
+              hasMore: movies.isNotEmpty,
+            ),
+          );
+        } else {
+          emit(
+            ExploreState.moviesLoaded(
+              movies: movies,
+              category: 'Popular',
+              currentPage: event.page,
+              hasMore: movies.isNotEmpty,
+            ),
+          );
+        }
+      },
+    );
   }
 
   Future<void> _onLoadTopRatedMovies(
@@ -110,32 +122,38 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     Emitter<ExploreState> emit,
   ) async {
     if (event.page == 1) {
-      emit(ExploreLoading());
+      emit(const ExploreState.loading());
     }
 
     final result = await repository.getTopRatedMovies(page: event.page);
 
-    result.fold((failure) => emit(ExploreError(failure.message)), (movies) {
-      if (state is MoviesLoaded && event.page > 1) {
-        final currentState = state as MoviesLoaded;
-        emit(
-          currentState.copyWith(
-            movies: [...currentState.movies, ...movies],
-            currentPage: event.page,
-            hasMore: movies.isNotEmpty,
-          ),
+    result.fold(
+      (failure) => emit(ExploreState.error(message: failure.message)),
+      (movies) {
+        final currentState = state.maybeMap(
+          moviesLoaded: (s) => s,
+          orElse: () => null,
         );
-      } else {
-        emit(
-          MoviesLoaded(
-            movies: movies,
-            category: 'Top Rated',
-            currentPage: event.page,
-            hasMore: movies.isNotEmpty,
-          ),
-        );
-      }
-    });
+        if (currentState != null && event.page > 1) {
+          emit(
+            currentState.copyWithMore(
+              movies: [...currentState.movies, ...movies],
+              currentPage: event.page,
+              hasMore: movies.isNotEmpty,
+            ),
+          );
+        } else {
+          emit(
+            ExploreState.moviesLoaded(
+              movies: movies,
+              category: 'Top Rated',
+              currentPage: event.page,
+              hasMore: movies.isNotEmpty,
+            ),
+          );
+        }
+      },
+    );
   }
 
   Future<void> _onLoadRecentlyAdded(
@@ -143,31 +161,37 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     Emitter<ExploreState> emit,
   ) async {
     if (event.page == 1) {
-      emit(ExploreLoading());
+      emit(const ExploreState.loading());
     }
 
     final result = await repository.getRecentlyAdded(page: event.page);
 
-    result.fold((failure) => emit(ExploreError(failure.message)), (movies) {
-      if (state is MoviesLoaded && event.page > 1) {
-        final currentState = state as MoviesLoaded;
-        emit(
-          currentState.copyWith(
-            movies: [...currentState.movies, ...movies],
-            currentPage: event.page,
-            hasMore: movies.isNotEmpty,
-          ),
+    result.fold(
+      (failure) => emit(ExploreState.error(message: failure.message)),
+      (movies) {
+        final currentState = state.maybeMap(
+          moviesLoaded: (s) => s,
+          orElse: () => null,
         );
-      } else {
-        emit(
-          MoviesLoaded(
-            movies: movies,
-            category: 'Recently Added',
-            currentPage: event.page,
-            hasMore: movies.isNotEmpty,
-          ),
-        );
-      }
-    });
+        if (currentState != null && event.page > 1) {
+          emit(
+            currentState.copyWithMore(
+              movies: [...currentState.movies, ...movies],
+              currentPage: event.page,
+              hasMore: movies.isNotEmpty,
+            ),
+          );
+        } else {
+          emit(
+            ExploreState.moviesLoaded(
+              movies: movies,
+              category: 'Recently Added',
+              currentPage: event.page,
+              hasMore: movies.isNotEmpty,
+            ),
+          );
+        }
+      },
+    );
   }
 }

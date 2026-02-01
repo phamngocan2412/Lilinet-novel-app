@@ -20,7 +20,10 @@ class HistoryRepositoryImpl implements HistoryRepository {
     // we will delete it if progress > 95% or explicitly marked finished.
 
     if (progress.isFinished) {
-      await _localDataSource.deleteProgress(progress.mediaId);
+      await _localDataSource.deleteProgress(
+        progress.mediaId,
+        episodeId: progress.episodeId,
+      );
     } else {
       await _localDataSource.saveProgress(progress);
     }
@@ -33,8 +36,8 @@ class HistoryRepositoryImpl implements HistoryRepository {
   Future<List<WatchProgress>> getHistory() => _localDataSource.getHistory();
 
   @override
-  Future<void> deleteProgress(String mediaId) =>
-      _localDataSource.deleteProgress(mediaId);
+  Future<void> deleteProgress(String mediaId, {String? episodeId}) =>
+      _localDataSource.deleteProgress(mediaId, episodeId: episodeId);
 
   @override
   Future<void> clearHistory() => _localDataSource.clearHistory();

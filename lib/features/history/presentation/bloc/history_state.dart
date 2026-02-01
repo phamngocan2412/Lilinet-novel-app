@@ -1,32 +1,18 @@
-part of 'history_bloc.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+import '../../domain/entities/watch_progress.dart';
 
-abstract class HistoryState extends Equatable {
-  const HistoryState();
+part 'history_state.freezed.dart';
 
-  @override
-  List<Object> get props => [];
-}
+@freezed
+class HistoryState with _$HistoryState {
+  const factory HistoryState.initial() = HistoryInitial;
 
-class HistoryInitial extends HistoryState {}
+  const factory HistoryState.loading() = HistoryLoading;
 
-class HistoryLoading extends HistoryState {}
+  const factory HistoryState.loaded({required List<WatchProgress> history}) =
+      HistoryLoaded;
 
-class HistoryLoaded extends HistoryState {
-  final List<WatchProgress> history;
+  const factory HistoryState.empty() = HistoryEmpty;
 
-  const HistoryLoaded(this.history);
-
-  @override
-  List<Object> get props => [history];
-}
-
-class HistoryEmpty extends HistoryState {}
-
-class HistoryError extends HistoryState {
-  final String message;
-
-  const HistoryError(this.message);
-
-  @override
-  List<Object> get props => [message];
+  const factory HistoryState.error({required String message}) = HistoryError;
 }

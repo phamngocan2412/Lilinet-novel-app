@@ -59,4 +59,8 @@ class AuthSupabaseDataSource {
       return AppUserModel.fromSupabaseUser(user);
     });
   }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    await supabaseClient.auth.resetPasswordForEmail(email);
+  }
 }

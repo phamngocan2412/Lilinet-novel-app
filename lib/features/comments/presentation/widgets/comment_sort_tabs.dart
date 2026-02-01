@@ -18,7 +18,7 @@ class CommentSortTabs extends StatelessWidget {
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: Theme.of(context).dividerColor.withOpacity(0.05),
+            color: Theme.of(context).dividerColor.withValues(alpha: 0.05),
           ),
         ),
       ),

@@ -1,35 +1,23 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../domain/entities/favorite.dart';
 
-abstract class FavoritesState extends Equatable {
-  const FavoritesState();
+part 'favorites_state.freezed.dart';
 
-  @override
-  List<Object?> get props => [];
+@freezed
+class FavoritesState with _$FavoritesState {
+  const factory FavoritesState.initial() = FavoritesInitial;
+
+  const factory FavoritesState.loading() = FavoritesLoading;
+
+  const factory FavoritesState.loaded({required List<Favorite> favorites}) =
+      FavoritesLoaded;
+
+  const factory FavoritesState.error({required String message}) =
+      FavoritesError;
 }
 
-class FavoritesInitial extends FavoritesState {}
-
-class FavoritesLoading extends FavoritesState {}
-
-class FavoritesLoaded extends FavoritesState {
-  final List<Favorite> favorites;
-
-  const FavoritesLoaded(this.favorites);
-
-  @override
-  List<Object?> get props => [favorites];
-
+extension FavoritesLoadedX on FavoritesLoaded {
   bool isFavorite(String movieId) {
     return favorites.any((f) => f.movieId == movieId);
   }
-}
-
-class FavoritesError extends FavoritesState {
-  final String message;
-
-  const FavoritesError(this.message);
-
-  @override
-  List<Object?> get props => [message];
 }

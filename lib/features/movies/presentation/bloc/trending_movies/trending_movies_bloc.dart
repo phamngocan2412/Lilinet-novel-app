@@ -1,5 +1,7 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../../core/errors/failures.dart';
 import '../../../domain/usecases/get_trending_movies.dart';
 import '../../../domain/usecases/get_cached_trending_movies.dart';
 import '../../../../explore/domain/usecases/get_movies_by_genre.dart';
@@ -41,8 +43,8 @@ class TrendingMoviesBloc
       // Ignore cache errors
     }
 
-    // 2. Fetch All Data in Parallel
-    final results = await Future.wait([
+    // 2. Fetch All Data in Parallel with explicit generic type
+    final results = await Future.wait<Either<Failure, List<Movie>>>([
       _getTrendingMovies(TrendingParams(type: event.type, page: 1)),
       _getMoviesByGenre(genreId: '16', page: 1), // Index 1: Anime
       _getMoviesByGenre(genreId: '28', page: 1), // Index 2: Action
@@ -50,7 +52,7 @@ class TrendingMoviesBloc
       _getMoviesByGenre(genreId: '10749', page: 1), // Index 4: Romance
     ]);
 
-    final trendingResult = results[0]; // Either<Failure, List<Movie>>
+    final trendingResult = results[0];
     final animeResult = results[1];
     final actionResult = results[2];
     final horrorResult = results[3];
@@ -59,46 +61,32 @@ class TrendingMoviesBloc
     List<Movie> trendingMovies = [];
     Map<String, List<Movie>> categories = {};
 
-    // Process Trending
-    // We need to cast because Future.wait returns List<dynamic> or common ancestor
-    // Actually results[0] is Either<Failure, List<Movie>>
-
-    (trendingResult as dynamic).fold(
-      (failure) {},
+    // Process Trending - type-safe fold
+    trendingResult.fold(
+      (failure) {}, // Ignore trending failure, will handle below
       (movies) => trendingMovies = movies,
     );
 
-    // Process Categories
-    (animeResult as dynamic).fold(
-      (_) {},
+    // Process Categories - type-safe fold
+    animeResult.fold(
+      (_) {}, // Ignore failure
       (movies) => categories['Top Anime'] = movies,
     );
-    (actionResult as dynamic).fold(
-      (_) {},
-      (movies) => categories['Action Movies'] = movies,
-    );
-    (horrorResult as dynamic).fold(
-      (_) {},
-      (movies) => categories['Horror'] = movies,
-    );
-    (romanceResult as dynamic).fold(
-      (_) {},
-      (movies) => categories['Romance'] = movies,
-    );
+    actionResult.fold((_) {}, (movies) => categories['Action Movies'] = movies);
+    horrorResult.fold((_) {}, (movies) => categories['Horror'] = movies);
+    romanceResult.fold((_) {}, (movies) => categories['Romance'] = movies);
 
     if (trendingMovies.isEmpty && categories.isEmpty) {
       final isLoaded = state.maybeMap(loaded: (_) => true, orElse: () => false);
 
       if (!isLoaded) {
         // If we are not already showing data (from cache), show error
-        // Assuming results[0] failure message is relevant
         String message = 'Failed to load content';
-        (trendingResult as dynamic).fold((f) => message = f.message, (_) {});
+        trendingResult.fold((f) => message = f.message, (_) {});
         emit(TrendingMoviesState.error(message));
       }
     } else {
       // Merge with existing state if needed, or just emit new
-      // If we emitted Cached data earlier, this will replace it with fresh data.
       emit(
         TrendingMoviesState.loaded(
           trending: trendingMovies.isNotEmpty

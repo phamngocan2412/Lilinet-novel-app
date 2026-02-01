@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
 import '../bloc/auth_state.dart';
+import 'password_reset_dialog.dart';
 
 class AuthDialog extends StatefulWidget {
   final VoidCallback? onLoginSuccess;
@@ -168,7 +169,19 @@ class _AuthDialogState extends State<AuthDialog> {
                             : Text(_isLogin ? 'Login' : 'Sign Up'),
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    if (_isLogin) ...[
+                      const SizedBox(height: 8),
+                      TextButton(
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                Navigator.pop(context);
+                                PasswordResetDialog.show(context);
+                              },
+                        child: const Text('Quên mật khẩu?'),
+                      ),
+                    ],
+                    const SizedBox(height: 8),
                     TextButton(
                       onPressed: isLoading
                           ? null

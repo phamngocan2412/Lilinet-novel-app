@@ -98,7 +98,7 @@ class FeaturedCommentBanner extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+                  color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.1),
                   blurRadius: 8,
                   offset: const Offset(0, 4),
                 ),
@@ -109,7 +109,7 @@ class FeaturedCommentBanner extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha: 0.2),
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
@@ -168,7 +168,7 @@ class FeaturedCommentBanner extends StatelessWidget {
                         style: TextStyle(
                           color: Theme.of(
                             context,
-                          ).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                          ).colorScheme.onPrimaryContainer.withValues(alpha: 0.8),
                           fontSize: 13,
                           fontStyle: FontStyle.italic,
                         ),

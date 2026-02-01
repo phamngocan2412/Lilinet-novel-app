@@ -4,7 +4,8 @@ import '../../domain/entities/watch_progress.dart';
 abstract class HistoryLocalDataSource {
   Future<void> saveProgress(WatchProgress progress);
   Future<List<WatchProgress>> getHistory();
-  Future<void> deleteProgress(String mediaId);
+  Future<void> deleteProgress(String mediaId, {String? episodeId});
   Future<void> clearHistory();
   Future<void> cleanupOldEntries();
+  Future<void> migrateLegacyData();
 }

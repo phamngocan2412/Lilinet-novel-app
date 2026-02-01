@@ -35,11 +35,11 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     LoadFavorites event,
     Emitter<FavoritesState> emit,
   ) async {
-    emit(FavoritesLoading());
+    emit(const FavoritesLoading());
     final result = await getFavoritesUseCase();
     result.fold(
-      (failure) => emit(FavoritesError(failure.message)),
-      (favorites) => emit(FavoritesLoaded(favorites)),
+      (failure) => emit(FavoritesError(message: failure.message)),
+      (favorites) => emit(FavoritesLoaded(favorites: favorites)),
     );
   }
 
@@ -61,11 +61,11 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     );
 
     result.fold(
-      (failure) => emit(FavoritesError(failure.message)),
+      (failure) => emit(FavoritesError(message: failure.message)),
       (favorite) {
         // Optimistic update: Add to list immediately without reloading
         currentFavorites.add(favorite);
-        emit(FavoritesLoaded(currentFavorites));
+        emit(FavoritesLoaded(favorites: currentFavorites));
       },
     );
   }
@@ -83,11 +83,11 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     final result = await removeFavoriteUseCase(event.movieId);
 
     result.fold(
-      (failure) => emit(FavoritesError(failure.message)),
+      (failure) => emit(FavoritesError(message: failure.message)),
       (_) {
         // Optimistic update: Remove from list immediately without reloading
         currentFavorites.removeWhere((f) => f.movieId == event.movieId);
-        emit(FavoritesLoaded(currentFavorites));
+        emit(FavoritesLoaded(favorites: currentFavorites));
       },
     );
   }
