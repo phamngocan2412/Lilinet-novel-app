@@ -1,41 +1,30 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../movies/domain/entities/movie.dart';
 import '../../domain/entities/genre.dart';
 
-abstract class ExploreState extends Equatable {
-  const ExploreState();
+part 'explore_state.freezed.dart';
 
-  @override
-  List<Object?> get props => [];
+@freezed
+class ExploreState with _$ExploreState {
+  const factory ExploreState.initial() = ExploreInitial;
+
+  const factory ExploreState.loading() = ExploreLoading;
+
+  const factory ExploreState.genresLoaded({required List<Genre> genres}) =
+      GenresLoaded;
+
+  const factory ExploreState.moviesLoaded({
+    required List<Movie> movies,
+    required String category,
+    @Default(1) int currentPage,
+    @Default(true) bool hasMore,
+  }) = MoviesLoaded;
+
+  const factory ExploreState.error({required String message}) = ExploreError;
 }
 
-class ExploreInitial extends ExploreState {}
-
-class ExploreLoading extends ExploreState {}
-
-class GenresLoaded extends ExploreState {
-  final List<Genre> genres;
-
-  const GenresLoaded(this.genres);
-
-  @override
-  List<Object?> get props => [genres];
-}
-
-class MoviesLoaded extends ExploreState {
-  final List<Movie> movies;
-  final String category;
-  final int currentPage;
-  final bool hasMore;
-
-  const MoviesLoaded({
-    required this.movies,
-    required this.category,
-    this.currentPage = 1,
-    this.hasMore = true,
-  });
-
-  MoviesLoaded copyWith({
+extension MoviesLoadedX on MoviesLoaded {
+  MoviesLoaded copyWithMore({
     List<Movie>? movies,
     String? category,
     int? currentPage,
@@ -48,16 +37,4 @@ class MoviesLoaded extends ExploreState {
       hasMore: hasMore ?? this.hasMore,
     );
   }
-
-  @override
-  List<Object?> get props => [movies, category, currentPage, hasMore];
-}
-
-class ExploreError extends ExploreState {
-  final String message;
-
-  const ExploreError(this.message);
-
-  @override
-  List<Object?> get props => [message];
 }

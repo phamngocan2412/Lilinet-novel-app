@@ -1,5 +1,8 @@
+import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../domain/entities/streaming_response.dart';
 import '../../../domain/usecases/get_streaming_links.dart';
 import 'streaming_state.dart';
 
@@ -16,6 +19,9 @@ class StreamingCubit extends Cubit<StreamingState> {
   static const _animeProviders = ['zoro', 'gogoanime', 'animepahe', 'animekai'];
   static const _movieProviders = ['flixhq', 'viewasian'];
 
+  // Race timeout for parallel provider attempts
+  static const _raceTimeout = Duration(seconds: 15);
+
   Future<void> loadLinks({
     required String episodeId,
     required String mediaId,
@@ -25,45 +31,36 @@ class StreamingCubit extends Cubit<StreamingState> {
     if (isClosed) return;
     emit(StreamingLoading());
 
-    // 1. Try the requested provider first
+    // 1. Try the requested provider first (with specific server if requested)
     bool success = await _tryProvider(provider, episodeId, mediaId, server);
     if (success) return;
 
-    // 2. If specific server was requested, don't try fallbacks (user explicit choice)
+    // 2. If specific server was requested, don't try fallbacks
     if (server != null) {
-      // Error is already emitted by _tryProvider if it failed
+      if (!isClosed && state is! StreamingLoaded) {
+        emit(
+          const StreamingError(
+            'Selected server is not available. Please try a different server.',
+          ),
+        );
+      }
       return;
     }
 
-    // 3. Auto-fallback to other providers in the SAME category
-    print('⚠️ Primary provider $provider failed. Attempting fallbacks...');
+    // 3. Race fallback providers in parallel for faster response
+    if (kDebugMode) {
+      debugPrint('⚠️ Primary provider $provider failed. Racing fallback providers...');
+    }
 
     final isAnime = _animeProviders.contains(provider);
-    final primaryBackups = isAnime ? _animeProviders : _movieProviders;
-    final secondaryBackups = isAnime ? _movieProviders : _animeProviders;
+    final fallbackProviders = _getFallbackProviders(provider, isAnime);
 
-    // Try same-category backups
-    for (final backup in primaryBackups) {
-      if (backup == provider) continue; // Skip already tried
-
-      print('🔄 Trying fallback provider (Same Category): $backup');
-      success = await _tryProvider(backup, episodeId, mediaId, null);
+    if (fallbackProviders.isNotEmpty) {
+      success = await _raceProviders(fallbackProviders, episodeId, mediaId);
       if (success) return;
     }
 
-    // 4. Try cross-category backups (Last Resort)
-    // This handles cases where a Movie is wrongly classified as Anime or vice versa
-    print(
-      '⚠️ All ${isAnime ? "Anime" : "Movie"} providers failed. Trying cross-category...',
-    );
-
-    for (final backup in secondaryBackups) {
-      print('🔄 Trying fallback provider (Cross Category): $backup');
-      success = await _tryProvider(backup, episodeId, mediaId, null);
-      if (success) return;
-    }
-
-    // 5. If all fail
+    // 4. If all fail
     if (!isClosed && state is! StreamingLoaded) {
       emit(
         const StreamingError(
@@ -71,6 +68,65 @@ class StreamingCubit extends Cubit<StreamingState> {
         ),
       );
     }
+  }
+
+  List<String> _getFallbackProviders(String primaryProvider, bool isAnime) {
+    final allProviders = isAnime
+        ? [..._animeProviders, ..._movieProviders]
+        : [..._movieProviders, ..._animeProviders];
+
+    return allProviders.where((p) => p != primaryProvider).toList();
+  }
+
+  Future<bool> _raceProviders(
+    List<String> providers,
+    String episodeId,
+    String mediaId,
+  ) async {
+    // Create a completer to handle the first successful result
+    final completer = Completer<bool>();
+    var completed = false;
+
+    // Launch all providers in parallel with a race
+    final futures = providers.map((provider) async {
+      if (completed || isClosed) return;
+
+      try {
+        final result = await _tryProviderWithTimeout(
+          provider,
+          episodeId,
+          mediaId,
+        );
+
+        if (result && !completed && !isClosed) {
+          completed = true;
+          completer.complete(true);
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('❌ Provider $provider failed: $e');
+        }
+      }
+    }).toList();
+
+    // Wait for either first success or all to complete
+    final raceFuture = completer.future;
+    final allCompleteFuture = Future.wait(futures);
+
+    try {
+      await Future.any([raceFuture, allCompleteFuture.then((_) => false)]);
+      return completed;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> _tryProviderWithTimeout(
+    String provider,
+    String episodeId,
+    String mediaId,
+  ) async {
+    return await _tryProvider(provider, episodeId, mediaId, null);
   }
 
   Future<bool> _tryProvider(
@@ -134,12 +190,14 @@ class StreamingCubit extends Cubit<StreamingState> {
     return false;
   }
 
-  void _emitLoaded(dynamic response, String provider, String server) {
+  void _emitLoaded(StreamingResponse response, String provider, String server) {
     if (!isClosed) {
-      print('✅ Streaming links loaded successfully:');
-      print('  Provider: $provider');
-      print('  Server: $server');
-      print('  Sources: ${response.links.length}');
+      if (kDebugMode) {
+        debugPrint('✅ Streaming links loaded successfully:');
+        debugPrint('  Provider: $provider');
+        debugPrint('  Server: $server');
+        debugPrint('  Sources: ${response.links.length}');
+      }
 
       emit(
         StreamingLoaded(

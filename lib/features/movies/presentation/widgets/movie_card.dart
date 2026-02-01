@@ -77,8 +77,8 @@ class MovieCard extends StatelessWidget {
                         stops: const [0.6, 1.0],
                         colors: [
                           Colors.transparent,
-                          Colors.black.withOpacity(
-                            0.8,
+                          Colors.black.withValues(
+                            alpha: 0.8,
                           ), // Always black for white text readability
                         ],
                       ),
@@ -109,7 +109,7 @@ class MovieCard extends StatelessWidget {
                   fontSize: 10,
                   fontWeight: FontWeight.bold,
                   shadows: [
-                    Shadow(blurRadius: 2, color: Colors.black.withOpacity(0.3)),
+                    Shadow(blurRadius: 2, color: Colors.black.withValues(alpha: 0.3)),
                   ],
                 ),
               ),
@@ -147,7 +147,7 @@ class MovieCard extends StatelessWidget {
                     Shadow(
                       offset: const Offset(0, 1),
                       blurRadius: 2,
-                      color: Colors.black.withOpacity(0.8),
+                      color: Colors.black.withValues(alpha: 0.8),
                     ),
                   ],
                 ),

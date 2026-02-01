@@ -12,6 +12,8 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
     on<CloseVideo>(_onCloseVideo);
   }
 
+  static VideoPlayerState get initialState => const VideoPlayerState();
+
   void _onPlayVideo(PlayVideo event, Emitter<VideoPlayerState> emit) {
     emit(
       state.copyWith(

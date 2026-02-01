@@ -27,11 +27,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     LoadSettings event,
     Emitter<SettingsState> emit,
   ) async {
-    emit(SettingsLoading());
+    emit(const SettingsLoading());
     final result = await getSettings();
     result.fold(
-      (failure) => emit(SettingsError(failure.message)),
-      (settings) => emit(SettingsLoaded(settings)),
+      (failure) => emit(SettingsError(message: failure.message)),
+      (settings) => emit(SettingsLoaded(settings: settings)),
     );
   }
 
@@ -39,11 +39,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     UpdateSettings event,
     Emitter<SettingsState> emit,
   ) async {
-    emit(SettingsSaving());
+    emit(const SettingsSaving());
     final result = await saveSettings(event.settings);
     result.fold(
-      (failure) => emit(SettingsError(failure.message)),
-      (_) => emit(SettingsSaved(event.settings)),
+      (failure) => emit(SettingsError(message: failure.message)),
+      (_) => emit(SettingsSaved(settings: event.settings)),
     );
   }
 
@@ -51,11 +51,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     ResetSettings event,
     Emitter<SettingsState> emit,
   ) async {
-    emit(SettingsLoading());
+    emit(const SettingsLoading());
     final result = await repository.resetSettings();
     result.fold(
-      (failure) => emit(SettingsError(failure.message)),
-      (_) => add(LoadSettings()),
+      (failure) => emit(SettingsError(message: failure.message)),
+      (_) => add(const LoadSettings()),
     );
   }
 
@@ -65,10 +65,10 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   ) async {
     final result = await repository.clearCache();
     result.fold(
-      (failure) => emit(SettingsError(failure.message)),
+      (failure) => emit(SettingsError(message: failure.message)),
       (_) {
         // Reload settings after clearing cache
-        add(LoadSettings());
+        add(const LoadSettings());
       },
     );
   }

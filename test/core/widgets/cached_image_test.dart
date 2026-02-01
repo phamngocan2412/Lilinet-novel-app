@@ -1,69 +1,68 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:lilinet_app/core/widgets/cached_image.dart';
 
 void main() {
-  testWidgets('AppCachedImage uses LayoutBuilder to calculate memCacheWidth (fallback case)',
-      (WidgetTester tester) async {
-    const imageUrl = 'https://example.com/image.jpg';
-    const double containerWidth = 200.0;
-    const double devicePixelRatio = 3.0;
+  testWidgets(
+    'AppCachedImage uses LayoutBuilder to calculate memCacheWidth (fallback case)',
+    (WidgetTester tester) async {
+      const imageUrl = 'https://example.com/image.jpg';
+      const double containerWidth = 200.0;
+      const double devicePixelRatio = 3.0;
 
-    // We use MediaQuery to simulate device pixel ratio
-    await tester.pumpWidget(
-      MediaQuery(
-        data: const MediaQueryData(devicePixelRatio: devicePixelRatio),
-        child: const MaterialApp(
-          home: Center(
-            child: SizedBox(
-              width: containerWidth,
-              height: 300,
-              child: AppCachedImage(
-                imageUrl: imageUrl,
-                fit: BoxFit.cover,
-                // We pass width: null to trigger LayoutBuilder usage
+      // We use MediaQuery to simulate device pixel ratio
+      await tester.pumpWidget(
+        const MediaQuery(
+          data: MediaQueryData(devicePixelRatio: devicePixelRatio),
+          child: MaterialApp(
+            home: Center(
+              child: SizedBox(
+                width: containerWidth,
+                height: 300,
+                child: AppCachedImage(
+                  imageUrl: imageUrl,
+                  fit: BoxFit.cover,
+                  // We pass width: null to trigger LayoutBuilder usage
+                ),
               ),
             ),
           ),
         ),
-      ),
-    );
+      );
 
-    // Find CachedNetworkImage
-    final cachedImageFinder = find.byType(CachedNetworkImage);
-    expect(cachedImageFinder, findsOneWidget);
+      // Find CachedNetworkImage
+      final cachedImageFinder = find.byType(CachedNetworkImage);
+      expect(cachedImageFinder, findsOneWidget);
 
-    final CachedNetworkImage cachedImage =
-        tester.widget(cachedImageFinder) as CachedNetworkImage;
+      final CachedNetworkImage cachedImage =
+          tester.widget(cachedImageFinder) as CachedNetworkImage;
 
-    // Expected calculation: containerWidth * devicePixelRatio
-    // 200 * 3.0 = 600
-    final expectedCacheWidth = (containerWidth * devicePixelRatio).toInt();
+      // Expected calculation: containerWidth * devicePixelRatio
+      // 200 * 3.0 = 600
+      final expectedCacheWidth = (containerWidth * devicePixelRatio).toInt();
 
-    expect(cachedImage.memCacheWidth, equals(expectedCacheWidth));
+      expect(cachedImage.memCacheWidth, equals(expectedCacheWidth));
 
-    // In this fallback case, AppCachedImage MUST use LayoutBuilder
-    // And CachedNetworkImage might use one too.
-    expect(find.byType(LayoutBuilder), findsAtLeastNWidgets(1));
-  });
+      // In this fallback case, AppCachedImage MUST use LayoutBuilder
+      // And CachedNetworkImage might use one too.
+      expect(find.byType(LayoutBuilder), findsAtLeastNWidgets(1));
+    },
+  );
 
-  testWidgets('AppCachedImage uses provided width if available (Optimized Case)',
-      (WidgetTester tester) async {
+  testWidgets('AppCachedImage uses provided width if available (Optimized Case)', (
+    WidgetTester tester,
+  ) async {
     const imageUrl = 'https://example.com/image.jpg';
     const double explicitWidth = 150.0;
     const double devicePixelRatio = 2.0;
 
     await tester.pumpWidget(
-      MediaQuery(
-        data: const MediaQueryData(devicePixelRatio: devicePixelRatio),
-        child: const MaterialApp(
+      const MediaQuery(
+        data: MediaQueryData(devicePixelRatio: devicePixelRatio),
+        child: MaterialApp(
           home: Center(
-            child: AppCachedImage(
-              imageUrl: imageUrl,
-              width: explicitWidth,
-            ),
+            child: AppCachedImage(imageUrl: imageUrl, width: explicitWidth),
           ),
         ),
       ),
@@ -100,15 +99,16 @@ void main() {
     // Instead, let's just ensure logic is correct (done above).
   });
 
-  testWidgets('AppCachedImage falls back to default if unbounded',
-      (WidgetTester tester) async {
+  testWidgets('AppCachedImage falls back to default if unbounded', (
+    WidgetTester tester,
+  ) async {
     const imageUrl = 'https://example.com/image.jpg';
     const double devicePixelRatio = 2.0;
 
     await tester.pumpWidget(
-      MediaQuery(
-        data: const MediaQueryData(devicePixelRatio: devicePixelRatio),
-        child: const MaterialApp(
+      const MediaQuery(
+        data: MediaQueryData(devicePixelRatio: devicePixelRatio),
+        child: MaterialApp(
           home: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -132,66 +132,67 @@ void main() {
     expect(cachedImage.memCacheWidth, equals(700));
   });
 
-  testWidgets('AppCachedImage SKIPS LayoutBuilder when memCacheWidth is provided (Optimization)',
-      (WidgetTester tester) async {
-    const imageUrl = 'https://example.com/image.jpg';
-    const int explicitMemCacheWidth = 300;
+  testWidgets(
+    'AppCachedImage SKIPS LayoutBuilder when memCacheWidth is provided (Optimization)',
+    (WidgetTester tester) async {
+      const imageUrl = 'https://example.com/image.jpg';
+      const int explicitMemCacheWidth = 300;
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: Center(
-          child: AppCachedImage(
-            imageUrl: imageUrl,
-            memCacheWidth: explicitMemCacheWidth,
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Center(
+            child: AppCachedImage(
+              imageUrl: imageUrl,
+              memCacheWidth: explicitMemCacheWidth,
+            ),
           ),
         ),
-      ),
-    );
+      );
 
-    // We want to verify AppCachedImage skipped LayoutBuilder.
-    // But CachedNetworkImage might use one because width is null.
-    // So we can't assert findsNothing.
+      // We want to verify AppCachedImage skipped LayoutBuilder.
+      // But CachedNetworkImage might use one because width is null.
+      // So we can't assert findsNothing.
 
-    // But we know that in the "fallback" case (first test), AppCachedImage used LayoutBuilder.
-    // Here, we removed THAT LayoutBuilder.
+      // But we know that in the "fallback" case (first test), AppCachedImage used LayoutBuilder.
+      // Here, we removed THAT LayoutBuilder.
 
-    // Ideally we would inspect the tree: AppCachedImage -> CachedNetworkImage.
-    // Not AppCachedImage -> LayoutBuilder -> CachedNetworkImage.
+      // Ideally we would inspect the tree: AppCachedImage -> CachedNetworkImage.
+      // Not AppCachedImage -> LayoutBuilder -> CachedNetworkImage.
 
-    final appCachedImageFinder = find.byType(AppCachedImage);
-    final cachedNetworkImageFinder = find.byType(CachedNetworkImage);
+      find.byType(AppCachedImage);
+      final cachedNetworkImageFinder = find.byType(CachedNetworkImage);
 
-    // Check that CachedNetworkImage is a descendant of AppCachedImage
-    expect(cachedNetworkImageFinder, findsOneWidget);
+      // Check that CachedNetworkImage is a descendant of AppCachedImage
+      expect(cachedNetworkImageFinder, findsOneWidget);
 
-    // To strictly prove optimization, we'd need to inspect the element tree.
-    // Given the limitations of this environment, we rely on the code change we made and the logic tests passing.
-    // We can leave this test as a logic verification that providing memCacheWidth works.
+      // To strictly prove optimization, we'd need to inspect the element tree.
+      // Given the limitations of this environment, we rely on the code change we made and the logic tests passing.
+      // We can leave this test as a logic verification that providing memCacheWidth works.
 
-    final CachedNetworkImage cachedImage = tester.widget(cachedNetworkImageFinder) as CachedNetworkImage;
-    expect(cachedImage.memCacheWidth, equals(300));
-  });
+      final CachedNetworkImage cachedImage =
+          tester.widget(cachedNetworkImageFinder) as CachedNetworkImage;
+      expect(cachedImage.memCacheWidth, equals(300));
+    },
+  );
 
-  testWidgets('AppCachedImage SKIPS LayoutBuilder when width is provided (Optimization)',
-      (WidgetTester tester) async {
-    const imageUrl = 'https://example.com/image.jpg';
-    const double explicitWidth = 100.0;
+  testWidgets(
+    'AppCachedImage SKIPS LayoutBuilder when width is provided (Optimization)',
+    (WidgetTester tester) async {
+      const imageUrl = 'https://example.com/image.jpg';
+      const double explicitWidth = 100.0;
 
-    await tester.pumpWidget(
-      const MaterialApp(
-        home: Center(
-          child: AppCachedImage(
-            imageUrl: imageUrl,
-            width: explicitWidth,
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Center(
+            child: AppCachedImage(imageUrl: imageUrl, width: explicitWidth),
           ),
         ),
-      ),
-    );
+      );
 
-    // Logic verification
-    final CachedNetworkImage cachedImage = tester.widget(find.byType(CachedNetworkImage)) as CachedNetworkImage;
-    // devicePixelRatio is 3.0 by default in test environment? No, 3.0 in first test, implicit elsewhere.
-    // Default is usually 1.0 or 3.0 depending on test implementation.
-    // We can just verify it ran without error.
-  });
+      // Logic verification
+      // devicePixelRatio is 3.0 by default in test environment? No, 3.0 in first test, implicit elsewhere.
+      // Default is usually 1.0 or 3.0 depending on test implementation.
+      // We can just verify it ran without error.
+    },
+  );
 }

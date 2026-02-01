@@ -1,39 +1,43 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/entities/watch_progress.dart';
 import '../../domain/usecases/get_watch_history.dart';
 import '../../domain/usecases/save_watch_progress.dart';
 import '../../domain/usecases/delete_watch_progress.dart';
 
-part 'history_state.dart';
+export 'history_state.dart';
+import 'history_state.dart';
+
+/// Type alias for backward compatibility.
+/// New code should use HistoryCubit directly.
+typedef HistoryBloc = HistoryCubit;
 
 @lazySingleton
-class HistoryBloc extends Cubit<HistoryState> {
+class HistoryCubit extends Cubit<HistoryState> {
   final GetWatchHistory _getWatchHistory;
   final SaveWatchProgress _saveWatchProgress;
   final DeleteWatchProgress _deleteWatchProgress;
 
-  HistoryBloc({
+  HistoryCubit({
     required GetWatchHistory getWatchHistory,
     required SaveWatchProgress saveWatchProgress,
     required DeleteWatchProgress deleteWatchProgress,
   }) : _getWatchHistory = getWatchHistory,
        _saveWatchProgress = saveWatchProgress,
        _deleteWatchProgress = deleteWatchProgress,
-       super(HistoryInitial());
+       super(const HistoryInitial());
 
   Future<void> loadHistory() async {
-    emit(HistoryLoading());
+    emit(const HistoryLoading());
     try {
       final history = await _getWatchHistory();
       if (history.isEmpty) {
-        emit(HistoryEmpty());
+        emit(const HistoryEmpty());
       } else {
-        emit(HistoryLoaded(history));
+        emit(HistoryLoaded(history: history));
       }
     } catch (e) {
-      emit(HistoryError(e.toString()));
+      emit(HistoryError(message: e.toString()));
     }
   }
 
@@ -46,12 +50,12 @@ class HistoryBloc extends Cubit<HistoryState> {
     }
   }
 
-  Future<void> deleteProgress(String mediaId) async {
+  Future<void> deleteProgress(String mediaId, {String? episodeId}) async {
     try {
-      await _deleteWatchProgress(mediaId);
+      await _deleteWatchProgress(mediaId, episodeId: episodeId);
       await loadHistory();
     } catch (e) {
-      emit(HistoryError(e.toString()));
+      emit(HistoryError(message: e.toString()));
     }
   }
 }

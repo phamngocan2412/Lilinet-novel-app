@@ -51,4 +51,8 @@ abstract class RegisterModule {
   @preResolve
   Future<Box<MovieModel>> get movieDetailsBox =>
       Hive.openBox<MovieModel>('movie_details_cache');
+
+  @preResolve
+  Future<Box<DateTime>> get cacheTimestampBox =>
+      Hive.openBox<DateTime>('cache_timestamps');
 }

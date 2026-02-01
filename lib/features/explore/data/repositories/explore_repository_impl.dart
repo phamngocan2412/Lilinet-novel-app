@@ -130,13 +130,17 @@ class ExploreRepositoryImpl implements ExploreRepository {
     }
   }
 
+  /// WORKAROUND: Backend doesn't have dedicated top-rated endpoint.
+  /// We fetch popular movies and sort by rating client-side.
+  /// This is not ideal but works for MVP.
+  /// TODO: Replace with dedicated endpoint when backend supports it.
   @override
   Future<Either<Failure, List<Movie>>> getTopRatedMovies({int page = 1}) async {
     try {
       final response = await remoteDataSource.getPopularMovies(page: page);
       var movies = response.results.map((m) => m.toEntity()).toList();
 
-      // Sort by rating
+      // Sort by rating (client-side workaround)
       movies.sort((a, b) {
         if (a.rating == null) return 1;
         if (b.rating == null) return -1;
@@ -151,13 +155,17 @@ class ExploreRepositoryImpl implements ExploreRepository {
     }
   }
 
+  /// WORKAROUND: Backend doesn't have dedicated recently-added endpoint.
+  /// We fetch popular movies and sort by release date client-side.
+  /// This is not ideal but works for MVP.
+  /// TODO: Replace with dedicated endpoint when backend supports it.
   @override
   Future<Either<Failure, List<Movie>>> getRecentlyAdded({int page = 1}) async {
     try {
       final response = await remoteDataSource.getPopularMovies(page: page);
       var movies = response.results.map((m) => m.toEntity()).toList();
 
-      // Sort by release date
+      // Sort by release date (client-side workaround)
       movies.sort((a, b) {
         if (a.releaseDate == null) return 1;
         if (b.releaseDate == null) return -1;

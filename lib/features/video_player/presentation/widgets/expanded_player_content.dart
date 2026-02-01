@@ -253,7 +253,7 @@ class ExpandedPlayerContent extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: isSelected ? color : color.withOpacity(0.2),
+          color: isSelected ? color : color.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(4),
           border: isSelected
               ? Border.all(color: Colors.white, width: 1)

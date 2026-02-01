@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
+import '../../../../../core/services/anime_detection_service.dart';
 import '../../../domain/repositories/movie_repository.dart';
 import '../../../domain/usecases/get_movie_details.dart';
 import '../../../domain/entities/movie.dart';
@@ -13,11 +15,13 @@ class MovieDetailsBloc extends Bloc<MovieDetailsEvent, MovieDetailsState> {
   final GetMovieDetails _getMovieDetails;
   final MovieRepository _repository;
   final SettingsRepository _settingsRepository;
+  final AnimeDetectionService _animeDetectionService;
 
   MovieDetailsBloc(
     this._getMovieDetails,
     this._repository,
     this._settingsRepository,
+    this._animeDetectionService,
   ) : super(MovieDetailsInitial()) {
     on<LoadMovieDetails>(_onLoadMovieDetails);
     on<SetMovieDetails>(_onSetMovieDetails);
@@ -109,68 +113,39 @@ class MovieDetailsBloc extends Bloc<MovieDetailsEvent, MovieDetailsState> {
       (settings) {
         if (event.type.toLowerCase() == 'movie' ||
             event.type.toLowerCase().contains('tv')) {
-          // Detect if content is anime
-          // TMDB uses "Animation" for both anime and western animation
-          // We need additional heuristics to distinguish
+          // Detect if content is anime using AnimeDetectionService
           bool isAnime = false;
 
           fastResult.fold(
             (failure) {
-              print(
-                '⚠️ Fast fetch failed, cannot detect anime: ${failure.message}',
-              );
+              if (kDebugMode) {
+                debugPrint(
+                  '⚠️ Fast fetch failed, cannot detect anime: ${failure.message}',
+                );
+              }
               // Fallback: If it's TV Series with Animation, likely anime
-              // Most western animated shows are categorized differently
               if (event.type.toLowerCase().contains('tv')) {
-                print('   Defaulting to anime provider for TV Series');
+                if (kDebugMode) {
+                  debugPrint('   Defaulting to anime provider for TV Series');
+                }
                 isAnime = true;
               }
             },
             (movie) {
-              // Check for Animation genre (TMDB's way of marking anime)
-              final hasAnimation = movie.genres.any(
-                (g) => g.toLowerCase().contains('animation'),
-              );
+              isAnime = _animeDetectionService.isAnime(movie, event.type);
 
-              if (hasAnimation) {
-                // Additional heuristics to distinguish anime from western animation
-                // 1. TV Series + Animation = likely anime
-                // 2. Check for common anime keywords in title
-                final title = movie.title.toLowerCase();
-                final animeKeywords = [
-                  'jujutsu',
-                  'naruto',
-                  'one piece',
-                  'bleach',
-                  'dragon ball',
-                  'attack on titan',
-                  'demon slayer',
-                  'my hero',
-                  'hunter',
-                  'tokyo',
-                  'sword art',
-                  'fullmetal',
-                  'death note',
-                  'code geass',
-                ];
-
-                final hasAnimeKeyword = animeKeywords.any(
-                  (keyword) => title.contains(keyword),
-                );
-
-                if (event.type.toLowerCase().contains('tv') ||
-                    hasAnimeKeyword) {
-                  isAnime = true;
-                  print('✅ Detected anime content: ${movie.title}');
-                  print(
-                    '   Reason: Animation genre + ${event.type.toLowerCase().contains('tv') ? "TV Series" : "anime keyword"}',
+              if (kDebugMode) {
+                if (isAnime) {
+                  final reason = _animeDetectionService.getDetectionReason(
+                    movie,
+                    event.type,
                   );
+                  debugPrint('✅ Detected anime content: ${movie.title}');
+                  debugPrint('   Reason: $reason');
                 } else {
-                  print('ℹ️ Detected western animation: ${movie.title}');
+                  debugPrint('ℹ️ Detected non-anime content: ${movie.title}');
+                  debugPrint('   Genres: ${movie.genres.join(", ")}');
                 }
-              } else {
-                print('ℹ️ Detected non-anime content: ${movie.title}');
-                print('   Genres: ${movie.genres.join(", ")}');
               }
             },
           );
@@ -179,10 +154,14 @@ class MovieDetailsBloc extends Bloc<MovieDetailsEvent, MovieDetailsState> {
           // Movie providers (flixhq, goku, etc.) don't work with anime IDs
           if (isAnime) {
             provider = settings.animeProvider;
-            print('📺 Using anime provider: $provider');
+            if (kDebugMode) {
+              debugPrint('📺 Using anime provider: $provider');
+            }
           } else {
             provider = settings.movieProvider;
-            print('🎬 Using movie provider: $provider');
+            if (kDebugMode) {
+              debugPrint('🎬 Using movie provider: $provider');
+            }
           }
         }
       },

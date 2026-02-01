@@ -7,7 +7,7 @@ class DeleteWatchProgress {
 
   DeleteWatchProgress(this._repository);
 
-  Future<void> call(String mediaId) {
-    return _repository.deleteProgress(mediaId);
+  Future<void> call(String mediaId, {String? episodeId}) {
+    return _repository.deleteProgress(mediaId, episodeId: episodeId);
   }
 }

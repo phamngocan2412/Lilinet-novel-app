@@ -1,52 +1,23 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-abstract class ExploreEvent extends Equatable {
-  const ExploreEvent();
+part 'explore_event.freezed.dart';
 
-  @override
-  List<Object?> get props => [];
-}
+@freezed
+class ExploreEvent with _$ExploreEvent {
+  const factory ExploreEvent.loadGenres() = LoadGenres;
 
-class LoadGenres extends ExploreEvent {}
+  const factory ExploreEvent.loadMoviesByGenre({
+    required String genreId,
+    required String genreName,
+    @Default(1) int page,
+  }) = LoadMoviesByGenre;
 
-class LoadMoviesByGenre extends ExploreEvent {
-  final String genreId;
-  final String genreName;
-  final int page;
+  const factory ExploreEvent.loadPopularMovies({@Default(1) int page}) =
+      LoadPopularMovies;
 
-  const LoadMoviesByGenre({
-    required this.genreId,
-    required this.genreName,
-    this.page = 1,
-  });
+  const factory ExploreEvent.loadTopRatedMovies({@Default(1) int page}) =
+      LoadTopRatedMovies;
 
-  @override
-  List<Object?> get props => [genreId, genreName, page];
-}
-
-class LoadPopularMovies extends ExploreEvent {
-  final int page;
-
-  const LoadPopularMovies({this.page = 1});
-
-  @override
-  List<Object?> get props => [page];
-}
-
-class LoadTopRatedMovies extends ExploreEvent {
-  final int page;
-
-  const LoadTopRatedMovies({this.page = 1});
-
-  @override
-  List<Object?> get props => [page];
-}
-
-class LoadRecentlyAdded extends ExploreEvent {
-  final int page;
-
-  const LoadRecentlyAdded({this.page = 1});
-
-  @override
-  List<Object?> get props => [page];
+  const factory ExploreEvent.loadRecentlyAdded({@Default(1) int page}) =
+      LoadRecentlyAdded;
 }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:injectable/injectable.dart';
 import '../../domain/usecases/get_current_user.dart';
+import '../../domain/usecases/send_password_reset_email.dart';
 import '../../domain/usecases/sign_in_with_email.dart';
 import '../../domain/usecases/sign_out.dart';
 import '../../domain/usecases/sign_up_with_email.dart';
@@ -15,6 +16,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final SignUpWithEmail signUpWithEmail;
   final SignOut signOut;
   final GetCurrentUser getCurrentUser;
+  final SendPasswordResetEmail sendPasswordResetEmail;
   final AuthRepository authRepository;
 
   StreamSubscription? _authStateSubscription;
@@ -24,18 +26,20 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.signUpWithEmail,
     required this.signOut,
     required this.getCurrentUser,
+    required this.sendPasswordResetEmail,
     required this.authRepository,
-  }) : super(AuthInitial()) {
+  }) : super(const AuthInitial()) {
     on<CheckAuthStatus>(_onCheckAuthStatus);
     on<SignInRequested>(_onSignInRequested);
     on<AuthSubmitted>(_onAuthSubmitted);
     on<SignUpRequested>(_onSignUpRequested);
     on<SignOutRequested>(_onSignOutRequested);
     on<AuthStateChanged>(_onAuthStateChanged);
+    on<PasswordResetRequested>(_onPasswordResetRequested);
 
     // Listen to auth state changes
     _authStateSubscription = authRepository.authStateChanges.listen((user) {
-      add(AuthStateChanged(user != null));
+      add(AuthStateChanged(isAuthenticated: user != null));
     });
   }
 
@@ -43,15 +47,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     CheckAuthStatus event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     final result = await getCurrentUser();
     result.fold(
-      (failure) => emit(Unauthenticated()),
+      (failure) => emit(const Unauthenticated()),
       (user) {
         if (user != null) {
-          emit(Authenticated(user));
+          emit(Authenticated(user: user));
         } else {
-          emit(Unauthenticated());
+          emit(const Unauthenticated());
         }
       },
     );
@@ -61,7 +65,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     AuthSubmitted event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     final email = '${event.username.trim()}@lilinet.app';
     final password = event.password;
 
@@ -71,8 +75,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         password: password,
       );
       signInResult.fold(
-        (failure) => emit(AuthError(failure.message)),
-        (user) => emit(Authenticated(user)),
+        (failure) => emit(AuthError(message: failure.message)),
+        (user) => emit(Authenticated(user: user)),
       );
     } else {
       final signUpResult = await signUpWithEmail(
@@ -81,8 +85,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         displayName: event.username,
       );
       signUpResult.fold(
-        (failure) => emit(AuthError(failure.message)),
-        (user) => emit(Authenticated(user)),
+        (failure) => emit(AuthError(message: failure.message)),
+        (user) => emit(Authenticated(user: user)),
       );
     }
   }
@@ -91,14 +95,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     SignInRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     final result = await signInWithEmail(
       email: event.email,
       password: event.password,
     );
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (user) => emit(Authenticated(user)),
+      (failure) => emit(AuthError(message: failure.message)),
+      (user) => emit(Authenticated(user: user)),
     );
   }
 
@@ -106,15 +110,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     SignUpRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     final result = await signUpWithEmail(
       email: event.email,
       password: event.password,
       displayName: event.displayName,
     );
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (user) => emit(Authenticated(user)),
+      (failure) => emit(AuthError(message: failure.message)),
+      (user) => emit(Authenticated(user: user)),
     );
   }
 
@@ -122,11 +126,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     SignOutRequested event,
     Emitter<AuthState> emit,
   ) async {
-    emit(AuthLoading());
+    emit(const AuthLoading());
     final result = await signOut();
     result.fold(
-      (failure) => emit(AuthError(failure.message)),
-      (_) => emit(Unauthenticated()),
+      (failure) => emit(AuthError(message: failure.message)),
+      (_) => emit(const Unauthenticated()),
     );
   }
 
@@ -137,18 +141,30 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     if (event.isAuthenticated) {
       final result = await getCurrentUser();
       result.fold(
-        (failure) => emit(Unauthenticated()),
+        (failure) => emit(const Unauthenticated()),
         (user) {
           if (user != null) {
-            emit(Authenticated(user));
+            emit(Authenticated(user: user));
           } else {
-            emit(Unauthenticated());
+            emit(const Unauthenticated());
           }
         },
       );
     } else {
-      emit(Unauthenticated());
+      emit(const Unauthenticated());
     }
+  }
+
+  Future<void> _onPasswordResetRequested(
+    PasswordResetRequested event,
+    Emitter<AuthState> emit,
+  ) async {
+    emit(const AuthLoading());
+    final result = await sendPasswordResetEmail(event.email);
+    result.fold(
+      (failure) => emit(AuthError(message: failure.message)),
+      (_) => emit(PasswordResetEmailSent(email: event.email)),
+    );
   }
 
   @override

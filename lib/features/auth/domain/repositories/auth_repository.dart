@@ -18,5 +18,8 @@ abstract class AuthRepository {
 
   Future<Either<Failure, AppUser?>> getCurrentUser();
 
+  /// Sends a password reset email to the specified email address.
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email);
+
   Stream<AppUser?> get authStateChanges;
 }

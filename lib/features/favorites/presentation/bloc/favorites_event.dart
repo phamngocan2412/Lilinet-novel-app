@@ -1,50 +1,23 @@
-import 'package:equatable/equatable.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-abstract class FavoritesEvent extends Equatable {
-  const FavoritesEvent();
+part 'favorites_event.freezed.dart';
 
-  @override
-  List<Object?> get props => [];
-}
+@freezed
+class FavoritesEvent with _$FavoritesEvent {
+  const factory FavoritesEvent.loadFavorites() = LoadFavorites;
 
-class LoadFavorites extends FavoritesEvent {}
+  const factory FavoritesEvent.addFavorite({
+    required String movieId,
+    String? movieTitle,
+    String? moviePoster,
+    String? movieType,
+  }) = AddFavoriteEvent;
 
-class AddFavoriteEvent extends FavoritesEvent {
-  final String movieId;
-  final String? movieTitle;
-  final String? moviePoster;
-  final String? movieType;
+  const factory FavoritesEvent.removeFavorite({required String movieId}) =
+      RemoveFavoriteEvent;
 
-  const AddFavoriteEvent({
-    required this.movieId,
-    this.movieTitle,
-    this.moviePoster,
-    this.movieType,
-  });
+  const factory FavoritesEvent.clearFavorites() = ClearFavorites;
 
-  @override
-  List<Object?> get props => [movieId, movieTitle, moviePoster, movieType];
-}
-
-class RemoveFavoriteEvent extends FavoritesEvent {
-  final String movieId;
-
-  const RemoveFavoriteEvent(this.movieId);
-
-  @override
-  List<Object?> get props => [movieId];
-}
-
-class ClearFavorites extends FavoritesEvent {
-  @override
-  List<Object?> get props => [];
-}
-
-class CheckFavoriteStatus extends FavoritesEvent {
-  final String movieId;
-
-  const CheckFavoriteStatus(this.movieId);
-
-  @override
-  List<Object?> get props => [movieId];
+  const factory FavoritesEvent.checkFavoriteStatus({required String movieId}) =
+      CheckFavoriteStatus;
 }

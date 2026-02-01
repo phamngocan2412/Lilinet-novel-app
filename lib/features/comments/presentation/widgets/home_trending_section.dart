@@ -38,8 +38,8 @@ class HomeTrendingSectionView extends StatelessWidget {
 
   Widget _buildLoadingShimmer(BuildContext context) {
     return Container(
-      height: 180,
-      margin: const EdgeInsets.symmetric(vertical: 16),
+      height: 140,
+      margin: const EdgeInsets.symmetric(vertical: 12),
       child: ListView.builder(
         cacheExtent: 300,
         scrollDirection: Axis.horizontal,
@@ -47,8 +47,8 @@ class HomeTrendingSectionView extends StatelessWidget {
         itemCount: 3,
         itemBuilder: (context, index) {
           return Container(
-            width: 280,
-            margin: const EdgeInsets.only(right: 12),
+            width: 240,
+            margin: const EdgeInsets.only(right: 10),
             decoration: BoxDecoration(
               color: Colors.grey[300],
               borderRadius: BorderRadius.circular(12),
@@ -70,19 +70,19 @@ class HomeTrendingSectionView extends StatelessWidget {
               Text(
                 'BÌNH LUẬN NỔI BẬT',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                   letterSpacing: 1.0,
                 ),
               ),
-              SizedBox(width: 8),
-              Text('🔥', style: TextStyle(fontSize: 18)),
+              SizedBox(width: 6),
+              Text('🔥', style: TextStyle(fontSize: 16)),
             ],
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 10),
         SizedBox(
-          height: 160,
+          height: 130,
           child: ListView.builder(
             cacheExtent: 300,
             scrollDirection: Axis.horizontal,
@@ -117,7 +117,7 @@ class HomeTrendingSectionView extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 16),
       ],
     );
   }
@@ -138,13 +138,13 @@ class TrendingCommentCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: 280,
-        margin: const EdgeInsets.only(right: 12),
-        padding: const EdgeInsets.all(12),
+        width: 240,
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.withOpacity(0.2)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,10 +153,10 @@ class TrendingCommentCard extends StatelessWidget {
             Row(
               children: [
                 CircleAvatar(
-                  radius: 16,
+                  radius: 14,
                   backgroundImage: NetworkImage(comment.avatarUrl),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 6),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -165,14 +165,14 @@ class TrendingCommentCard extends StatelessWidget {
                         comment.userName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       Text(
                         comment.timeAgo,
-                        style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -184,7 +184,7 @@ class TrendingCommentCard extends StatelessWidget {
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Row(
@@ -209,19 +209,19 @@ class TrendingCommentCard extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
             // Comment content
             Expanded(
               child: Text(
                 comment.content,
-                style: const TextStyle(fontSize: 13, height: 1.3),
-                maxLines: 3,
+                style: const TextStyle(fontSize: 12, height: 1.3),
+                maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
             ),
 
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
 
             // Stats row
             Row(

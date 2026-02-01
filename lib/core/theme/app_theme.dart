@@ -133,7 +133,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.darkBackground,
-        indicatorColor: AppColors.netflixRed.withOpacity(0.2),
+        indicatorColor: AppColors.netflixRed.withValues(alpha: 0.2),
         labelTextStyle: MaterialStateProperty.all(
           const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
@@ -222,7 +222,7 @@ class AppTheme {
           bodyMedium: GoogleFonts.inter(fontSize: 14, color: bodyColor),
           bodySmall: GoogleFonts.inter(
             fontSize: 12,
-            color: bodyColor.withOpacity(0.7),
+            color: bodyColor.withValues(alpha: 0.7),
           ),
         )
         .apply(bodyColor: bodyColor, displayColor: displayColor);
