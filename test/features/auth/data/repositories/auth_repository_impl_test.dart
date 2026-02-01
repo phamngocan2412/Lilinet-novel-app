@@ -89,4 +89,24 @@ void main() {
       },
     );
   });
+
+  group('sendPasswordResetEmail', () {
+    test(
+      'should return sanitized Failure when a generic Exception occurs',
+      () async {
+        // Arrange
+        when(() => mockDataSource.sendPasswordResetEmail(any()))
+            .thenThrow(Exception(tSensitiveError));
+
+        // Act
+        final result = await repository.sendPasswordResetEmail(tEmail);
+
+        // Assert
+        expect(
+          result,
+          equals(const Left(Failure.server('An unexpected error occurred during password reset.'))),
+        );
+      },
+    );
+  });
 }
