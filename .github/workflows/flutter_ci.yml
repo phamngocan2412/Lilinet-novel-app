@@ -8,7 +8,7 @@ on:
 
 jobs:
   analyze-and-test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v4
@@ -18,7 +18,7 @@ jobs:
       with:
         flutter-version: '3.24.0'
         channel: 'stable'
-        cache: true
+        # cache: true # Temporarily disabled to rule out cache hangs
     
     - name: Get dependencies
       run: flutter pub get
@@ -42,7 +42,7 @@ jobs:
 
   build-android:
     needs: analyze-and-test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     if: github.ref == 'refs/heads/main'
     
     steps:
@@ -53,7 +53,7 @@ jobs:
       with:
         flutter-version: '3.24.0'
         channel: 'stable'
-        cache: true
+        # cache: true
     
     - name: Setup Java
       uses: actions/setup-java@v4
@@ -77,7 +77,7 @@ jobs:
         path: build/app/outputs/flutter-apk/app-release.apk
 
   format-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v4
@@ -87,7 +87,7 @@ jobs:
       with:
         flutter-version: '3.24.0'
         channel: 'stable'
-        cache: true
+        # cache: true
     
     - name: Get dependencies
       run: flutter pub get
