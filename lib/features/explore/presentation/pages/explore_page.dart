@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../injection_container.dart';
+import '../../../../core/services/miniplayer_height_notifier.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../movies/presentation/widgets/movie_card.dart';
@@ -86,7 +88,7 @@ class _ExploreViewState extends State<ExploreView>
                           isSelected: _selectedCategory == 'genres',
                           onTap: () {
                             setState(() => _selectedCategory = 'genres');
-                            context.read<ExploreBloc>().add(LoadGenres());
+                            context.read<ExploreBloc>().add(const LoadGenres());
                           },
                         ),
                         const SizedBox(width: 12),
@@ -145,7 +147,7 @@ class _ExploreViewState extends State<ExploreView>
                   message: state.message,
                   onRetry: () {
                     if (_selectedCategory == 'genres') {
-                      context.read<ExploreBloc>().add(LoadGenres());
+                      context.read<ExploreBloc>().add(const LoadGenres());
                     } else if (_selectedCategory == 'popular') {
                       context.read<ExploreBloc>().add(
                         const LoadPopularMovies(),
@@ -165,27 +167,39 @@ class _ExploreViewState extends State<ExploreView>
             }
 
             if (state is GenresLoaded) {
-              return GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 1.5,
-                  crossAxisSpacing: 16,
-                  mainAxisSpacing: 16,
-                ),
-                itemCount: state.genres.length,
-                itemBuilder: (context, index) {
-                  final genre = state.genres[index];
-                  return GenreCard(
-                    genre: genre,
-                    onTap: () {
-                      context.read<ExploreBloc>().add(
-                        LoadMoviesByGenre(
-                          genreId: genre.id,
-                          genreName: genre.name,
-                        ),
+              return ListenableBuilder(
+                listenable: getIt<MiniplayerHeightNotifier>(),
+                builder: (context, _) {
+                  final miniplayerHeight = getIt<MiniplayerHeightNotifier>().height;
+
+                  return GridView.builder(
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 16,
+                      bottom: miniplayerHeight + 16,
+                    ),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 1.5,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 16,
+                    ),
+                    itemCount: state.genres.length,
+                    itemBuilder: (context, index) {
+                      final genre = state.genres[index];
+                      return GenreCard(
+                        genre: genre,
+                        onTap: () {
+                          context.read<ExploreBloc>().add(
+                            LoadMoviesByGenre(
+                              genreId: genre.id,
+                              genreName: genre.name,
+                            ),
+                          );
+                          setState(() => _selectedCategory = 'genre_${genre.id}');
+                        },
                       );
-                      setState(() => _selectedCategory = 'genre_${genre.id}');
                     },
                   );
                 },
@@ -193,26 +207,38 @@ class _ExploreViewState extends State<ExploreView>
             }
 
             if (state is MoviesLoaded) {
-              return GridView.builder(
-                padding: const EdgeInsets.all(16),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.7,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemCount: state.movies.length,
-                itemBuilder: (context, index) {
-                  final movie = state.movies[index];
-                  return MovieCard(
-                    movie: movie,
-                    onTap: () {
-                      context.push(
-                        '/movie/${movie.id}?type=${movie.type}',
-                        extra: movie,
+              return ListenableBuilder(
+                listenable: getIt<MiniplayerHeightNotifier>(),
+                builder: (context, _) {
+                  final miniplayerHeight = getIt<MiniplayerHeightNotifier>().height;
+
+                  return GridView.builder(
+                    padding: EdgeInsets.only(
+                      left: 16,
+                      right: 16,
+                      top: 16,
+                      bottom: miniplayerHeight + 16,
+                    ),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      childAspectRatio: 0.7,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                    ),
+                    itemCount: state.movies.length,
+                    itemBuilder: (context, index) {
+                      final movie = state.movies[index];
+                      return MovieCard(
+                        movie: movie,
+                        onTap: () {
+                          context.push(
+                            '/movie/${movie.id}?type=${movie.type}',
+                            extra: movie,
+                          );
+                        },
+                        memCacheWidth: memCacheWidth,
                       );
                     },
-                    memCacheWidth: memCacheWidth,
                   );
                 },
               );

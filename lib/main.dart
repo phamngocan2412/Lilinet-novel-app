@@ -2,47 +2,47 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:media_kit/media_kit.dart';
 import 'core/supabase/supabase_config.dart';
+import 'core/services/video_player_service.dart';
+import 'core/services/cast_service.dart';
+import 'core/services/download_service.dart';
 import 'app.dart';
 import 'features/history/presentation/bloc/history_bloc.dart';
 import 'features/movies/presentation/bloc/trending_movies/trending_movies_bloc.dart';
 import 'features/movies/presentation/bloc/trending_movies/trending_movies_event.dart';
 import 'features/explore/presentation/bloc/explore_bloc.dart';
 import 'features/explore/presentation/bloc/explore_event.dart';
+import 'features/movies/data/datasources/movie_local_datasource.dart';
 import 'injection_container.dart';
 
 void main() {
   // Wrap everything in runZonedGuarded to catch async errors
-  runZonedGuarded(
-    () {
-      // Ensure Flutter is initialized
-      WidgetsFlutterBinding.ensureInitialized();
+  runZonedGuarded(() {
+    // Ensure Flutter is initialized
+    WidgetsFlutterBinding.ensureInitialized();
 
-      // Set up Flutter error handler
-      FlutterError.onError = _handleFlutterError;
+    // Set up Flutter error handler
+    FlutterError.onError = _handleFlutterError;
 
-      // Set up custom error widget for release mode
-      ErrorWidget.builder = _buildErrorWidget;
+    // Set up custom error widget for release mode
+    ErrorWidget.builder = _buildErrorWidget;
 
-      // Set system UI mode early
-      SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(
-          statusBarColor: Colors.transparent,
-          systemNavigationBarColor: Colors.transparent,
-        ),
-      );
+    // Set system UI mode early
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+      ),
+    );
 
-      // Run the app with a splash/loading screen first
-      runApp(const SplashApp());
+    // Run the app with a splash/loading screen first
+    runApp(const SplashApp());
 
-      // Initialize everything in the background
-      _initializeApp();
-    },
-    _handleUncaughtError,
-  );
+    // Initialize everything in the background
+    _initializeApp();
+  }, _handleUncaughtError);
 }
 
 /// Handles Flutter framework errors
@@ -110,10 +110,7 @@ Widget _buildErrorWidget(FlutterErrorDetails details) {
             const SizedBox(height: 8),
             const Text(
               'Vui lòng thử lại sau',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 14,
-              ),
+              style: TextStyle(color: Colors.grey, fontSize: 14),
               textAlign: TextAlign.center,
             ),
           ],
@@ -188,6 +185,9 @@ Future<void> _initializeApp() async {
     // Initialize DI
     await configureDependencies();
 
+    // Register app lifecycle observer
+    WidgetsBinding.instance.addObserver(_AppLifecycleObserver());
+
     // Switch to main app
     runApp(const MyApp());
 
@@ -252,6 +252,9 @@ void _loadBackgroundData() {
   // Use microtask to avoid blocking
   Future.microtask(() async {
     try {
+      // Clean up expired cache entries
+      await _cleanupExpiredCache();
+
       // Load history
       getIt<HistoryBloc>().loadHistory();
 
@@ -264,10 +267,39 @@ void _loadBackgroundData() {
       await Future.delayed(const Duration(milliseconds: 100));
 
       // Load genres last
-      getIt<ExploreBloc>().add(LoadGenres());
+      getIt<ExploreBloc>().add(const LoadGenres());
     } catch (e) {
       // Silently fail - data will load when screens open
       debugPrint('Background data load error: $e');
     }
   });
+}
+
+/// Clean up expired cache entries to prevent storage bloat
+Future<void> _cleanupExpiredCache() async {
+  try {
+    final localDataSource = getIt<MovieLocalDataSource>();
+    final deletedCount = await localDataSource.clearExpiredCache();
+    if (kDebugMode && deletedCount > 0) {
+      debugPrint('🧹 Cleaned up $deletedCount expired cache entries');
+    }
+  } catch (e) {
+    debugPrint('Cache cleanup error: $e');
+  }
+}
+
+class _AppLifecycleObserver extends WidgetsBindingObserver {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      // App is closing completely
+      try {
+        getIt<VideoPlayerService>().dispose();
+        getIt<DownloadService>().dispose();
+        getIt<CastService>().dispose();
+      } catch (e) {
+        debugPrint('Error disposing services: $e');
+      }
+    }
+  }
 }

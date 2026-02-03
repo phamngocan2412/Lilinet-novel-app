@@ -10,6 +10,7 @@ abstract class FavoritesRepository {
     String? movieTitle,
     String? moviePoster,
     String? movieType,
+    String folder = 'Default',
   });
 
   Future<Either<Failure, void>> removeFavorite(String movieId);

@@ -8,6 +8,7 @@ import '../../../auth/presentation/widgets/auth_dialog.dart';
 import '../bloc/favorites_bloc.dart';
 import '../bloc/favorites_event.dart';
 import '../bloc/favorites_state.dart';
+import 'folder_selection_dialog.dart';
 
 class FavoriteButton extends StatelessWidget {
   final String movieId;
@@ -62,39 +63,54 @@ class FavoriteButton extends StatelessWidget {
                   context: context,
                   builder: (dialogContext) => AuthDialog(
                     onLoginSuccess: () {
-                      // After login success, add to favorites automatically
-                      context.read<FavoritesBloc>().add(
-                            AddFavoriteEvent(
-                              movieId: movieId,
-                              movieTitle: movieTitle,
-                              moviePoster: moviePoster,
-                              movieType: movieType,
-                            ),
-                          );
+                      // After login success, prompt for folder then add
+                      _showFolderSelectionAndAdd(context);
                     },
                   ),
                 );
               } else {
-                // User IS logged in → Toggle favorite
+                // User IS logged in
                 if (isFavorite) {
                   context.read<FavoritesBloc>().add(
                         RemoveFavoriteEvent(movieId: movieId),
                       );
                 } else {
-                  context.read<FavoritesBloc>().add(
-                        AddFavoriteEvent(
-                          movieId: movieId,
-                          movieTitle: movieTitle,
-                          moviePoster: moviePoster,
-                          movieType: movieType,
-                        ),
-                      );
+                  _showFolderSelectionAndAdd(context);
                 }
               }
             },
           ),
         );
       },
+    );
+  }
+
+  void _showFolderSelectionAndAdd(BuildContext context) {
+    // Get existing folders from state to pass to dialog
+    final state = context.read<FavoritesBloc>().state;
+    List<String> folders = ['Default'];
+    if (state is FavoritesLoaded) {
+      final uniqueFolders = state.favorites.map((f) => f.folder).toSet();
+      folders = uniqueFolders.toList()..sort();
+      if (!folders.contains('Default')) folders.insert(0, 'Default');
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => FolderSelectionDialog(
+        existingFolders: folders,
+        onFolderSelected: (folder) {
+          context.read<FavoritesBloc>().add(
+                AddFavoriteEvent(
+                  movieId: movieId,
+                  movieTitle: movieTitle,
+                  moviePoster: moviePoster,
+                  movieType: movieType,
+                  folder: folder,
+                ),
+              );
+        },
+      ),
     );
   }
 }

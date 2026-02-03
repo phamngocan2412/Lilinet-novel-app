@@ -1,16 +1,19 @@
 // ignore_for_file: deprecated_member_use, unreachable_switch_default
 
-import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:media_kit/media_kit.dart';
+import 'package:lilinet_app/core/constants/streaming_config.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:miniplayer/miniplayer.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../../injection_container.dart';
+import '../../../../core/services/video_player_service.dart';
+import '../../../../core/services/cast_service.dart';
+import '../../../../core/services/download_service.dart';
+import '../../../../core/services/video_session_repository.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/cached_image.dart';
 import '../../../history/domain/entities/watch_progress.dart';
@@ -19,7 +22,6 @@ import '../../../settings/domain/repositories/settings_repository.dart';
 import '../../../settings/domain/entities/app_settings.dart';
 import '../../../movies/presentation/bloc/streaming/streaming_cubit.dart';
 import '../../../movies/presentation/bloc/streaming/streaming_state.dart';
-import '../../../movies/domain/entities/streaming_link.dart';
 
 import '../bloc/video_player_bloc.dart';
 import '../bloc/video_player_event.dart';
@@ -27,10 +29,14 @@ import '../bloc/video_player_state.dart';
 
 import 'custom_video_controls.dart';
 import 'expanded_player_content.dart';
+import 'next_episode_countdown.dart';
+import 'video_error_widget.dart';
 
 // Colors
 const kBgColor = Color(0xFF101010);
 const kOrangeColor = Color(0xFFC6A664);
+
+import '../../../../core/network/network_cubit.dart';
 
 class VideoPlayerContent extends StatefulWidget {
   final VideoPlayerState state;
@@ -56,21 +62,13 @@ class VideoPlayerContent extends StatefulWidget {
 
 class _VideoPlayerContentState extends State<VideoPlayerContent>
     with WidgetsBindingObserver {
-  late Player player;
-  late VideoController controller;
+  final GlobalKey _videoKey = GlobalKey();
+  late VideoPlayerService _videoService;
+  late CastService _castService;
+  late DownloadService _downloadService;
+  late VideoSessionRepository _videoSessionRepository;
 
-  // Dual-player support for seamless switching
-  Player? _tempPlayer;
-  VideoController? tempController;
-  bool isSwitchingQuality = false;
-
-  bool _isDisposed = false;
   String? _currentServer = 'vidcloud';
-  String? _lastPlayedUrl;
-  StreamSubscription<Duration>? _positionSub;
-  StreamSubscription<void>? _completeSub;
-  StreamSubscription<String>? _errorSub;
-  bool _autoPlayEnabled = false;
 
   // Streaming Cubit instance managed here to reset on new video
   late StreamingCubit _streamingCubit;
@@ -79,6 +77,14 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
   VideoQuality _defaultQuality = VideoQuality.auto;
   PreferredServer _preferredServer = PreferredServer.auto;
 
+  // Offline handling
+  bool _isOffline = false;
+  bool _wasPlayingBeforeOffline = false;
+
+  // Countdown handling
+  bool _showCountdown = false;
+  String? _nextEpisodeTitle;
+
   @override
   void initState() {
     super.initState();
@@ -86,6 +92,9 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     WakelockPlus.enable();
     _initPlayer();
     _streamingCubit = getIt<StreamingCubit>();
+    _castService = getIt<CastService>();
+    _downloadService = getIt<DownloadService>();
+    _videoSessionRepository = getIt<VideoSessionRepository>();
     _loadSettingsAndVideo();
 
     if (widget.state.status == VideoPlayerStatus.expanded) {
@@ -94,6 +103,40 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
       });
     }
   }
+
+  @override
+  void didUpdateWidget(VideoPlayerContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reload if episode changed
+    if (widget.state.episodeId != oldWidget.state.episodeId ||
+        widget.state.mediaId != oldWidget.state.mediaId) {
+      // Close old cubit and get a new one for the new video
+      _streamingCubit.close();
+      _streamingCubit = getIt<StreamingCubit>();
+      _loadSettingsAndVideo();
+    }
+  }
+
+  Future<void> _initPlayer() async {
+    _videoService = getIt<VideoPlayerService>();
+
+    // Attach callbacks
+    _videoService.onPositionChanged = _saveProgress;
+    _videoService.onVideoCompleted = _onVideoCompleted;
+    _videoService.onError = (error) {
+        if (kDebugMode) {
+          debugPrint('❌ Video error: $error');
+        }
+    };
+    _videoService.onQualitySwitchStateChanged = (isSwitching) {
+        if (mounted) setState(() {});
+    };
+
+    await _videoService.initialize();
+    if (mounted) setState(() {});
+  }
+
+  bool _autoPlayEnabled = false;
 
   Future<void> _loadSettingsAndVideo() async {
     final result = await getIt<SettingsRepository>().getSettings();
@@ -120,11 +163,17 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
   }
 
   void _loadVideo() {
-    _lastPlayedUrl = null;
+    // Removed _videoService.resetLastUrl() to prevent restarting video on widget rebuilds (e.g. rotation)
+    // The VideoPlayerService checks if the URL is the same and skips reloading if so.
 
     // Use movie's stored provider if it exists, otherwise fall back to genres check
     final provider =
-        widget.state.movie?.provider ?? _determineProviderByGenres();
+        widget.state.movie?.provider ??
+        StreamingConfig.determineProvider(
+          genres: widget.state.movie?.genres,
+          movieProviderPref: _movieProvider,
+          animeProviderPref: _animeProvider,
+        );
 
     _streamingCubit.loadLinks(
       episodeId: widget.state.episodeId!,
@@ -132,35 +181,8 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
       provider: provider,
       preferredServer: _preferredServer,
     );
-  }
 
-  String _determineProviderByGenres() {
-    final genres = widget.state.movie?.genres ?? [];
-    if (kDebugMode) {
-      debugPrint('🧐 Determining provider for movie: ${widget.state.movie?.title}');
-      debugPrint('  Genres: $genres');
-    }
-
-    final isAnime = genres.any(
-      (g) =>
-          g.toLowerCase().contains('anime') ||
-          g.toLowerCase().contains('animation'),
-    );
-
-    if (kDebugMode) {
-      debugPrint('  isAnime: $isAnime');
-      debugPrint('  Movie Provider User Pref: $_movieProvider');
-      debugPrint('  Anime Provider User Pref: $_animeProvider');
-    }
-
-    final selected = isAnime
-        ? (_animeProvider ?? 'animepahe')
-        : (_movieProvider ?? 'flixhq');
-
-    if (kDebugMode) {
-      debugPrint('  Selected Provider: $selected');
-    }
-    return selected;
+    // Removed manual state check to prevent race condition (C-002)
   }
 
   void _switchServer(String server) {
@@ -169,7 +191,12 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     });
 
     final provider =
-        widget.state.movie?.provider ?? _determineProviderByGenres();
+        widget.state.movie?.provider ??
+        StreamingConfig.determineProvider(
+          genres: widget.state.movie?.genres,
+          movieProviderPref: _movieProvider,
+          animeProviderPref: _animeProvider,
+        );
 
     _streamingCubit.loadLinks(
       episodeId: widget.state.episodeId!,
@@ -182,66 +209,47 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
-      player.pause();
-    } else if (state == AppLifecycleState.resumed) {
-      // Optional: Auto-resume or keep paused based on preference
-      // player.play();
+      _videoService.pause();
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _isDisposed = true;
-    _positionSub?.cancel();
-    _completeSub?.cancel();
-    _errorSub?.cancel();
     WakelockPlus.disable();
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
-    player.dispose();
-    _tempPlayer?.dispose();
+    // Detach callbacks but don't dispose service to keep player alive
+    _videoService.detachCallbacks();
+
+    // Do NOT close the singleton Cubit
+    // BUT since we changed it to Factory, we SHOULD close it now!
     _streamingCubit.close();
     super.dispose();
   }
 
-  Future<void> _initPlayer() async {
-    player = Player(
-      configuration: const PlayerConfiguration(bufferSize: 64 * 1024 * 1024),
-    );
+  void _onVideoCompleted() {
+    // Only auto-play for TV Series if setting enabled
+    if (!_autoPlayEnabled || widget.state.mediaType != 'TV Series') return;
 
-    controller = VideoController(
-      player,
-      configuration: const VideoControllerConfiguration(
-        enableHardwareAcceleration: true,
-      ),
-    );
+    final movie = widget.state.movie;
+    if (movie != null) {
+      final episodes = movie.episodes;
+      if (episodes != null && episodes.isNotEmpty) {
+        final currentIndex = episodes.indexWhere(
+          (e) => e.id == widget.state.episodeId,
+        );
 
-    _positionSub = player.stream.position.listen((position) {
-      if (_isDisposed) return;
-      _saveProgress(position);
-    });
-
-    _completeSub = player.stream.completed.listen((completed) {
-      if (completed && !_isDisposed) {
-        _onVideoCompleted();
-      }
-    });
-
-    // Listen for errors
-    _errorSub = player.stream.error.listen((error) {
-      if (!_isDisposed) {
-        if (kDebugMode) {
-          debugPrint('❌ Media Player Error: $error');
+        // Check if there is a next episode
+        if (currentIndex != -1 && currentIndex < episodes.length - 1) {
+          final nextEpisode = episodes[currentIndex + 1];
+          setState(() {
+            _nextEpisodeTitle = nextEpisode.title;
+            _showCountdown = true;
+          });
         }
       }
-    });
-  }
-
-  void _onVideoCompleted() {
-    if (_autoPlayEnabled && widget.state.mediaType == 'TV Series') {
-      _playNextEpisode();
     }
   }
 
@@ -303,6 +311,8 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
   static const _saveDebounceDuration = Duration(seconds: 5);
 
   void _saveProgress(Duration position) {
+    if (_videoService.isDisposed) return;
+
     final now = DateTime.now();
     if (_lastSaveTime != null &&
         now.difference(_lastSaveTime!) < _saveDebounceDuration) {
@@ -310,7 +320,7 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     }
     _lastSaveTime = now;
 
-    final duration = player.state.duration;
+    final duration = _videoService.player.state.duration;
     if (duration == Duration.zero) return;
 
     final progress = WatchProgress(
@@ -326,6 +336,12 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     );
 
     context.read<HistoryBloc>().saveProgress(progress);
+
+    // Save active session state for crash recovery
+    _videoSessionRepository.saveSession(
+      state: widget.state,
+      position: position,
+    );
   }
 
   bool _isFinished(Duration position, Duration duration) {
@@ -340,157 +356,98 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     String? subtitleLang,
     Map<String, String>? headers,
     bool isQualitySwitch = false,
-  }) async {
-    if (url == _lastPlayedUrl) {
-      if (subtitleUrl != null) {
-        player.setSubtitleTrack(
-          SubtitleTrack.uri(subtitleUrl, title: subtitleLang),
-        );
-      }
-      return;
-    }
-
-    _lastPlayedUrl = url;
-
-    // --- SEAMLESS QUALITY SWITCHING LOGIC ---
-    if (isQualitySwitch) {
-      if (mounted) setState(() => isSwitchingQuality = true);
-
-      final tempPlayer = Player(
-        configuration: const PlayerConfiguration(bufferSize: 32 * 1024 * 1024),
-      );
-      final tempController = VideoController(
-        tempPlayer,
-        configuration: const VideoControllerConfiguration(
-          enableHardwareAcceleration: true,
-        ),
-      );
-
-      await tempPlayer.setVolume(0);
-      await tempPlayer.open(Media(url, httpHeaders: headers), play: false);
-
-      try {
-        await tempPlayer.stream.duration
-            .firstWhere((duration) => duration > Duration.zero)
-            .timeout(const Duration(seconds: 10));
-      } catch (_) {}
-
-      final currentPos = player.state.position;
-      await tempPlayer.seek(currentPos);
-      await tempPlayer.play();
-
-      try {
-        await Future.any([
-          tempPlayer.stream.playing.firstWhere((isPlaying) => isPlaying),
-          Future.delayed(
-            const Duration(seconds: 15),
-          ).then((_) => throw TimeoutException('Buffer timeout')),
-        ]);
-        await Future.delayed(const Duration(milliseconds: 500));
-      } catch (e) {
-        await tempPlayer.dispose();
-        if (mounted) setState(() => isSwitchingQuality = false);
-        return;
-      }
-
-      if (_isDisposed) {
-        await tempPlayer.dispose();
-        return;
-      }
-
-      await tempPlayer.setVolume(100);
-      final oldPlayer = player;
-
-      setState(() {
-        player = tempPlayer;
-        controller = tempController;
-        isSwitchingQuality = false;
-      });
-
-      _positionSub?.cancel();
-      _completeSub?.cancel();
-      _errorSub?.cancel();
-
-      _positionSub = player.stream.position.listen((position) {
-        if (_isDisposed) return;
-        _saveProgress(position);
-      });
-
-      _completeSub = player.stream.completed.listen((completed) {
-        if (completed && !_isDisposed) {
-          _onVideoCompleted();
-        }
-      });
-
-      _errorSub = player.stream.error.listen((error) {
-        if (!_isDisposed) {
-          if (kDebugMode) {
-            debugPrint('❌ Media Player Error: $error');
-          }
-        }
-      });
-
-      if (subtitleUrl != null) {
-        player.setSubtitleTrack(
-          SubtitleTrack.uri(subtitleUrl, title: subtitleLang),
-        );
-      }
-
-      await oldPlayer.dispose();
-      return;
-    }
-    // --- END SEAMLESS LOGIC ---
-
-    await player.stop();
-
-    Duration startPos = Duration.zero;
-    if (widget.state.startPosition != null &&
-        widget.state.startPosition!.inSeconds > 10) {
-      startPos = widget.state.startPosition!;
-    }
-
-    await player.open(Media(url, httpHeaders: headers), play: false);
-
-    if (startPos > Duration.zero) {
-      try {
-        await player.stream.duration
-            .firstWhere((duration) => duration > Duration.zero)
-            .timeout(const Duration(seconds: 10));
-      } catch (_) {}
-      await player.seek(startPos);
-    }
-
-    if (subtitleUrl != null) {
-      player.setSubtitleTrack(
-        SubtitleTrack.uri(subtitleUrl, title: subtitleLang),
-      );
-    }
-
-    await player.play();
+  }) {
+    _videoService.playVideo(
+      url: url,
+      startPosition: widget.state.startPosition,
+      subtitleUrl: subtitleUrl,
+      subtitleLang: subtitleLang,
+      headers: headers,
+      isQualitySwitch: isQualitySwitch,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider.value(
-      value: _streamingCubit,
-      child: Material(
-        color: kBgColor,
-        child: SizedBox(
-          height: widget.height,
-          width: MediaQuery.of(context).size.width,
-          child: Column(
-            children: [
-              // Video Area
-              if (widget.isMini)
-                Expanded(child: _buildVideoPlayer())
-              else
-                SizedBox(
-                  height: 250 > widget.height ? widget.height : 250,
-                  child: _buildVideoPlayer(),
-                ),
+    return BlocListener<NetworkCubit, bool>(
+      listener: (context, isConnected) {
+        if (!isConnected) {
+          setState(() {
+            _isOffline = true;
+            _wasPlayingBeforeOffline =
+                _videoService.player.state.playing;
+          });
+          _videoService.pause();
+        } else {
+          setState(() {
+            _isOffline = false;
+          });
+          if (_wasPlayingBeforeOffline) {
+            _videoService.play();
+          } else {
+            // Reload if it failed initially due to network
+            if (_streamingCubit.state is StreamingError) {
+              _loadVideo();
+            }
+          }
+        }
+      },
+      child: BlocProvider.value(
+        value: _streamingCubit,
+        child: Material(
+          color: kBgColor,
+          child: SizedBox(
+            height: widget.height,
+            width: MediaQuery.of(context).size.width,
+            child: Column(
+              children: [
+                // Video Area
+                if (widget.isMini)
+                  Expanded(child: _buildVideoPlayer())
+                else
+                  SizedBox(
+                    height: 250 > widget.height ? widget.height : 250,
+                    child: Stack(
+                      children: [
+                        _buildVideoPlayer(),
+                        if (_isOffline)
+                          Container(
+                            color: Colors.black.withValues(alpha: 0.7),
+                            child: const Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.wifi_off_rounded,
+                                    color: Colors.white,
+                                    size: 48,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'No Internet Connection',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Waiting for network...',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
 
-              // Expanded Content Area (Refactored)
-              if (!widget.isMini && widget.height > 300)
+                // Expanded Content Area
+                if (!widget.isMini && widget.height > 300)
                 Expanded(
                   child: ExpandedPlayerContent(
                     state: widget.state,
@@ -511,6 +468,51 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
                         state: PanelState.MIN,
                       );
                     },
+                    onDownload: () {
+                      final url = _videoService
+                          .player
+                          .state
+                          .playlist
+                          .medias
+                          .firstOrNull
+                          ?.uri;
+                      if (url != null) {
+                        final fileName =
+                            '${widget.state.title ?? "video"}_${widget.state.episodeTitle ?? "episode"}.mp4'
+                                .replaceAll(RegExp(r'[^\w\s\.-]'), '')
+                                .replaceAll(' ', '_');
+
+                        _downloadService.downloadVideo(
+                          url: url,
+                          fileName: fileName,
+                          movieId: widget.state.mediaId,
+                          movieTitle: widget.state.title,
+                          onCompleted: (path) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Download completed: $path'),
+                              ),
+                            );
+                          },
+                          onError: (error) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Download failed: $error'),
+                              ),
+                            );
+                          },
+                        );
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Download started...')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('No video loaded to download'),
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ),
             ],
@@ -520,107 +522,72 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     );
   }
 
-  StreamingLink _selectLinkByQuality(
-    List<StreamingLink> links,
-    VideoQuality defaultQuality,
-  ) {
-    if (links.isEmpty) throw Exception('No streaming links');
-
-    String qualityTarget;
-    switch (defaultQuality) {
-      case VideoQuality.hd1080:
-        qualityTarget = '1080p';
-        break;
-      case VideoQuality.hd720:
-        qualityTarget = '720p';
-        break;
-      case VideoQuality.sd480:
-        qualityTarget = '480p';
-        break;
-      case VideoQuality.sd360:
-        qualityTarget = '360p';
-        break;
-      case VideoQuality.auto:
-      default:
-        qualityTarget = 'auto';
-        break;
+  void _onStreamingLoaded(StreamingLoaded state) {
+    // Sync local state with actual server used by Cubit
+    if (state.selectedServer != null) {
+      _currentServer = state.selectedServer;
     }
 
-    try {
-      if (qualityTarget == 'auto') {
-        return links.firstWhere(
-          (l) => l.quality == 'auto' || l.isM3U8,
-          orElse: () => links.first,
+    final link = VideoPlayerService.selectLinkByQuality(
+      state.links,
+      _defaultQuality,
+    );
+
+    String? subUrl;
+    String? subLang;
+    if (state.subtitles != null && state.subtitles!.isNotEmpty) {
+      try {
+        final englishSub = state.subtitles!.firstWhere(
+          (s) => s.lang.toLowerCase().contains('english'),
         );
+        subUrl = englishSub.url;
+        subLang = englishSub.lang;
+      } catch (e) {
+        if (kDebugMode) {
+          debugPrint('Error parsing subtitles: $e');
+        }
       }
-      return links.firstWhere((l) => l.quality == qualityTarget);
-    } catch (_) {
-      return links.firstWhere(
-        (l) => l.quality == 'auto' || l.isM3U8,
-        orElse: () => links.first,
-      );
     }
+
+    // Debug logging
+    if (kDebugMode) {
+      debugPrint('🎬 Playing video:');
+      debugPrint('  URL: ${link.url}');
+      debugPrint('  Quality: ${link.quality}');
+      debugPrint('  isM3U8: ${link.isM3U8}');
+      debugPrint('  Headers: ${link.headers}');
+      debugPrint('  Subtitle: $subUrl');
+    }
+
+    _playVideo(
+      link.url,
+      subtitleUrl: subUrl,
+      subtitleLang: subLang,
+      headers: link.headers,
+    );
   }
 
   Widget _buildVideoPlayer() {
     return BlocConsumer<StreamingCubit, StreamingState>(
+      buildWhen: (previous, current) {
+        // Optimize rebuilds
+        if (previous.runtimeType != current.runtimeType) return true;
+        if (previous is StreamingLoaded && current is StreamingLoaded) {
+          // Only rebuild if links or server changed, not just subtitles or internal flags
+          return previous.selectedServer != current.selectedServer ||
+              previous.links != current.links;
+        }
+        return true;
+      },
       listener: (context, state) async {
         if (state is StreamingLoading) {
-          await player.stop();
+          await _videoService.stop();
         }
-        if (state is StreamingError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${state.message}'),
-              backgroundColor: Colors.red,
-              behavior: SnackBarBehavior.floating,
-              action: SnackBarAction(
-                label: 'Retry',
-                textColor: Colors.white,
-                onPressed: () {
-                  _loadVideo();
-                },
-              ),
-            ),
-          );
-        }
+        // Error is now handled in the builder, no need for SnackBar
+        // if (state is StreamingError && context.mounted) { ... }
 
         if (state is StreamingLoaded && state.links.isNotEmpty) {
-          // Sync local state with actual server used by Cubit
-          if (state.selectedServer != null) {
-            _currentServer = state.selectedServer;
-          }
-
-          final link = _selectLinkByQuality(state.links, _defaultQuality);
-
-          String? subUrl;
-          String? subLang;
-          if (state.subtitles != null && state.subtitles!.isNotEmpty) {
-            try {
-              final englishSub = state.subtitles!.firstWhere(
-                (s) => s.lang.toLowerCase().contains('english'),
-              );
-              subUrl = englishSub.url;
-              subLang = englishSub.lang;
-            } catch (_) {}
-          }
-
-          // Debug logging
-          if (kDebugMode) {
-            debugPrint('🎬 Playing video:');
-            debugPrint('  URL: ${link.url}');
-            debugPrint('  Quality: ${link.quality}');
-            debugPrint('  isM3U8: ${link.isM3U8}');
-            debugPrint('  Headers: ${link.headers}');
-            debugPrint('  Subtitle: $subUrl');
-          }
-
-          _playVideo(
-            link.url,
-            subtitleUrl: subUrl,
-            subtitleLang: subLang,
-            headers: link.headers,
-          );
+          _onStreamingLoaded(state);
         }
       },
       builder: (context, state) {
@@ -637,6 +604,12 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
               Container(color: Colors.black54),
               if (state is StreamingLoading)
                 const Center(child: LoadingIndicator()),
+              if (state is StreamingError)
+                VideoErrorWidget(
+                  message: state.message,
+                  onRetry: _loadVideo,
+                  onClose: () => context.read<VideoPlayerBloc>().add(CloseVideo()),
+                ),
             ],
           );
         }
@@ -650,7 +623,8 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
                   height: widget.miniplayerHeight - 10,
                   width: (widget.miniplayerHeight - 10) * 16 / 9,
                   child: Video(
-                    controller: controller,
+                    key: _videoKey,
+                    controller: _videoService.controller,
                     controls: NoVideoControls,
                   ),
                 ),
@@ -687,14 +661,14 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
               ),
               IconButton(
                 icon: StreamBuilder<bool>(
-                  stream: player.stream.playing,
-                  initialData: player.state.playing,
+                  stream: _videoService.player.stream.playing,
+                  initialData: _videoService.player.state.playing,
                   builder: (context, snapshot) {
                     final playing = snapshot.data ?? false;
                     return Icon(playing ? Icons.pause : Icons.play_arrow);
                   },
                 ),
-                onPressed: () => player.playOrPause(),
+                onPressed: () => _videoService.playOrPause(),
               ),
               IconButton(
                 icon: const Icon(Icons.close),
@@ -708,44 +682,93 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
 
         // Full Player with Custom Controls
         // Wrap in ClipRect to prevent surface overflow issues
-        return ClipRect(
-          child: Video(
-            controller: controller,
-            controls: (state) {
-              final movie = widget.state.movie;
-              bool hasNext = false;
-              bool hasPrev = false;
-              if (movie != null && movie.episodes != null) {
-                final idx = movie.episodes!.indexWhere(
-                  (e) => e.id == widget.state.episodeId,
-                );
-                if (idx != -1) {
-                  if (idx < movie.episodes!.length - 1) hasNext = true;
-                  if (idx > 0) hasPrev = true;
-                }
-              }
-
-              return GestureDetector(
-                onTap: () {},
-                child: CustomVideoControls(
-                  state: state,
-                  player: player,
-                  title: widget.state.title ?? '',
-                  onMinimize: () {
-                    widget.miniplayerController.animateToHeight(
-                      state: PanelState.MIN,
+        return Stack(
+          children: [
+            ClipRect(
+              child: Video(
+                key: _videoKey,
+                controller: _videoService.controller,
+                controls: (state) {
+                  final movie = widget.state.movie;
+                  bool hasNext = false;
+                  bool hasPrev = false;
+                  if (movie != null && movie.episodes != null) {
+                    final idx = movie.episodes!.indexWhere(
+                      (e) => e.id == widget.state.episodeId,
                     );
-                  },
-                  onNext: _playNextEpisode,
-                  onPrev: _playPreviousEpisode,
-                  hasNext: hasNext,
-                  hasPrev: hasPrev,
-                ),
-              );
-            },
-          ),
+                    if (idx != -1) {
+                      if (idx < movie.episodes!.length - 1) hasNext = true;
+                      if (idx > 0) hasPrev = true;
+                    }
+                  }
+
+                  return GestureDetector(
+                    onTap: () {},
+                    child: CustomVideoControls(
+                      state: state,
+                      player: _videoService.player,
+                      onMinimize: () {
+                        widget.miniplayerController.animateToHeight(
+                          state: PanelState.MIN,
+                        );
+                      },
+                      onNext: _playNextEpisode,
+                      onPrev: _playPreviousEpisode,
+                      onSpeedChanged: (speed) {
+                        _videoService.setRate(speed);
+                      },
+                      onEnterPiP: () {
+                        _videoService.enablePiP();
+                      },
+                      onCast: () {
+                        // Start casting the current video
+                        // In a real implementation, this would show a device picker dialog
+                        if (widget.state.title != null) {
+                          _castService.startCasting(
+                            videoUrl:
+                                _videoService
+                                    .player
+                                    .state
+                                    .playlist
+                                    .medias
+                                    .firstOrNull
+                                    ?.uri ??
+                                '',
+                            title: widget.state.title!,
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Casting feature is a prototype'),
+                            ),
+                          );
+                        }
+                      },
+                      hasNext: hasNext,
+                      hasPrev: hasPrev,
+                    ),
+                  );
+                },
+              ),
+            ),
+            if (_showCountdown && _nextEpisodeTitle != null)
+              NextEpisodeCountdown(
+                nextEpisodeTitle: _nextEpisodeTitle!,
+                onPlayNow: () {
+                  setState(() {
+                    _showCountdown = false;
+                  });
+                  _playNextEpisode();
+                },
+                onCancel: () {
+                  setState(() {
+                    _showCountdown = false;
+                  });
+                },
+              ),
+          ],
         );
       },
     );
   }
 }
+

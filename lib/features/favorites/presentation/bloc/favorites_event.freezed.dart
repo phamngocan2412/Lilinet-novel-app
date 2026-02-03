@@ -131,11 +131,11 @@ return checkFavoriteStatus(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadFavorites,TResult Function( String movieId,  String? movieTitle,  String? moviePoster,  String? movieType)?  addFavorite,TResult Function( String movieId)?  removeFavorite,TResult Function()?  clearFavorites,TResult Function( String movieId)?  checkFavoriteStatus,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  loadFavorites,TResult Function( String movieId,  String? movieTitle,  String? moviePoster,  String? movieType,  String folder)?  addFavorite,TResult Function( String movieId)?  removeFavorite,TResult Function()?  clearFavorites,TResult Function( String movieId)?  checkFavoriteStatus,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case LoadFavorites() when loadFavorites != null:
 return loadFavorites();case AddFavoriteEvent() when addFavorite != null:
-return addFavorite(_that.movieId,_that.movieTitle,_that.moviePoster,_that.movieType);case RemoveFavoriteEvent() when removeFavorite != null:
+return addFavorite(_that.movieId,_that.movieTitle,_that.moviePoster,_that.movieType,_that.folder);case RemoveFavoriteEvent() when removeFavorite != null:
 return removeFavorite(_that.movieId);case ClearFavorites() when clearFavorites != null:
 return clearFavorites();case CheckFavoriteStatus() when checkFavoriteStatus != null:
 return checkFavoriteStatus(_that.movieId);case _:
@@ -156,11 +156,11 @@ return checkFavoriteStatus(_that.movieId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadFavorites,required TResult Function( String movieId,  String? movieTitle,  String? moviePoster,  String? movieType)  addFavorite,required TResult Function( String movieId)  removeFavorite,required TResult Function()  clearFavorites,required TResult Function( String movieId)  checkFavoriteStatus,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  loadFavorites,required TResult Function( String movieId,  String? movieTitle,  String? moviePoster,  String? movieType,  String folder)  addFavorite,required TResult Function( String movieId)  removeFavorite,required TResult Function()  clearFavorites,required TResult Function( String movieId)  checkFavoriteStatus,}) {final _that = this;
 switch (_that) {
 case LoadFavorites():
 return loadFavorites();case AddFavoriteEvent():
-return addFavorite(_that.movieId,_that.movieTitle,_that.moviePoster,_that.movieType);case RemoveFavoriteEvent():
+return addFavorite(_that.movieId,_that.movieTitle,_that.moviePoster,_that.movieType,_that.folder);case RemoveFavoriteEvent():
 return removeFavorite(_that.movieId);case ClearFavorites():
 return clearFavorites();case CheckFavoriteStatus():
 return checkFavoriteStatus(_that.movieId);case _:
@@ -180,11 +180,11 @@ return checkFavoriteStatus(_that.movieId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadFavorites,TResult? Function( String movieId,  String? movieTitle,  String? moviePoster,  String? movieType)?  addFavorite,TResult? Function( String movieId)?  removeFavorite,TResult? Function()?  clearFavorites,TResult? Function( String movieId)?  checkFavoriteStatus,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  loadFavorites,TResult? Function( String movieId,  String? movieTitle,  String? moviePoster,  String? movieType,  String folder)?  addFavorite,TResult? Function( String movieId)?  removeFavorite,TResult? Function()?  clearFavorites,TResult? Function( String movieId)?  checkFavoriteStatus,}) {final _that = this;
 switch (_that) {
 case LoadFavorites() when loadFavorites != null:
 return loadFavorites();case AddFavoriteEvent() when addFavorite != null:
-return addFavorite(_that.movieId,_that.movieTitle,_that.moviePoster,_that.movieType);case RemoveFavoriteEvent() when removeFavorite != null:
+return addFavorite(_that.movieId,_that.movieTitle,_that.moviePoster,_that.movieType,_that.folder);case RemoveFavoriteEvent() when removeFavorite != null:
 return removeFavorite(_that.movieId);case ClearFavorites() when clearFavorites != null:
 return clearFavorites();case CheckFavoriteStatus() when checkFavoriteStatus != null:
 return checkFavoriteStatus(_that.movieId);case _:
@@ -231,13 +231,14 @@ String toString() {
 
 
 class AddFavoriteEvent implements FavoritesEvent {
-  const AddFavoriteEvent({required this.movieId, this.movieTitle, this.moviePoster, this.movieType});
+  const AddFavoriteEvent({required this.movieId, this.movieTitle, this.moviePoster, this.movieType, this.folder = 'Default'});
   
 
  final  String movieId;
  final  String? movieTitle;
  final  String? moviePoster;
  final  String? movieType;
+@JsonKey() final  String folder;
 
 /// Create a copy of FavoritesEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -249,16 +250,16 @@ $AddFavoriteEventCopyWith<AddFavoriteEvent> get copyWith => _$AddFavoriteEventCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddFavoriteEvent&&(identical(other.movieId, movieId) || other.movieId == movieId)&&(identical(other.movieTitle, movieTitle) || other.movieTitle == movieTitle)&&(identical(other.moviePoster, moviePoster) || other.moviePoster == moviePoster)&&(identical(other.movieType, movieType) || other.movieType == movieType));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AddFavoriteEvent&&(identical(other.movieId, movieId) || other.movieId == movieId)&&(identical(other.movieTitle, movieTitle) || other.movieTitle == movieTitle)&&(identical(other.moviePoster, moviePoster) || other.moviePoster == moviePoster)&&(identical(other.movieType, movieType) || other.movieType == movieType)&&(identical(other.folder, folder) || other.folder == folder));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,movieId,movieTitle,moviePoster,movieType);
+int get hashCode => Object.hash(runtimeType,movieId,movieTitle,moviePoster,movieType,folder);
 
 @override
 String toString() {
-  return 'FavoritesEvent.addFavorite(movieId: $movieId, movieTitle: $movieTitle, moviePoster: $moviePoster, movieType: $movieType)';
+  return 'FavoritesEvent.addFavorite(movieId: $movieId, movieTitle: $movieTitle, moviePoster: $moviePoster, movieType: $movieType, folder: $folder)';
 }
 
 
@@ -269,7 +270,7 @@ abstract mixin class $AddFavoriteEventCopyWith<$Res> implements $FavoritesEventC
   factory $AddFavoriteEventCopyWith(AddFavoriteEvent value, $Res Function(AddFavoriteEvent) _then) = _$AddFavoriteEventCopyWithImpl;
 @useResult
 $Res call({
- String movieId, String? movieTitle, String? moviePoster, String? movieType
+ String movieId, String? movieTitle, String? moviePoster, String? movieType, String folder
 });
 
 
@@ -286,13 +287,14 @@ class _$AddFavoriteEventCopyWithImpl<$Res>
 
 /// Create a copy of FavoritesEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? movieId = null,Object? movieTitle = freezed,Object? moviePoster = freezed,Object? movieType = freezed,}) {
+@pragma('vm:prefer-inline') $Res call({Object? movieId = null,Object? movieTitle = freezed,Object? moviePoster = freezed,Object? movieType = freezed,Object? folder = null,}) {
   return _then(AddFavoriteEvent(
 movieId: null == movieId ? _self.movieId : movieId // ignore: cast_nullable_to_non_nullable
 as String,movieTitle: freezed == movieTitle ? _self.movieTitle : movieTitle // ignore: cast_nullable_to_non_nullable
 as String?,moviePoster: freezed == moviePoster ? _self.moviePoster : moviePoster // ignore: cast_nullable_to_non_nullable
 as String?,movieType: freezed == movieType ? _self.movieType : movieType // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,folder: null == folder ? _self.folder : folder // ignore: cast_nullable_to_non_nullable
+as String,
   ));
 }
 

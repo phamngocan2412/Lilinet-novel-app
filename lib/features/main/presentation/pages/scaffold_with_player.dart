@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../injection_container.dart';
+import '../../../../core/services/miniplayer_height_notifier.dart';
 import '../../../video_player/presentation/bloc/video_player_bloc.dart';
 import '../../../video_player/presentation/bloc/video_player_state.dart';
 import '../../../video_player/presentation/widgets/miniplayer_widget.dart';
@@ -18,6 +20,8 @@ class ScaffoldWithPlayer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final miniplayerNotifier = getIt<MiniplayerHeightNotifier>();
+
     return BlocBuilder<NavigationCubit, int>(
       builder: (context, navIndex) {
         return BlocBuilder<VideoPlayerBloc, VideoPlayerState>(
@@ -25,6 +29,18 @@ class ScaffoldWithPlayer extends StatelessWidget {
           builder: (context, playerState) {
             final isExpanded = playerState.status == VideoPlayerStatus.expanded;
             final isClosed = playerState.status == VideoPlayerStatus.closed;
+
+            // Update miniplayer height notifier
+            final miniplayerHeight = 60 + MediaQuery.of(context).padding.bottom;
+            if (isClosed) {
+              miniplayerNotifier.reset();
+            } else if (!isExpanded) {
+              // Only set height when minimized
+              miniplayerNotifier.updateHeight(miniplayerHeight);
+            } else {
+              // When expanded, no need for padding
+              miniplayerNotifier.reset();
+            }
 
             // Determine if we should show the Navigation Bar
             // We hide it if:

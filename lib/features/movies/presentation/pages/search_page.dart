@@ -5,10 +5,12 @@ import '../../../../injection_container.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../../core/widgets/empty_state_widget.dart';
+import '../../../explore/domain/entities/filter_options.dart';
 import '../bloc/search/search_bloc.dart';
 import '../bloc/search/search_event.dart';
 import '../bloc/search/search_state.dart';
 import '../widgets/movie_card.dart';
+import '../widgets/filter_bottom_sheet.dart';
 
 class SearchPage extends StatelessWidget {
   const SearchPage({super.key});
@@ -68,12 +70,47 @@ class _SearchPageViewState extends State<SearchPageView> {
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.clear),
-              onPressed: () {
-                _controller.clear();
-                context.read<SearchBloc>().add(SearchCleared());
-              },
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (_controller.text.isNotEmpty)
+                  IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _controller.clear();
+                      context.read<SearchBloc>().add(SearchCleared());
+                    },
+                  ),
+                BlocBuilder<SearchBloc, SearchState>(
+                  builder: (context, state) {
+                    final hasFilters =
+                        state.filterOptions != const FilterOptions();
+                    return IconButton(
+                      icon: Icon(
+                        Icons.tune,
+                        color: hasFilters
+                            ? Theme.of(context).colorScheme.primary
+                            : null,
+                      ),
+                      onPressed: () {
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => FilterBottomSheet(
+                            currentOptions: state.filterOptions,
+                            onApply: (options) {
+                              context.read<SearchBloc>().add(
+                                SearchOptionsChanged(options),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           onChanged: (query) {

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_widget.dart';
+import '../../../../injection_container.dart';
+import '../../../../core/services/miniplayer_height_notifier.dart';
 import '../../../explore/presentation/widgets/category_chip.dart';
 import '../../../comments/presentation/widgets/home_trending_section.dart';
 import '../bloc/trending_movies/trending_movies_bloc.dart';
@@ -91,17 +94,7 @@ class HomePageView extends StatelessWidget {
               loaded: (trending, categories) {
                 final trendingMovies = trending.toSet().toList();
 
-                final genres = {
-                  'Action': '28',
-                  'Adventure': '12',
-                  'Anime': '16',
-                  'Comedy': '35',
-                  'Crime': '80',
-                  'Drama': '18',
-                  'Horror': '27',
-                  'Sci-Fi': '878',
-                  'Romance': '10749',
-                };
+                final genres = AppConstants.genres;
 
                 if (trendingMovies.isEmpty && categories.isEmpty) {
                   return const Center(child: Text('No anime found'));
@@ -137,7 +130,6 @@ class HomePageView extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: SliverToBoxAdapter(
@@ -167,10 +159,11 @@ class HomePageView extends StatelessWidget {
                                 '/movie/${movie.id}?type=${movie.type}',
                                 extra: movie,
                               ),
-                              const SizedBox(height: 32),
-                            ],
+                            ),
+                            const SizedBox(height: 32),
                           ],
-                        ),
+                        ],
+                      ),
                       ),
                     ),
 
@@ -248,7 +241,7 @@ class HomePageView extends StatelessWidget {
                                     horizontal: 16,
                                   ),
                                   itemCount: categoryMovies.length,
-                                  separatorBuilder: (_, __) =>
+                                  separatorBuilder: (context, index) =>
                                       const SizedBox(width: 12),
                                   itemBuilder: (context, index) {
                                     final movie = categoryMovies[index];
@@ -271,7 +264,17 @@ class HomePageView extends StatelessWidget {
                         }, childCount: categories.length),
                       ),
 
-                    const SliverToBoxAdapter(child: SizedBox(height: 80)),
+                    // Dynamic bottom padding for miniplayer
+                    SliverToBoxAdapter(
+                      child: ListenableBuilder(
+                        listenable: getIt<MiniplayerHeightNotifier>(),
+                        builder: (context, _) {
+                          final miniplayerHeight = getIt<MiniplayerHeightNotifier>().height;
+                          // Add extra 16px padding for spacing
+                          return SizedBox(height: miniplayerHeight + 16);
+                        },
+                      ),
+                    ),
                   ],
                 );
               },

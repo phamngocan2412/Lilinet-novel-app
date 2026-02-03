@@ -10,6 +10,9 @@ import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
 import '../../../auth/presentation/widgets/auth_dialog.dart';
+import '../../../auth/presentation/widgets/update_profile_dialog.dart';
+import '../../../auth/presentation/widgets/change_password_dialog.dart';
+import '../widgets/pin_code_dialog.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -140,19 +143,86 @@ class SettingsView extends StatelessWidget {
                   title: 'Content',
                   icon: Icons.visibility,
                   children: [
-                    _buildSwitchTile(
-                      context,
-                      title: 'Adult Content',
-                      subtitle: 'Show adult content',
+                    SwitchListTile(
+                      title: const Text('Adult Content'),
+                      subtitle: const Text('Show adult content'),
                       value: settings.adultContent,
-                      onChanged: (value) {
-                        context.read<SettingsBloc>().add(
-                          UpdateSettings(
-                            settings.copyWith(adultContent: value),
-                          ),
-                        );
+                      onChanged: (value) async {
+                        final bloc = context.read<SettingsBloc>();
+
+                        if (value) {
+                          // Enabling: Require PIN setup or verify
+                          if (settings.pinCode == null) {
+                            // Setup PIN
+                            final newPin = await PinCodeDialog.showSetPin(
+                              context,
+                            );
+                            if (newPin != null) {
+                              bloc.add(
+                                UpdateSettings(
+                                  settings.copyWith(
+                                    adultContent: true,
+                                    pinCode: newPin,
+                                  ),
+                                ),
+                              );
+                            }
+                          } else {
+                            // Verify PIN
+                            final isVerified = await PinCodeDialog.show(
+                              context,
+                              currentPin: settings.pinCode,
+                            );
+                            if (isVerified == true) {
+                              bloc.add(
+                                UpdateSettings(
+                                  settings.copyWith(adultContent: true),
+                                ),
+                              );
+                            }
+                          }
+                        } else {
+                          // Disabling: Just disable
+                          bloc.add(
+                            UpdateSettings(
+                              settings.copyWith(adultContent: false),
+                            ),
+                          );
+                        }
                       },
                     ),
+                    if (settings.pinCode != null)
+                      ListTile(
+                        title: const Text('Change PIN'),
+                        leading: const Icon(Icons.lock_outline),
+                        onTap: () async {
+                          // Verify old PIN first
+                          final isVerified = await PinCodeDialog.show(
+                            context,
+                            currentPin: settings.pinCode,
+                          );
+                          if (isVerified == true && context.mounted) {
+                            // Set new PIN
+                            final newPin = await PinCodeDialog.showSetPin(
+                              context,
+                            );
+                            if (!context.mounted) return;
+
+                            if (newPin != null) {
+                              context.read<SettingsBloc>().add(
+                                UpdateSettings(
+                                  settings.copyWith(pinCode: newPin),
+                                ),
+                              );
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('PIN updated successfully'),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
                   ],
                 ),
                 const Divider(height: 32),
@@ -254,21 +324,56 @@ class SettingsView extends StatelessWidget {
                 ],
               ),
             ),
-            if (state is Authenticated)
+            if (state is Authenticated) ...[
               ListTile(
                 leading: CircleAvatar(
-                  child: Text(state.user.email[0].toUpperCase()),
+                  backgroundImage: state.user.avatarUrl != null
+                      ? NetworkImage(state.user.avatarUrl!)
+                      : null,
+                  child: state.user.avatarUrl == null
+                      ? Text(state.user.email[0].toUpperCase())
+                      : null,
                 ),
-                title: Text(state.user.email.split('@')[0]),
-                subtitle: const Text('Signed In'),
+                title: Text(
+                  state.user.displayName ?? state.user.email.split('@')[0],
+                ),
+                subtitle: Text(state.user.email),
                 trailing: IconButton(
-                  icon: const Icon(Icons.logout),
+                  icon: const Icon(Icons.edit),
                   onPressed: () {
-                    context.read<AuthBloc>().add(SignOutRequested());
+                    UpdateProfileDialog.show(
+                      context,
+                      displayName: state.user.displayName,
+                      avatarUrl: state.user.avatarUrl,
+                    );
                   },
                 ),
-              )
-            else
+              ),
+              ListTile(
+                leading: const Icon(Icons.lock),
+                title: const Text('Change Password'),
+                onTap: () {
+                  ChangePasswordDialog.show(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.logout),
+                title: const Text('Sign Out'),
+                onTap: () {
+                  context.read<AuthBloc>().add(const SignOutRequested());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_forever, color: Colors.red),
+                title: const Text(
+                  'Delete Account',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  _showDeleteAccountDialog(context);
+                },
+              ),
+            ] else
               ListTile(
                 leading: const Icon(Icons.login),
                 title: const Text('Sign In / Sign Up'),
@@ -467,14 +572,19 @@ class SettingsView extends StatelessWidget {
               children: [
                 ListTile(
                   title: const Text('Auto (Recommended)'),
-                  subtitle: const Text('Automatically select the best available server'),
-                  trailing: settings.preferredServer == domain.PreferredServer.auto
+                  subtitle: const Text(
+                    'Automatically select the best available server',
+                  ),
+                  trailing:
+                      settings.preferredServer == domain.PreferredServer.auto
                       ? const Icon(Icons.check, color: Colors.green)
                       : null,
                   onTap: () {
                     settingsBloc.add(
                       UpdateSettings(
-                        settings.copyWith(preferredServer: domain.PreferredServer.auto),
+                        settings.copyWith(
+                          preferredServer: domain.PreferredServer.auto,
+                        ),
                       ),
                     );
                     Navigator.pop(bottomSheetContext);
@@ -483,13 +593,17 @@ class SettingsView extends StatelessWidget {
                 ListTile(
                   title: const Text('VidCloud'),
                   subtitle: const Text('Fast and reliable'),
-                  trailing: settings.preferredServer == domain.PreferredServer.vidcloud
+                  trailing:
+                      settings.preferredServer ==
+                          domain.PreferredServer.vidcloud
                       ? const Icon(Icons.check, color: Colors.green)
                       : null,
                   onTap: () {
                     settingsBloc.add(
                       UpdateSettings(
-                        settings.copyWith(preferredServer: domain.PreferredServer.vidcloud),
+                        settings.copyWith(
+                          preferredServer: domain.PreferredServer.vidcloud,
+                        ),
                       ),
                     );
                     Navigator.pop(bottomSheetContext);
@@ -498,13 +612,16 @@ class SettingsView extends StatelessWidget {
                 ListTile(
                   title: const Text('UpCloud'),
                   subtitle: const Text('Good for movies'),
-                  trailing: settings.preferredServer == domain.PreferredServer.upcloud
+                  trailing:
+                      settings.preferredServer == domain.PreferredServer.upcloud
                       ? const Icon(Icons.check, color: Colors.green)
                       : null,
                   onTap: () {
                     settingsBloc.add(
                       UpdateSettings(
-                        settings.copyWith(preferredServer: domain.PreferredServer.upcloud),
+                        settings.copyWith(
+                          preferredServer: domain.PreferredServer.upcloud,
+                        ),
                       ),
                     );
                     Navigator.pop(bottomSheetContext);
@@ -513,13 +630,16 @@ class SettingsView extends StatelessWidget {
                 ListTile(
                   title: const Text('MegaUp'),
                   subtitle: const Text('Alternative server'),
-                  trailing: settings.preferredServer == domain.PreferredServer.megaup
+                  trailing:
+                      settings.preferredServer == domain.PreferredServer.megaup
                       ? const Icon(Icons.check, color: Colors.green)
                       : null,
                   onTap: () {
                     settingsBloc.add(
                       UpdateSettings(
-                        settings.copyWith(preferredServer: domain.PreferredServer.megaup),
+                        settings.copyWith(
+                          preferredServer: domain.PreferredServer.megaup,
+                        ),
                       ),
                     );
                     Navigator.pop(bottomSheetContext);
@@ -751,6 +871,32 @@ class SettingsView extends StatelessWidget {
             },
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Text(
+          'Are you sure you want to delete your account? This action cannot be undone and you will lose all your favorites and history.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              context.read<AuthBloc>().add(const DeleteAccountRequested());
+              Navigator.pop(dialogContext);
+            },
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
           ),
         ],
       ),

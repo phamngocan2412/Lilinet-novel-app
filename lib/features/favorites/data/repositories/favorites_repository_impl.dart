@@ -27,6 +27,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
     String? movieTitle,
     String? moviePoster,
     String? movieType,
+    String folder = 'Default',
   }) async {
     try {
       final favorite = await dataSource.addFavorite(
@@ -34,6 +35,7 @@ class FavoritesRepositoryImpl implements FavoritesRepository {
         movieTitle: movieTitle,
         moviePoster: moviePoster,
         movieType: movieType,
+        folder: folder,
       );
       return Right(favorite.toEntity());
     } catch (e) {

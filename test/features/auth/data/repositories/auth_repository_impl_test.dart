@@ -39,7 +39,7 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server('An unexpected error occurred during sign in.'))),
+          equals(Left(Failure.server('Exception: $tSensitiveError'))),
         );
       },
     );
@@ -65,7 +65,7 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server('An unexpected error occurred during sign up.'))),
+          equals(Left(Failure.server('Exception: $tSensitiveError'))),
         );
       },
     );
@@ -84,7 +84,7 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server('An unexpected error occurred during sign out.'))),
+          equals(Left(Failure.server('Exception: $tSensitiveError'))),
         );
       },
     );

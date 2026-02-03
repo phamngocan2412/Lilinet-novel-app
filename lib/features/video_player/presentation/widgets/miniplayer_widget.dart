@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:miniplayer/miniplayer.dart';
 
+import '../../../../injection_container.dart';
+import '../../../../core/services/video_player_service.dart';
 import '../bloc/video_player_bloc.dart';
 import '../bloc/video_player_event.dart';
 import '../bloc/video_player_state.dart';
@@ -40,6 +42,11 @@ class _MiniplayerWidgetState extends State<MiniplayerWidget> {
           _miniplayerController.animateToHeight(state: PanelState.MAX);
         } else if (state.status == VideoPlayerStatus.minimized) {
           _miniplayerController.animateToHeight(state: PanelState.MIN);
+        } else if (state.status == VideoPlayerStatus.closed) {
+          // Stop playback and reset URL when player is closed
+          final service = getIt<VideoPlayerService>();
+          service.stop();
+          service.resetLastUrl();
         }
       },
       builder: (context, state) {
@@ -50,11 +57,21 @@ class _MiniplayerWidgetState extends State<MiniplayerWidget> {
         // Use LayoutBuilder to get proper constraints
         return LayoutBuilder(
           builder: (context, constraints) {
-            return Miniplayer(
-              controller: _miniplayerController,
-              minHeight: widget.miniplayerHeight,
-              maxHeight: constraints.maxHeight,
-              builder: (height, percentage) {
+            return PopScope(
+              canPop: state.status != VideoPlayerStatus.expanded,
+              onPopInvokedWithResult: (didPop, result) {
+                if (didPop) return;
+
+                // If expanded, minimize instead of popping
+                if (state.status == VideoPlayerStatus.expanded) {
+                  _miniplayerController.animateToHeight(state: PanelState.MIN);
+                }
+              },
+              child: Miniplayer(
+                controller: _miniplayerController,
+                minHeight: widget.miniplayerHeight,
+                maxHeight: constraints.maxHeight,
+                builder: (height, percentage) {
                 final isMini = percentage < 0.2;
 
                 return VideoPlayerContent(

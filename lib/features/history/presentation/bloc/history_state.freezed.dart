@@ -131,12 +131,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<WatchProgress> history)?  loaded,TResult Function()?  empty,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<WatchProgress> history,  int totalVideos,  int totalTimeSeconds)?  loaded,TResult Function()?  empty,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case HistoryInitial() when initial != null:
 return initial();case HistoryLoading() when loading != null:
 return loading();case HistoryLoaded() when loaded != null:
-return loaded(_that.history);case HistoryEmpty() when empty != null:
+return loaded(_that.history,_that.totalVideos,_that.totalTimeSeconds);case HistoryEmpty() when empty != null:
 return empty();case HistoryError() when error != null:
 return error(_that.message);case _:
   return orElse();
@@ -156,12 +156,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<WatchProgress> history)  loaded,required TResult Function()  empty,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<WatchProgress> history,  int totalVideos,  int totalTimeSeconds)  loaded,required TResult Function()  empty,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case HistoryInitial():
 return initial();case HistoryLoading():
 return loading();case HistoryLoaded():
-return loaded(_that.history);case HistoryEmpty():
+return loaded(_that.history,_that.totalVideos,_that.totalTimeSeconds);case HistoryEmpty():
 return empty();case HistoryError():
 return error(_that.message);case _:
   throw StateError('Unexpected subclass');
@@ -180,12 +180,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<WatchProgress> history)?  loaded,TResult? Function()?  empty,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<WatchProgress> history,  int totalVideos,  int totalTimeSeconds)?  loaded,TResult? Function()?  empty,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case HistoryInitial() when initial != null:
 return initial();case HistoryLoading() when loading != null:
 return loading();case HistoryLoaded() when loaded != null:
-return loaded(_that.history);case HistoryEmpty() when empty != null:
+return loaded(_that.history,_that.totalVideos,_that.totalTimeSeconds);case HistoryEmpty() when empty != null:
 return empty();case HistoryError() when error != null:
 return error(_that.message);case _:
   return null;
@@ -263,7 +263,7 @@ String toString() {
 
 
 class HistoryLoaded implements HistoryState {
-  const HistoryLoaded({required final  List<WatchProgress> history}): _history = history;
+  const HistoryLoaded({required final  List<WatchProgress> history, this.totalVideos = 0, this.totalTimeSeconds = 0}): _history = history;
   
 
  final  List<WatchProgress> _history;
@@ -273,6 +273,8 @@ class HistoryLoaded implements HistoryState {
   return EqualUnmodifiableListView(_history);
 }
 
+@JsonKey() final  int totalVideos;
+@JsonKey() final  int totalTimeSeconds;
 
 /// Create a copy of HistoryState
 /// with the given fields replaced by the non-null parameter values.
@@ -284,16 +286,16 @@ $HistoryLoadedCopyWith<HistoryLoaded> get copyWith => _$HistoryLoadedCopyWithImp
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is HistoryLoaded&&const DeepCollectionEquality().equals(other._history, _history));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HistoryLoaded&&const DeepCollectionEquality().equals(other._history, _history)&&(identical(other.totalVideos, totalVideos) || other.totalVideos == totalVideos)&&(identical(other.totalTimeSeconds, totalTimeSeconds) || other.totalTimeSeconds == totalTimeSeconds));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_history));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_history),totalVideos,totalTimeSeconds);
 
 @override
 String toString() {
-  return 'HistoryState.loaded(history: $history)';
+  return 'HistoryState.loaded(history: $history, totalVideos: $totalVideos, totalTimeSeconds: $totalTimeSeconds)';
 }
 
 
@@ -304,7 +306,7 @@ abstract mixin class $HistoryLoadedCopyWith<$Res> implements $HistoryStateCopyWi
   factory $HistoryLoadedCopyWith(HistoryLoaded value, $Res Function(HistoryLoaded) _then) = _$HistoryLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<WatchProgress> history
+ List<WatchProgress> history, int totalVideos, int totalTimeSeconds
 });
 
 
@@ -321,10 +323,12 @@ class _$HistoryLoadedCopyWithImpl<$Res>
 
 /// Create a copy of HistoryState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? history = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? history = null,Object? totalVideos = null,Object? totalTimeSeconds = null,}) {
   return _then(HistoryLoaded(
 history: null == history ? _self._history : history // ignore: cast_nullable_to_non_nullable
-as List<WatchProgress>,
+as List<WatchProgress>,totalVideos: null == totalVideos ? _self.totalVideos : totalVideos // ignore: cast_nullable_to_non_nullable
+as int,totalTimeSeconds: null == totalTimeSeconds ? _self.totalTimeSeconds : totalTimeSeconds // ignore: cast_nullable_to_non_nullable
+as int,
   ));
 }
 

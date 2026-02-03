@@ -16,7 +16,7 @@ class ExploreBloc extends Bloc<ExploreEvent, ExploreState> {
     required this.getGenres,
     required this.getMoviesByGenre,
     required this.repository,
-  }) : super(ExploreInitial()) {
+  }) : super(const ExploreInitial()) {
     on<LoadGenres>(_onLoadGenres);
     on<LoadMoviesByGenre>(_onLoadMoviesByGenre);
     on<LoadPopularMovies>(_onLoadPopularMovies);

@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../injection_container.dart';
+import '../../../../core/services/miniplayer_height_notifier.dart';
 import '../../../../core/widgets/cached_image.dart';
 import '../bloc/history_bloc.dart';
 import '../../../video_player/presentation/bloc/video_player_bloc.dart';
@@ -43,12 +45,59 @@ class RecentlyWatchedPage extends StatelessWidget {
               ),
             );
           } else if (state is HistoryLoaded) {
-            return ListView.builder(
-              cacheExtent: 300,
-              padding: const EdgeInsets.all(8),
-              itemCount: state.history.length,
-              itemBuilder: (context, index) {
-                final item = state.history[index];
+            return ListenableBuilder(
+              listenable: getIt<MiniplayerHeightNotifier>(),
+              builder: (context, _) {
+                final miniplayerHeight = getIt<MiniplayerHeightNotifier>().height;
+
+                return ListView.builder(
+                  cacheExtent: 300,
+                  padding: EdgeInsets.only(
+                    left: 16,
+                    right: 16,
+                    top: 16,
+                    bottom: miniplayerHeight + 16,
+                  ),
+                  itemCount: state.history.length + 1, // +1 for stats header
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      // Statistics Header
+                      final hours = state.totalTimeSeconds ~/ 3600;
+                      final minutes = (state.totalTimeSeconds % 3600) ~/ 60;
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildStatItem(
+                              context,
+                              icon: Icons.movie_filter_outlined,
+                              value: '${state.totalVideos}',
+                              label: 'Videos Watched',
+                            ),
+                            Container(
+                              height: 40,
+                              width: 1,
+                              color: Theme.of(context).colorScheme.outlineVariant,
+                            ),
+                            _buildStatItem(
+                              context,
+                              icon: Icons.timer_outlined,
+                              value: '${hours}h ${minutes}m',
+                              label: 'Total Time',
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                final item = state.history[index - 1];
                 final progress = item.positionSeconds / item.durationSeconds;
                 final percentage = (progress * 100).clamp(0, 100).toInt();
 
@@ -187,10 +236,40 @@ class RecentlyWatchedPage extends StatelessWidget {
                 );
               },
             );
+          },
+        );
           }
           return const SizedBox();
         },
       ),
+    );
+  }
+
+  Widget _buildStatItem(
+    BuildContext context, {
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
+    return Column(
+      children: [
+        Icon(icon, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+        Text(
+          label,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontSize: 12,
+          ),
+        ),
+      ],
     );
   }
 }

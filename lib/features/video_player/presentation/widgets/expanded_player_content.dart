@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../movies/presentation/bloc/streaming/streaming_cubit.dart';
 import '../../../movies/presentation/bloc/streaming/streaming_state.dart';
 import '../bloc/video_player_state.dart';
 import 'package:lilinet_app/features/settings/domain/entities/app_settings.dart';
 import '../../../comments/presentation/widgets/collapsed_comment_view.dart';
+import '../../../../core/widgets/cached_image.dart';
 
 const kOrangeColor = Color(0xFFC6A664);
 const kGreenVIP = Color(0xFF43A047);
@@ -23,6 +25,7 @@ class ExpandedPlayerContent extends StatelessWidget {
   )
   onQualitySelected;
   final VoidCallback onMinimize;
+  final VoidCallback onDownload;
 
   const ExpandedPlayerContent({
     super.key,
@@ -32,6 +35,7 @@ class ExpandedPlayerContent extends StatelessWidget {
     required this.onServerSelected,
     required this.onQualitySelected,
     required this.onMinimize,
+    required this.onDownload,
   });
 
   @override
@@ -65,31 +69,42 @@ class ExpandedPlayerContent extends StatelessWidget {
             }
 
             // Normal layout with split sections
-            return GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: onMinimize,
-              child: Column(
-                children: [
-                  // Top Section: Details & Controls (Scrollable)
-                  Expanded(
-                    flex: 4,
-                    child: ListView(
-                      padding: const EdgeInsets.all(16),
-                      children: contentChildren,
-                    ),
+            return Column(
+              children: [
+                // Main Content: Details, Controls & Recommendations (Scrollable)
+                Expanded(
+                  flex: 9,
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      ...contentChildren,
+                      const SizedBox(height: 24),
+                      // Recommendations Section
+                      if (state.movie?.recommendations != null &&
+                          state.movie!.recommendations!.isNotEmpty) ...[
+                        const Text(
+                          'Đề xuất cho bạn',
+                          style: TextStyle(
+                            color: kOrangeColor,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        _buildRecommendations(context),
+                      ],
+                    ],
                   ),
+                ),
 
-                  const Divider(height: 1, color: Colors.white24),
+                const Divider(height: 1, color: Colors.white24),
 
-                  // Bottom Section: Collapsed Comment Preview (Tap to expand full sheet)
-                  Expanded(
-                    flex: 6,
-                    child: CollapsedCommentView(
-                      videoId: state.mediaId ?? 'unknown',
-                    ),
-                  ),
-                ],
-              ),
+                // Collapsed Comment Preview (Tap to expand full sheet) - Minimized
+                CollapsedCommentView(
+                  videoId: state.mediaId ?? 'unknown',
+                ),
+                const SizedBox(height: 8),
+              ],
             );
           },
         );
@@ -104,13 +119,26 @@ class ExpandedPlayerContent extends StatelessWidget {
   ) {
     return [
       // Title
-      Text(
-        '${state.title}${state.episodeTitle != null ? " - ${state.episodeTitle}" : ""}',
-        style: const TextStyle(
-          color: kOrangeColor,
-          fontSize: 18,
-          fontWeight: FontWeight.bold,
-        ),
+      Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              '${state.title}${state.episodeTitle != null ? " - ${state.episodeTitle}" : ""}',
+              style: const TextStyle(
+                color: kOrangeColor,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: onDownload,
+            icon: const Icon(Icons.download_rounded),
+            color: Colors.white,
+            tooltip: 'Download',
+          ),
+        ],
       ),
       const SizedBox(height: 16),
 
@@ -289,5 +317,67 @@ class ExpandedPlayerContent extends StatelessWidget {
   String _capitalizeServer(String server) {
     if (server.isEmpty) return server;
     return server[0].toUpperCase() + server.substring(1);
+  }
+
+  Widget _buildRecommendations(BuildContext context) {
+    final recommendations = state.movie?.recommendations ?? [];
+    if (recommendations.isEmpty) return const SizedBox.shrink();
+
+    // Calculate optimal cache width for performance
+    final screenWidth = MediaQuery.of(context).size.width;
+    final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+    final itemWidth = (screenWidth - 32 - 12) / 3; // 3 columns
+    final memCacheWidth = (itemWidth * devicePixelRatio).toInt();
+
+    return SizedBox(
+      height: 180,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: recommendations.length,
+        itemBuilder: (context, index) {
+          final item = recommendations[index];
+          return GestureDetector(
+            onTap: () {
+              if (item.id.isEmpty) return;
+              context.push(
+                '/movie/${item.id}?type=${item.type}',
+                extra: item,
+              );
+            },
+            child: Container(
+              width: 120,
+              margin: const EdgeInsets.only(right: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: AppCachedImage(
+                        imageUrl: item.poster ?? item.cover ?? '',
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        memCacheWidth: memCacheWidth,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    item.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

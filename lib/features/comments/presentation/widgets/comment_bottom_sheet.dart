@@ -37,7 +37,11 @@ class CommentBottomSheetWrapper extends StatelessWidget {
   final String videoId;
   final Widget child;
 
-  const CommentBottomSheetWrapper({required this.videoId, required this.child});
+  const CommentBottomSheetWrapper({
+    super.key,
+    required this.videoId,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -250,7 +254,9 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.15),
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.15,
+                          ),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -340,9 +346,9 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                             sortType,
                             expandedReplies,
                             isAdding,
-                            _,
+                            totalComments, // totalComments
                             likedCommentIds,
-                            __,
+                            totalLikes, // totalLikes
                           ) {
                             if (comments.isEmpty) {
                               return Center(
@@ -434,7 +440,9 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                 decoration: BoxDecoration(
                   color: theme.scaffoldBackgroundColor,
                   border: Border(
-                    top: BorderSide(color: theme.dividerColor.withValues(alpha: 0.2)),
+                    top: BorderSide(
+                      color: theme.dividerColor.withValues(alpha: 0.2),
+                    ),
                   ),
                   boxShadow: [
                     BoxShadow(

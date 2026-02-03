@@ -226,7 +226,7 @@ class _Avatar extends StatelessWidget {
           width: radius * 2,
           height: radius * 2,
           fit: BoxFit.cover,
-          errorBuilder: (_, __, ___) => Icon(
+          errorBuilder: (context, error, stackTrace) => Icon(
             Icons.person,
             size: radius * 0.9,
             color: Theme.of(context).colorScheme.primary,

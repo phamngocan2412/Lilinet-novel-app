@@ -17,18 +17,15 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     required this.addFavoriteUseCase,
     required this.removeFavoriteUseCase,
     required this.getFavoritesUseCase,
-  }) : super(FavoritesInitial()) {
+  }) : super(const FavoritesInitial()) {
     on<LoadFavorites>(_onLoadFavorites);
     on<AddFavoriteEvent>(_onAddFavorite);
     on<RemoveFavoriteEvent>(_onRemoveFavorite);
     on<ClearFavorites>(_onClearFavorites);
   }
 
-  void _onClearFavorites(
-    ClearFavorites event,
-    Emitter<FavoritesState> emit,
-  ) {
-    emit(FavoritesInitial());
+  void _onClearFavorites(ClearFavorites event, Emitter<FavoritesState> emit) {
+    emit(const FavoritesInitial());
   }
 
   Future<void> _onLoadFavorites(
@@ -58,16 +55,16 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       movieTitle: event.movieTitle,
       moviePoster: event.moviePoster,
       movieType: event.movieType,
+      folder: event.folder,
     );
 
-    result.fold(
-      (failure) => emit(FavoritesError(message: failure.message)),
-      (favorite) {
-        // Optimistic update: Add to list immediately without reloading
-        currentFavorites.add(favorite);
-        emit(FavoritesLoaded(favorites: currentFavorites));
-      },
-    );
+    result.fold((failure) => emit(FavoritesError(message: failure.message)), (
+      favorite,
+    ) {
+      // Optimistic update: Add to list immediately without reloading
+      currentFavorites.add(favorite);
+      emit(FavoritesLoaded(favorites: currentFavorites));
+    });
   }
 
   Future<void> _onRemoveFavorite(
@@ -82,13 +79,12 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
 
     final result = await removeFavoriteUseCase(event.movieId);
 
-    result.fold(
-      (failure) => emit(FavoritesError(message: failure.message)),
-      (_) {
-        // Optimistic update: Remove from list immediately without reloading
-        currentFavorites.removeWhere((f) => f.movieId == event.movieId);
-        emit(FavoritesLoaded(favorites: currentFavorites));
-      },
-    );
+    result.fold((failure) => emit(FavoritesError(message: failure.message)), (
+      _,
+    ) {
+      // Optimistic update: Remove from list immediately without reloading
+      currentFavorites.removeWhere((f) => f.movieId == event.movieId);
+      emit(FavoritesLoaded(favorites: currentFavorites));
+    });
   }
 }

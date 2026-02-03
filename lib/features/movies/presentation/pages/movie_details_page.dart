@@ -28,12 +28,16 @@ class MovieDetailsPage extends StatelessWidget {
   final String movieId;
   final String mediaType;
   final Movie? moviePreview;
+  final String? initialEpisodeId;
+  final int? initialTimestamp;
 
   const MovieDetailsPage({
     super.key,
     required this.movieId,
     required this.mediaType,
     this.moviePreview,
+    this.initialEpisodeId,
+    this.initialTimestamp,
   });
 
   @override
@@ -50,6 +54,8 @@ class MovieDetailsPage extends StatelessWidget {
         movieId: movieId,
         mediaType: mediaType,
         moviePreview: moviePreview,
+        initialEpisodeId: initialEpisodeId,
+        initialTimestamp: initialTimestamp,
       ),
     );
   }
@@ -59,12 +65,16 @@ class MovieDetailsView extends StatefulWidget {
   final String movieId;
   final String mediaType;
   final Movie? moviePreview;
+  final String? initialEpisodeId;
+  final int? initialTimestamp;
 
   const MovieDetailsView({
     super.key,
     required this.movieId,
     required this.mediaType,
     this.moviePreview,
+    this.initialEpisodeId,
+    this.initialTimestamp,
   });
 
   @override
@@ -117,7 +127,51 @@ class _MovieDetailsViewState extends State<MovieDetailsView> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: BlocBuilder<MovieDetailsBloc, MovieDetailsState>(
+      body: BlocConsumer<MovieDetailsBloc, MovieDetailsState>(
+        listener: (context, state) {
+          if (state is MovieDetailsLoaded && widget.initialEpisodeId != null) {
+            final movie = state.movie;
+            final episodes = movie.episodes;
+            if (episodes != null) {
+              try {
+                final episode = episodes.firstWhere(
+                  (e) => e.id == widget.initialEpisodeId,
+                );
+
+                // Calculate start position
+                Duration startPos = Duration.zero;
+                if (widget.initialTimestamp != null) {
+                  startPos = Duration(seconds: widget.initialTimestamp!);
+                } else {
+                  // Fallback to history if no timestamp provided
+                  startPos =
+                      _getStartPosition(context, episode.id) ?? Duration.zero;
+                }
+
+                // Trigger playback
+                context.read<VideoPlayerBloc>().add(
+                      PlayVideo(
+                        episodeId: episode.id,
+                        mediaId: movie.id,
+                        title: movie.title,
+                        posterUrl: (episode.image != null &&
+                                episode.image!.isNotEmpty)
+                            ? episode.image
+                            : (movie.poster ?? movie.cover),
+                        episodeTitle: episode.title.isNotEmpty
+                            ? episode.title
+                            : 'Episode ${episode.number}',
+                        startPosition: startPos,
+                        mediaType: movie.type,
+                        movie: movie,
+                      ),
+                    );
+              } catch (_) {
+                debugPrint('Initial episode not found: ${widget.initialEpisodeId}');
+              }
+            }
+          }
+        },
         builder: (context, state) {
           Movie? movieToRender;
           bool isLoading = false;

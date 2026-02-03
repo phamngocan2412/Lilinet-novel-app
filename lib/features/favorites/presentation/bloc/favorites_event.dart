@@ -11,6 +11,7 @@ class FavoritesEvent with _$FavoritesEvent {
     String? movieTitle,
     String? moviePoster,
     String? movieType,
+    @Default('Default') String folder,
   }) = AddFavoriteEvent;
 
   const factory FavoritesEvent.removeFavorite({required String movieId}) =

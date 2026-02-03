@@ -30,6 +30,7 @@ class FavoritesSupabaseDataSource {
     String? movieTitle,
     String? moviePoster,
     String? movieType,
+    String folder = 'Default',
   }) async {
     final userId = supabaseClient.auth.currentUser?.id;
     if (userId == null) {
@@ -42,6 +43,7 @@ class FavoritesSupabaseDataSource {
       'movie_title': movieTitle,
       'movie_poster': moviePoster,
       'movie_type': movieType,
+      'folder': folder,
     };
 
     final response =
