@@ -90,6 +90,10 @@ class HomePageView extends StatelessWidget {
               ),
               loaded: (trending, categories) {
                 final trendingMovies = trending.toSet().toList();
+                // Optimization: Pre-calculate cache width for horizontal lists
+                final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+                final horizontalListMemCacheWidth =
+                    (130 * devicePixelRatio).toInt();
 
                 final genres = {
                   'Action': '28',
@@ -119,7 +123,8 @@ class HomePageView extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: genres.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 8),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(width: 8),
                           itemBuilder: (context, index) {
                             final entry = genres.entries.elementAt(index);
                             return Center(
@@ -137,35 +142,38 @@ class HomePageView extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: SliverToBoxAdapter(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (trendingMovies.isNotEmpty) ...[
-                            Text(
-                              'TRENDING NOW',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    letterSpacing: 1.2,
-                                  ),
-                            ),
-                            const SizedBox(height: 16),
-                            TrendingCarousel(
-                              movies: trendingMovies.take(5).toList(),
-                              // Optimization: Calculate explicit cache width to avoid LayoutBuilder overhead
-                              memCacheWidth: ((MediaQuery.of(context).size.width - 32) *
-                                      MediaQuery.of(context).devicePixelRatio)
-                                  .toInt(),
-                              onMovieTap: (movie) => context.push(
-                                '/movie/${movie.id}?type=${movie.type}',
-                                extra: movie,
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (trendingMovies.isNotEmpty) ...[
+                              Text(
+                                'TRENDING NOW',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineSmall
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                      letterSpacing: 1.2,
+                                    ),
+                              ),
+                              const SizedBox(height: 16),
+                              TrendingCarousel(
+                                movies: trendingMovies.take(5).toList(),
+                                // Optimization: Calculate explicit cache width to avoid LayoutBuilder overhead
+                                memCacheWidth:
+                                    ((MediaQuery.of(context).size.width - 32) *
+                                            MediaQuery.of(context)
+                                                .devicePixelRatio)
+                                        .toInt(),
+                                onMovieTap: (movie) => context.push(
+                                  '/movie/${movie.id}?type=${movie.type}',
+                                  extra: movie,
+                                ),
                               ),
                               const SizedBox(height: 32),
                             ],
@@ -222,8 +230,7 @@ class HomePageView extends StatelessWidget {
                                           lookupKey = 'Action';
                                         }
 
-                                        final genreId =
-                                            genres[lookupKey] ??
+                                        final genreId = genres[lookupKey] ??
                                             genres[categoryName
                                                 .replaceAll('Movies', '')
                                                 .trim()];
@@ -248,7 +255,7 @@ class HomePageView extends StatelessWidget {
                                     horizontal: 16,
                                   ),
                                   itemCount: categoryMovies.length,
-                                  separatorBuilder: (_, __) =>
+                                  separatorBuilder: (context, index) =>
                                       const SizedBox(width: 12),
                                   itemBuilder: (context, index) {
                                     final movie = categoryMovies[index];
@@ -256,6 +263,9 @@ class HomePageView extends StatelessWidget {
                                       width: 130,
                                       child: MovieCard(
                                         movie: movie,
+                                        width: 130,
+                                        memCacheWidth:
+                                            horizontalListMemCacheWidth,
                                         onTap: () => context.push(
                                           '/movie/${movie.id}?type=${movie.type}',
                                           extra: movie,
