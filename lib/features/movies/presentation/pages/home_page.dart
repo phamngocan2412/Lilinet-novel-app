@@ -119,7 +119,7 @@ class HomePageView extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: genres.length,
-                          separatorBuilder: (_, _) => const SizedBox(width: 8),
+                          separatorBuilder: (_, __) => const SizedBox(width: 8),
                           itemBuilder: (context, index) {
                             final entry = genres.entries.elementAt(index);
                             return Center(
@@ -137,7 +137,6 @@ class HomePageView extends StatelessWidget {
                         ),
                       ),
                     ),
-                  ),
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     sliver: SliverToBoxAdapter(
@@ -167,7 +166,8 @@ class HomePageView extends StatelessWidget {
                                 '/movie/${movie.id}?type=${movie.type}',
                                 extra: movie,
                               ),
-                              const SizedBox(height: 32),
+                            ),
+                            const SizedBox(height: 32),
                             ],
                           ],
                         ),
@@ -181,6 +181,11 @@ class HomePageView extends StatelessWidget {
                     if (categories.isNotEmpty)
                       SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
+                          // Optimization: Calculate cache width for 130px items
+                          final int memCacheWidth =
+                              (130 * MediaQuery.of(context).devicePixelRatio)
+                                  .toInt();
+
                           final categoryName = categories.keys.elementAt(index);
                           final categoryMovies = categories[categoryName]!;
 
@@ -256,6 +261,7 @@ class HomePageView extends StatelessWidget {
                                       width: 130,
                                       child: MovieCard(
                                         movie: movie,
+                                        memCacheWidth: memCacheWidth,
                                         onTap: () => context.push(
                                           '/movie/${movie.id}?type=${movie.type}',
                                           extra: movie,
