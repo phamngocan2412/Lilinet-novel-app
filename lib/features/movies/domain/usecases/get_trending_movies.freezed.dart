@@ -1,4 +1,3 @@
-// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -10,56 +9,41 @@ part of 'get_trending_movies.dart';
 // FreezedGenerator
 // **************************************************************************
 
-// dart format off
 T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$TrendingParams {
-  String get type;
-  int get page;
+  String get type => throw _privateConstructorUsedError;
+  int get page => throw _privateConstructorUsedError;
 
   /// Create a copy of TrendingParams
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
   $TrendingParamsCopyWith<TrendingParams> get copyWith =>
-      _$TrendingParamsCopyWithImpl<TrendingParams>(
-          this as TrendingParams, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is TrendingParams &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.page, page) || other.page == page));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, type, page);
-
-  @override
-  String toString() {
-    return 'TrendingParams(type: $type, page: $page)';
-  }
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract mixin class $TrendingParamsCopyWith<$Res> {
+abstract class $TrendingParamsCopyWith<$Res> {
   factory $TrendingParamsCopyWith(
-          TrendingParams value, $Res Function(TrendingParams) _then) =
-      _$TrendingParamsCopyWithImpl;
+          TrendingParams value, $Res Function(TrendingParams) then) =
+      _$TrendingParamsCopyWithImpl<$Res, TrendingParams>;
   @useResult
   $Res call({String type, int page});
 }
 
 /// @nodoc
-class _$TrendingParamsCopyWithImpl<$Res>
+class _$TrendingParamsCopyWithImpl<$Res, $Val extends TrendingParams>
     implements $TrendingParamsCopyWith<$Res> {
-  _$TrendingParamsCopyWithImpl(this._self, this._then);
+  _$TrendingParamsCopyWithImpl(this._value, this._then);
 
-  final TrendingParams _self;
-  final $Res Function(TrendingParams) _then;
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
   /// Create a copy of TrendingParams
   /// with the given fields replaced by the non-null parameter values.
@@ -69,13 +53,53 @@ class _$TrendingParamsCopyWithImpl<$Res>
     Object? type = null,
     Object? page = null,
   }) {
-    return _then(_self.copyWith(
+    return _then(_value.copyWith(
       type: null == type
-          ? _self.type
+          ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as String,
       page: null == page
-          ? _self.page
+          ? _value.page
+          : page // ignore: cast_nullable_to_non_nullable
+              as int,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$TrendingParamsImplCopyWith<$Res>
+    implements $TrendingParamsCopyWith<$Res> {
+  factory _$$TrendingParamsImplCopyWith(_$TrendingParamsImpl value,
+          $Res Function(_$TrendingParamsImpl) then) =
+      __$$TrendingParamsImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String type, int page});
+}
+
+/// @nodoc
+class __$$TrendingParamsImplCopyWithImpl<$Res>
+    extends _$TrendingParamsCopyWithImpl<$Res, _$TrendingParamsImpl>
+    implements _$$TrendingParamsImplCopyWith<$Res> {
+  __$$TrendingParamsImplCopyWithImpl(
+      _$TrendingParamsImpl _value, $Res Function(_$TrendingParamsImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of TrendingParams
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = null,
+    Object? page = null,
+  }) {
+    return _then(_$TrendingParamsImpl(
+      type: null == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String,
+      page: null == page
+          ? _value.page
           : page // ignore: cast_nullable_to_non_nullable
               as int,
     ));
@@ -84,8 +108,8 @@ class _$TrendingParamsCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _TrendingParams implements TrendingParams {
-  const _TrendingParams({this.type = 'all', this.page = 1});
+class _$TrendingParamsImpl implements _TrendingParams {
+  const _$TrendingParamsImpl({this.type = 'all', this.page = 1});
 
   @override
   @JsonKey()
@@ -94,19 +118,16 @@ class _TrendingParams implements TrendingParams {
   @JsonKey()
   final int page;
 
-  /// Create a copy of TrendingParams
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$TrendingParamsCopyWith<_TrendingParams> get copyWith =>
-      __$TrendingParamsCopyWithImpl<_TrendingParams>(this, _$identity);
+  String toString() {
+    return 'TrendingParams(type: $type, page: $page)';
+  }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _TrendingParams &&
+            other is _$TrendingParamsImpl &&
             (identical(other.type, type) || other.type == type) &&
             (identical(other.page, page) || other.page == page));
   }
@@ -114,50 +135,29 @@ class _TrendingParams implements TrendingParams {
   @override
   int get hashCode => Object.hash(runtimeType, type, page);
 
+  /// Create a copy of TrendingParams
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  String toString() {
-    return 'TrendingParams(type: $type, page: $page)';
-  }
+  @pragma('vm:prefer-inline')
+  _$$TrendingParamsImplCopyWith<_$TrendingParamsImpl> get copyWith =>
+      __$$TrendingParamsImplCopyWithImpl<_$TrendingParamsImpl>(
+          this, _$identity);
 }
 
-/// @nodoc
-abstract mixin class _$TrendingParamsCopyWith<$Res>
-    implements $TrendingParamsCopyWith<$Res> {
-  factory _$TrendingParamsCopyWith(
-          _TrendingParams value, $Res Function(_TrendingParams) _then) =
-      __$TrendingParamsCopyWithImpl;
+abstract class _TrendingParams implements TrendingParams {
+  const factory _TrendingParams({final String type, final int page}) =
+      _$TrendingParamsImpl;
+
   @override
-  @useResult
-  $Res call({String type, int page});
-}
-
-/// @nodoc
-class __$TrendingParamsCopyWithImpl<$Res>
-    implements _$TrendingParamsCopyWith<$Res> {
-  __$TrendingParamsCopyWithImpl(this._self, this._then);
-
-  final _TrendingParams _self;
-  final $Res Function(_TrendingParams) _then;
+  String get type;
+  @override
+  int get page;
 
   /// Create a copy of TrendingParams
   /// with the given fields replaced by the non-null parameter values.
   @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? type = null,
-    Object? page = null,
-  }) {
-    return _then(_TrendingParams(
-      type: null == type
-          ? _self.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      page: null == page
-          ? _self.page
-          : page // ignore: cast_nullable_to_non_nullable
-              as int,
-    ));
-  }
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$TrendingParamsImplCopyWith<_$TrendingParamsImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
-
-// dart format on

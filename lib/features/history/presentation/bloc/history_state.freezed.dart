@@ -1,4 +1,3 @@
-// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -10,136 +9,365 @@ part of 'history_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
-// dart format off
 T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$HistoryState {
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is HistoryState);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'HistoryState()';
-  }
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<WatchProgress> history) loaded,
+    required TResult Function() empty,
+    required TResult Function(String message) error,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<WatchProgress> history)? loaded,
+    TResult? Function()? empty,
+    TResult? Function(String message)? error,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<WatchProgress> history)? loaded,
+    TResult Function()? empty,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(HistoryInitial value) initial,
+    required TResult Function(HistoryLoading value) loading,
+    required TResult Function(HistoryLoaded value) loaded,
+    required TResult Function(HistoryEmpty value) empty,
+    required TResult Function(HistoryError value) error,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(HistoryInitial value)? initial,
+    TResult? Function(HistoryLoading value)? loading,
+    TResult? Function(HistoryLoaded value)? loaded,
+    TResult? Function(HistoryEmpty value)? empty,
+    TResult? Function(HistoryError value)? error,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(HistoryInitial value)? initial,
+    TResult Function(HistoryLoading value)? loading,
+    TResult Function(HistoryLoaded value)? loaded,
+    TResult Function(HistoryEmpty value)? empty,
+    TResult Function(HistoryError value)? error,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-class $HistoryStateCopyWith<$Res> {
-  $HistoryStateCopyWith(HistoryState _, $Res Function(HistoryState) __);
+abstract class $HistoryStateCopyWith<$Res> {
+  factory $HistoryStateCopyWith(
+          HistoryState value, $Res Function(HistoryState) then) =
+      _$HistoryStateCopyWithImpl<$Res, HistoryState>;
+}
+
+/// @nodoc
+class _$HistoryStateCopyWithImpl<$Res, $Val extends HistoryState>
+    implements $HistoryStateCopyWith<$Res> {
+  _$HistoryStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of HistoryState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+abstract class _$$HistoryInitialImplCopyWith<$Res> {
+  factory _$$HistoryInitialImplCopyWith(_$HistoryInitialImpl value,
+          $Res Function(_$HistoryInitialImpl) then) =
+      __$$HistoryInitialImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$HistoryInitialImplCopyWithImpl<$Res>
+    extends _$HistoryStateCopyWithImpl<$Res, _$HistoryInitialImpl>
+    implements _$$HistoryInitialImplCopyWith<$Res> {
+  __$$HistoryInitialImplCopyWithImpl(
+      _$HistoryInitialImpl _value, $Res Function(_$HistoryInitialImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of HistoryState
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class HistoryInitial implements HistoryState {
-  const HistoryInitial();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is HistoryInitial);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
+class _$HistoryInitialImpl implements HistoryInitial {
+  const _$HistoryInitialImpl();
 
   @override
   String toString() {
     return 'HistoryState.initial()';
   }
-}
-
-/// @nodoc
-
-class HistoryLoading implements HistoryState {
-  const HistoryLoading();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is HistoryLoading);
+        (other.runtimeType == runtimeType && other is _$HistoryInitialImpl);
   }
 
   @override
   int get hashCode => runtimeType.hashCode;
 
   @override
-  String toString() {
-    return 'HistoryState.loading()';
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<WatchProgress> history) loaded,
+    required TResult Function() empty,
+    required TResult Function(String message) error,
+  }) {
+    return initial();
   }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<WatchProgress> history)? loaded,
+    TResult? Function()? empty,
+    TResult? Function(String message)? error,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<WatchProgress> history)? loaded,
+    TResult Function()? empty,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(HistoryInitial value) initial,
+    required TResult Function(HistoryLoading value) loading,
+    required TResult Function(HistoryLoaded value) loaded,
+    required TResult Function(HistoryEmpty value) empty,
+    required TResult Function(HistoryError value) error,
+  }) {
+    return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(HistoryInitial value)? initial,
+    TResult? Function(HistoryLoading value)? loading,
+    TResult? Function(HistoryLoaded value)? loaded,
+    TResult? Function(HistoryEmpty value)? empty,
+    TResult? Function(HistoryError value)? error,
+  }) {
+    return initial?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(HistoryInitial value)? initial,
+    TResult Function(HistoryLoading value)? loading,
+    TResult Function(HistoryLoaded value)? loaded,
+    TResult Function(HistoryEmpty value)? empty,
+    TResult Function(HistoryError value)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class HistoryInitial implements HistoryState {
+  const factory HistoryInitial() = _$HistoryInitialImpl;
+}
+
+/// @nodoc
+abstract class _$$HistoryLoadingImplCopyWith<$Res> {
+  factory _$$HistoryLoadingImplCopyWith(_$HistoryLoadingImpl value,
+          $Res Function(_$HistoryLoadingImpl) then) =
+      __$$HistoryLoadingImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$HistoryLoadingImplCopyWithImpl<$Res>
+    extends _$HistoryStateCopyWithImpl<$Res, _$HistoryLoadingImpl>
+    implements _$$HistoryLoadingImplCopyWith<$Res> {
+  __$$HistoryLoadingImplCopyWithImpl(
+      _$HistoryLoadingImpl _value, $Res Function(_$HistoryLoadingImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of HistoryState
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class HistoryLoaded implements HistoryState {
-  const HistoryLoaded({required final List<WatchProgress> history})
-      : _history = history;
+class _$HistoryLoadingImpl implements HistoryLoading {
+  const _$HistoryLoadingImpl();
 
-  final List<WatchProgress> _history;
-  List<WatchProgress> get history {
-    if (_history is EqualUnmodifiableListView) return _history;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_history);
+  @override
+  String toString() {
+    return 'HistoryState.loading()';
   }
-
-  /// Create a copy of HistoryState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $HistoryLoadedCopyWith<HistoryLoaded> get copyWith =>
-      _$HistoryLoadedCopyWithImpl<HistoryLoaded>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is HistoryLoaded &&
-            const DeepCollectionEquality().equals(other._history, _history));
+        (other.runtimeType == runtimeType && other is _$HistoryLoadingImpl);
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_history));
+  int get hashCode => runtimeType.hashCode;
 
   @override
-  String toString() {
-    return 'HistoryState.loaded(history: $history)';
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<WatchProgress> history) loaded,
+    required TResult Function() empty,
+    required TResult Function(String message) error,
+  }) {
+    return loading();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<WatchProgress> history)? loaded,
+    TResult? Function()? empty,
+    TResult? Function(String message)? error,
+  }) {
+    return loading?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<WatchProgress> history)? loaded,
+    TResult Function()? empty,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(HistoryInitial value) initial,
+    required TResult Function(HistoryLoading value) loading,
+    required TResult Function(HistoryLoaded value) loaded,
+    required TResult Function(HistoryEmpty value) empty,
+    required TResult Function(HistoryError value) error,
+  }) {
+    return loading(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(HistoryInitial value)? initial,
+    TResult? Function(HistoryLoading value)? loading,
+    TResult? Function(HistoryLoaded value)? loaded,
+    TResult? Function(HistoryEmpty value)? empty,
+    TResult? Function(HistoryError value)? error,
+  }) {
+    return loading?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(HistoryInitial value)? initial,
+    TResult Function(HistoryLoading value)? loading,
+    TResult Function(HistoryLoaded value)? loaded,
+    TResult Function(HistoryEmpty value)? empty,
+    TResult Function(HistoryError value)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading(this);
+    }
+    return orElse();
   }
 }
 
+abstract class HistoryLoading implements HistoryState {
+  const factory HistoryLoading() = _$HistoryLoadingImpl;
+}
+
 /// @nodoc
-abstract mixin class $HistoryLoadedCopyWith<$Res>
-    implements $HistoryStateCopyWith<$Res> {
-  factory $HistoryLoadedCopyWith(
-          HistoryLoaded value, $Res Function(HistoryLoaded) _then) =
-      _$HistoryLoadedCopyWithImpl;
+abstract class _$$HistoryLoadedImplCopyWith<$Res> {
+  factory _$$HistoryLoadedImplCopyWith(
+          _$HistoryLoadedImpl value, $Res Function(_$HistoryLoadedImpl) then) =
+      __$$HistoryLoadedImplCopyWithImpl<$Res>;
   @useResult
   $Res call({List<WatchProgress> history});
 }
 
 /// @nodoc
-class _$HistoryLoadedCopyWithImpl<$Res>
-    implements $HistoryLoadedCopyWith<$Res> {
-  _$HistoryLoadedCopyWithImpl(this._self, this._then);
-
-  final HistoryLoaded _self;
-  final $Res Function(HistoryLoaded) _then;
+class __$$HistoryLoadedImplCopyWithImpl<$Res>
+    extends _$HistoryStateCopyWithImpl<$Res, _$HistoryLoadedImpl>
+    implements _$$HistoryLoadedImplCopyWith<$Res> {
+  __$$HistoryLoadedImplCopyWithImpl(
+      _$HistoryLoadedImpl _value, $Res Function(_$HistoryLoadedImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of HistoryState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  @override
   $Res call({
     Object? history = null,
   }) {
-    return _then(HistoryLoaded(
+    return _then(_$HistoryLoadedImpl(
       history: null == history
-          ? _self._history
+          ? _value._history
           : history // ignore: cast_nullable_to_non_nullable
               as List<WatchProgress>,
     ));
@@ -148,85 +376,415 @@ class _$HistoryLoadedCopyWithImpl<$Res>
 
 /// @nodoc
 
-class HistoryEmpty implements HistoryState {
-  const HistoryEmpty();
+class _$HistoryLoadedImpl implements HistoryLoaded {
+  const _$HistoryLoadedImpl({required final List<WatchProgress> history})
+      : _history = history;
+
+  final List<WatchProgress> _history;
+  @override
+  List<WatchProgress> get history {
+    if (_history is EqualUnmodifiableListView) return _history;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_history);
+  }
+
+  @override
+  String toString() {
+    return 'HistoryState.loaded(history: $history)';
+  }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is HistoryEmpty);
+        (other.runtimeType == runtimeType &&
+            other is _$HistoryLoadedImpl &&
+            const DeepCollectionEquality().equals(other._history, _history));
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(_history));
+
+  /// Create a copy of HistoryState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$HistoryLoadedImplCopyWith<_$HistoryLoadedImpl> get copyWith =>
+      __$$HistoryLoadedImplCopyWithImpl<_$HistoryLoadedImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<WatchProgress> history) loaded,
+    required TResult Function() empty,
+    required TResult Function(String message) error,
+  }) {
+    return loaded(history);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<WatchProgress> history)? loaded,
+    TResult? Function()? empty,
+    TResult? Function(String message)? error,
+  }) {
+    return loaded?.call(history);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<WatchProgress> history)? loaded,
+    TResult Function()? empty,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (loaded != null) {
+      return loaded(history);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(HistoryInitial value) initial,
+    required TResult Function(HistoryLoading value) loading,
+    required TResult Function(HistoryLoaded value) loaded,
+    required TResult Function(HistoryEmpty value) empty,
+    required TResult Function(HistoryError value) error,
+  }) {
+    return loaded(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(HistoryInitial value)? initial,
+    TResult? Function(HistoryLoading value)? loading,
+    TResult? Function(HistoryLoaded value)? loaded,
+    TResult? Function(HistoryEmpty value)? empty,
+    TResult? Function(HistoryError value)? error,
+  }) {
+    return loaded?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(HistoryInitial value)? initial,
+    TResult Function(HistoryLoading value)? loading,
+    TResult Function(HistoryLoaded value)? loaded,
+    TResult Function(HistoryEmpty value)? empty,
+    TResult Function(HistoryError value)? error,
+    required TResult orElse(),
+  }) {
+    if (loaded != null) {
+      return loaded(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class HistoryLoaded implements HistoryState {
+  const factory HistoryLoaded({required final List<WatchProgress> history}) =
+      _$HistoryLoadedImpl;
+
+  List<WatchProgress> get history;
+
+  /// Create a copy of HistoryState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$HistoryLoadedImplCopyWith<_$HistoryLoadedImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$HistoryEmptyImplCopyWith<$Res> {
+  factory _$$HistoryEmptyImplCopyWith(
+          _$HistoryEmptyImpl value, $Res Function(_$HistoryEmptyImpl) then) =
+      __$$HistoryEmptyImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$HistoryEmptyImplCopyWithImpl<$Res>
+    extends _$HistoryStateCopyWithImpl<$Res, _$HistoryEmptyImpl>
+    implements _$$HistoryEmptyImplCopyWith<$Res> {
+  __$$HistoryEmptyImplCopyWithImpl(
+      _$HistoryEmptyImpl _value, $Res Function(_$HistoryEmptyImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of HistoryState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$HistoryEmptyImpl implements HistoryEmpty {
+  const _$HistoryEmptyImpl();
+
+  @override
+  String toString() {
+    return 'HistoryState.empty()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType && other is _$HistoryEmptyImpl);
   }
 
   @override
   int get hashCode => runtimeType.hashCode;
 
   @override
-  String toString() {
-    return 'HistoryState.empty()';
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<WatchProgress> history) loaded,
+    required TResult Function() empty,
+    required TResult Function(String message) error,
+  }) {
+    return empty();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<WatchProgress> history)? loaded,
+    TResult? Function()? empty,
+    TResult? Function(String message)? error,
+  }) {
+    return empty?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<WatchProgress> history)? loaded,
+    TResult Function()? empty,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (empty != null) {
+      return empty();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(HistoryInitial value) initial,
+    required TResult Function(HistoryLoading value) loading,
+    required TResult Function(HistoryLoaded value) loaded,
+    required TResult Function(HistoryEmpty value) empty,
+    required TResult Function(HistoryError value) error,
+  }) {
+    return empty(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(HistoryInitial value)? initial,
+    TResult? Function(HistoryLoading value)? loading,
+    TResult? Function(HistoryLoaded value)? loaded,
+    TResult? Function(HistoryEmpty value)? empty,
+    TResult? Function(HistoryError value)? error,
+  }) {
+    return empty?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(HistoryInitial value)? initial,
+    TResult Function(HistoryLoading value)? loading,
+    TResult Function(HistoryLoaded value)? loaded,
+    TResult Function(HistoryEmpty value)? empty,
+    TResult Function(HistoryError value)? error,
+    required TResult orElse(),
+  }) {
+    if (empty != null) {
+      return empty(this);
+    }
+    return orElse();
   }
 }
 
-/// @nodoc
-
-class HistoryError implements HistoryState {
-  const HistoryError({required this.message});
-
-  final String message;
-
-  /// Create a copy of HistoryState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $HistoryErrorCopyWith<HistoryError> get copyWith =>
-      _$HistoryErrorCopyWithImpl<HistoryError>(this, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is HistoryError &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  @override
-  String toString() {
-    return 'HistoryState.error(message: $message)';
-  }
+abstract class HistoryEmpty implements HistoryState {
+  const factory HistoryEmpty() = _$HistoryEmptyImpl;
 }
 
 /// @nodoc
-abstract mixin class $HistoryErrorCopyWith<$Res>
-    implements $HistoryStateCopyWith<$Res> {
-  factory $HistoryErrorCopyWith(
-          HistoryError value, $Res Function(HistoryError) _then) =
-      _$HistoryErrorCopyWithImpl;
+abstract class _$$HistoryErrorImplCopyWith<$Res> {
+  factory _$$HistoryErrorImplCopyWith(
+          _$HistoryErrorImpl value, $Res Function(_$HistoryErrorImpl) then) =
+      __$$HistoryErrorImplCopyWithImpl<$Res>;
   @useResult
   $Res call({String message});
 }
 
 /// @nodoc
-class _$HistoryErrorCopyWithImpl<$Res> implements $HistoryErrorCopyWith<$Res> {
-  _$HistoryErrorCopyWithImpl(this._self, this._then);
-
-  final HistoryError _self;
-  final $Res Function(HistoryError) _then;
+class __$$HistoryErrorImplCopyWithImpl<$Res>
+    extends _$HistoryStateCopyWithImpl<$Res, _$HistoryErrorImpl>
+    implements _$$HistoryErrorImplCopyWith<$Res> {
+  __$$HistoryErrorImplCopyWithImpl(
+      _$HistoryErrorImpl _value, $Res Function(_$HistoryErrorImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of HistoryState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  @override
   $Res call({
     Object? message = null,
   }) {
-    return _then(HistoryError(
+    return _then(_$HistoryErrorImpl(
       message: null == message
-          ? _self.message
+          ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
 }
 
-// dart format on
+/// @nodoc
+
+class _$HistoryErrorImpl implements HistoryError {
+  const _$HistoryErrorImpl({required this.message});
+
+  @override
+  final String message;
+
+  @override
+  String toString() {
+    return 'HistoryState.error(message: $message)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$HistoryErrorImpl &&
+            (identical(other.message, message) || other.message == message));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, message);
+
+  /// Create a copy of HistoryState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$HistoryErrorImplCopyWith<_$HistoryErrorImpl> get copyWith =>
+      __$$HistoryErrorImplCopyWithImpl<_$HistoryErrorImpl>(this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<WatchProgress> history) loaded,
+    required TResult Function() empty,
+    required TResult Function(String message) error,
+  }) {
+    return error(message);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<WatchProgress> history)? loaded,
+    TResult? Function()? empty,
+    TResult? Function(String message)? error,
+  }) {
+    return error?.call(message);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<WatchProgress> history)? loaded,
+    TResult Function()? empty,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(message);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(HistoryInitial value) initial,
+    required TResult Function(HistoryLoading value) loading,
+    required TResult Function(HistoryLoaded value) loaded,
+    required TResult Function(HistoryEmpty value) empty,
+    required TResult Function(HistoryError value) error,
+  }) {
+    return error(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(HistoryInitial value)? initial,
+    TResult? Function(HistoryLoading value)? loading,
+    TResult? Function(HistoryLoaded value)? loaded,
+    TResult? Function(HistoryEmpty value)? empty,
+    TResult? Function(HistoryError value)? error,
+  }) {
+    return error?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(HistoryInitial value)? initial,
+    TResult Function(HistoryLoading value)? loading,
+    TResult Function(HistoryLoaded value)? loaded,
+    TResult Function(HistoryEmpty value)? empty,
+    TResult Function(HistoryError value)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class HistoryError implements HistoryState {
+  const factory HistoryError({required final String message}) =
+      _$HistoryErrorImpl;
+
+  String get message;
+
+  /// Create a copy of HistoryState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$HistoryErrorImplCopyWith<_$HistoryErrorImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

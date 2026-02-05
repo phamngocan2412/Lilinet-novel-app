@@ -1,4 +1,3 @@
-// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -10,137 +9,347 @@ part of 'favorites_state.dart';
 // FreezedGenerator
 // **************************************************************************
 
-// dart format off
 T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$FavoritesState {
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is FavoritesState);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'FavoritesState()';
-  }
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Favorite> favorites) loaded,
+    required TResult Function(String message) error,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Favorite> favorites)? loaded,
+    TResult? Function(String message)? error,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Favorite> favorites)? loaded,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(FavoritesInitial value) initial,
+    required TResult Function(FavoritesLoading value) loading,
+    required TResult Function(FavoritesLoaded value) loaded,
+    required TResult Function(FavoritesError value) error,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(FavoritesInitial value)? initial,
+    TResult? Function(FavoritesLoading value)? loading,
+    TResult? Function(FavoritesLoaded value)? loaded,
+    TResult? Function(FavoritesError value)? error,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(FavoritesInitial value)? initial,
+    TResult Function(FavoritesLoading value)? loading,
+    TResult Function(FavoritesLoaded value)? loaded,
+    TResult Function(FavoritesError value)? error,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-class $FavoritesStateCopyWith<$Res> {
-  $FavoritesStateCopyWith(FavoritesState _, $Res Function(FavoritesState) __);
+abstract class $FavoritesStateCopyWith<$Res> {
+  factory $FavoritesStateCopyWith(
+          FavoritesState value, $Res Function(FavoritesState) then) =
+      _$FavoritesStateCopyWithImpl<$Res, FavoritesState>;
+}
+
+/// @nodoc
+class _$FavoritesStateCopyWithImpl<$Res, $Val extends FavoritesState>
+    implements $FavoritesStateCopyWith<$Res> {
+  _$FavoritesStateCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of FavoritesState
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+abstract class _$$FavoritesInitialImplCopyWith<$Res> {
+  factory _$$FavoritesInitialImplCopyWith(_$FavoritesInitialImpl value,
+          $Res Function(_$FavoritesInitialImpl) then) =
+      __$$FavoritesInitialImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$FavoritesInitialImplCopyWithImpl<$Res>
+    extends _$FavoritesStateCopyWithImpl<$Res, _$FavoritesInitialImpl>
+    implements _$$FavoritesInitialImplCopyWith<$Res> {
+  __$$FavoritesInitialImplCopyWithImpl(_$FavoritesInitialImpl _value,
+      $Res Function(_$FavoritesInitialImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of FavoritesState
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class FavoritesInitial implements FavoritesState {
-  const FavoritesInitial();
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is FavoritesInitial);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
+class _$FavoritesInitialImpl implements FavoritesInitial {
+  const _$FavoritesInitialImpl();
 
   @override
   String toString() {
     return 'FavoritesState.initial()';
   }
-}
-
-/// @nodoc
-
-class FavoritesLoading implements FavoritesState {
-  const FavoritesLoading();
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is FavoritesLoading);
+        (other.runtimeType == runtimeType && other is _$FavoritesInitialImpl);
   }
 
   @override
   int get hashCode => runtimeType.hashCode;
 
   @override
-  String toString() {
-    return 'FavoritesState.loading()';
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Favorite> favorites) loaded,
+    required TResult Function(String message) error,
+  }) {
+    return initial();
   }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Favorite> favorites)? loaded,
+    TResult? Function(String message)? error,
+  }) {
+    return initial?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Favorite> favorites)? loaded,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(FavoritesInitial value) initial,
+    required TResult Function(FavoritesLoading value) loading,
+    required TResult Function(FavoritesLoaded value) loaded,
+    required TResult Function(FavoritesError value) error,
+  }) {
+    return initial(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(FavoritesInitial value)? initial,
+    TResult? Function(FavoritesLoading value)? loading,
+    TResult? Function(FavoritesLoaded value)? loaded,
+    TResult? Function(FavoritesError value)? error,
+  }) {
+    return initial?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(FavoritesInitial value)? initial,
+    TResult Function(FavoritesLoading value)? loading,
+    TResult Function(FavoritesLoaded value)? loaded,
+    TResult Function(FavoritesError value)? error,
+    required TResult orElse(),
+  }) {
+    if (initial != null) {
+      return initial(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class FavoritesInitial implements FavoritesState {
+  const factory FavoritesInitial() = _$FavoritesInitialImpl;
+}
+
+/// @nodoc
+abstract class _$$FavoritesLoadingImplCopyWith<$Res> {
+  factory _$$FavoritesLoadingImplCopyWith(_$FavoritesLoadingImpl value,
+          $Res Function(_$FavoritesLoadingImpl) then) =
+      __$$FavoritesLoadingImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$FavoritesLoadingImplCopyWithImpl<$Res>
+    extends _$FavoritesStateCopyWithImpl<$Res, _$FavoritesLoadingImpl>
+    implements _$$FavoritesLoadingImplCopyWith<$Res> {
+  __$$FavoritesLoadingImplCopyWithImpl(_$FavoritesLoadingImpl _value,
+      $Res Function(_$FavoritesLoadingImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of FavoritesState
+  /// with the given fields replaced by the non-null parameter values.
 }
 
 /// @nodoc
 
-class FavoritesLoaded implements FavoritesState {
-  const FavoritesLoaded({required final List<Favorite> favorites})
-      : _favorites = favorites;
+class _$FavoritesLoadingImpl implements FavoritesLoading {
+  const _$FavoritesLoadingImpl();
 
-  final List<Favorite> _favorites;
-  List<Favorite> get favorites {
-    if (_favorites is EqualUnmodifiableListView) return _favorites;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_favorites);
+  @override
+  String toString() {
+    return 'FavoritesState.loading()';
   }
-
-  /// Create a copy of FavoritesState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $FavoritesLoadedCopyWith<FavoritesLoaded> get copyWith =>
-      _$FavoritesLoadedCopyWithImpl<FavoritesLoaded>(this, _$identity);
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is FavoritesLoaded &&
-            const DeepCollectionEquality()
-                .equals(other._favorites, _favorites));
+        (other.runtimeType == runtimeType && other is _$FavoritesLoadingImpl);
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_favorites));
+  int get hashCode => runtimeType.hashCode;
 
   @override
-  String toString() {
-    return 'FavoritesState.loaded(favorites: $favorites)';
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Favorite> favorites) loaded,
+    required TResult Function(String message) error,
+  }) {
+    return loading();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Favorite> favorites)? loaded,
+    TResult? Function(String message)? error,
+  }) {
+    return loading?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Favorite> favorites)? loaded,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(FavoritesInitial value) initial,
+    required TResult Function(FavoritesLoading value) loading,
+    required TResult Function(FavoritesLoaded value) loaded,
+    required TResult Function(FavoritesError value) error,
+  }) {
+    return loading(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(FavoritesInitial value)? initial,
+    TResult? Function(FavoritesLoading value)? loading,
+    TResult? Function(FavoritesLoaded value)? loaded,
+    TResult? Function(FavoritesError value)? error,
+  }) {
+    return loading?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(FavoritesInitial value)? initial,
+    TResult Function(FavoritesLoading value)? loading,
+    TResult Function(FavoritesLoaded value)? loaded,
+    TResult Function(FavoritesError value)? error,
+    required TResult orElse(),
+  }) {
+    if (loading != null) {
+      return loading(this);
+    }
+    return orElse();
   }
 }
 
+abstract class FavoritesLoading implements FavoritesState {
+  const factory FavoritesLoading() = _$FavoritesLoadingImpl;
+}
+
 /// @nodoc
-abstract mixin class $FavoritesLoadedCopyWith<$Res>
-    implements $FavoritesStateCopyWith<$Res> {
-  factory $FavoritesLoadedCopyWith(
-          FavoritesLoaded value, $Res Function(FavoritesLoaded) _then) =
-      _$FavoritesLoadedCopyWithImpl;
+abstract class _$$FavoritesLoadedImplCopyWith<$Res> {
+  factory _$$FavoritesLoadedImplCopyWith(_$FavoritesLoadedImpl value,
+          $Res Function(_$FavoritesLoadedImpl) then) =
+      __$$FavoritesLoadedImplCopyWithImpl<$Res>;
   @useResult
   $Res call({List<Favorite> favorites});
 }
 
 /// @nodoc
-class _$FavoritesLoadedCopyWithImpl<$Res>
-    implements $FavoritesLoadedCopyWith<$Res> {
-  _$FavoritesLoadedCopyWithImpl(this._self, this._then);
-
-  final FavoritesLoaded _self;
-  final $Res Function(FavoritesLoaded) _then;
+class __$$FavoritesLoadedImplCopyWithImpl<$Res>
+    extends _$FavoritesStateCopyWithImpl<$Res, _$FavoritesLoadedImpl>
+    implements _$$FavoritesLoadedImplCopyWith<$Res> {
+  __$$FavoritesLoadedImplCopyWithImpl(
+      _$FavoritesLoadedImpl _value, $Res Function(_$FavoritesLoadedImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of FavoritesState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  @override
   $Res call({
     Object? favorites = null,
   }) {
-    return _then(FavoritesLoaded(
+    return _then(_$FavoritesLoadedImpl(
       favorites: null == favorites
-          ? _self._favorites
+          ? _value._favorites
           : favorites // ignore: cast_nullable_to_non_nullable
               as List<Favorite>,
     ));
@@ -149,66 +358,283 @@ class _$FavoritesLoadedCopyWithImpl<$Res>
 
 /// @nodoc
 
-class FavoritesError implements FavoritesState {
-  const FavoritesError({required this.message});
+class _$FavoritesLoadedImpl implements FavoritesLoaded {
+  const _$FavoritesLoadedImpl({required final List<Favorite> favorites})
+      : _favorites = favorites;
 
-  final String message;
+  final List<Favorite> _favorites;
+  @override
+  List<Favorite> get favorites {
+    if (_favorites is EqualUnmodifiableListView) return _favorites;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(_favorites);
+  }
 
-  /// Create a copy of FavoritesState
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $FavoritesErrorCopyWith<FavoritesError> get copyWith =>
-      _$FavoritesErrorCopyWithImpl<FavoritesError>(this, _$identity);
+  @override
+  String toString() {
+    return 'FavoritesState.loaded(favorites: $favorites)';
+  }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is FavoritesError &&
-            (identical(other.message, message) || other.message == message));
+            other is _$FavoritesLoadedImpl &&
+            const DeepCollectionEquality()
+                .equals(other._favorites, _favorites));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, message);
+  int get hashCode =>
+      Object.hash(runtimeType, const DeepCollectionEquality().hash(_favorites));
+
+  /// Create a copy of FavoritesState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$FavoritesLoadedImplCopyWith<_$FavoritesLoadedImpl> get copyWith =>
+      __$$FavoritesLoadedImplCopyWithImpl<_$FavoritesLoadedImpl>(
+          this, _$identity);
 
   @override
-  String toString() {
-    return 'FavoritesState.error(message: $message)';
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Favorite> favorites) loaded,
+    required TResult Function(String message) error,
+  }) {
+    return loaded(favorites);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Favorite> favorites)? loaded,
+    TResult? Function(String message)? error,
+  }) {
+    return loaded?.call(favorites);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Favorite> favorites)? loaded,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (loaded != null) {
+      return loaded(favorites);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(FavoritesInitial value) initial,
+    required TResult Function(FavoritesLoading value) loading,
+    required TResult Function(FavoritesLoaded value) loaded,
+    required TResult Function(FavoritesError value) error,
+  }) {
+    return loaded(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(FavoritesInitial value)? initial,
+    TResult? Function(FavoritesLoading value)? loading,
+    TResult? Function(FavoritesLoaded value)? loaded,
+    TResult? Function(FavoritesError value)? error,
+  }) {
+    return loaded?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(FavoritesInitial value)? initial,
+    TResult Function(FavoritesLoading value)? loading,
+    TResult Function(FavoritesLoaded value)? loaded,
+    TResult Function(FavoritesError value)? error,
+    required TResult orElse(),
+  }) {
+    if (loaded != null) {
+      return loaded(this);
+    }
+    return orElse();
   }
 }
 
+abstract class FavoritesLoaded implements FavoritesState {
+  const factory FavoritesLoaded({required final List<Favorite> favorites}) =
+      _$FavoritesLoadedImpl;
+
+  List<Favorite> get favorites;
+
+  /// Create a copy of FavoritesState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$FavoritesLoadedImplCopyWith<_$FavoritesLoadedImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
 /// @nodoc
-abstract mixin class $FavoritesErrorCopyWith<$Res>
-    implements $FavoritesStateCopyWith<$Res> {
-  factory $FavoritesErrorCopyWith(
-          FavoritesError value, $Res Function(FavoritesError) _then) =
-      _$FavoritesErrorCopyWithImpl;
+abstract class _$$FavoritesErrorImplCopyWith<$Res> {
+  factory _$$FavoritesErrorImplCopyWith(_$FavoritesErrorImpl value,
+          $Res Function(_$FavoritesErrorImpl) then) =
+      __$$FavoritesErrorImplCopyWithImpl<$Res>;
   @useResult
   $Res call({String message});
 }
 
 /// @nodoc
-class _$FavoritesErrorCopyWithImpl<$Res>
-    implements $FavoritesErrorCopyWith<$Res> {
-  _$FavoritesErrorCopyWithImpl(this._self, this._then);
-
-  final FavoritesError _self;
-  final $Res Function(FavoritesError) _then;
+class __$$FavoritesErrorImplCopyWithImpl<$Res>
+    extends _$FavoritesStateCopyWithImpl<$Res, _$FavoritesErrorImpl>
+    implements _$$FavoritesErrorImplCopyWith<$Res> {
+  __$$FavoritesErrorImplCopyWithImpl(
+      _$FavoritesErrorImpl _value, $Res Function(_$FavoritesErrorImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of FavoritesState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  @override
   $Res call({
     Object? message = null,
   }) {
-    return _then(FavoritesError(
+    return _then(_$FavoritesErrorImpl(
       message: null == message
-          ? _self.message
+          ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
               as String,
     ));
   }
 }
 
-// dart format on
+/// @nodoc
+
+class _$FavoritesErrorImpl implements FavoritesError {
+  const _$FavoritesErrorImpl({required this.message});
+
+  @override
+  final String message;
+
+  @override
+  String toString() {
+    return 'FavoritesState.error(message: $message)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$FavoritesErrorImpl &&
+            (identical(other.message, message) || other.message == message));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, message);
+
+  /// Create a copy of FavoritesState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$FavoritesErrorImplCopyWith<_$FavoritesErrorImpl> get copyWith =>
+      __$$FavoritesErrorImplCopyWithImpl<_$FavoritesErrorImpl>(
+          this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function() initial,
+    required TResult Function() loading,
+    required TResult Function(List<Favorite> favorites) loaded,
+    required TResult Function(String message) error,
+  }) {
+    return error(message);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function()? initial,
+    TResult? Function()? loading,
+    TResult? Function(List<Favorite> favorites)? loaded,
+    TResult? Function(String message)? error,
+  }) {
+    return error?.call(message);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function()? initial,
+    TResult Function()? loading,
+    TResult Function(List<Favorite> favorites)? loaded,
+    TResult Function(String message)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(message);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(FavoritesInitial value) initial,
+    required TResult Function(FavoritesLoading value) loading,
+    required TResult Function(FavoritesLoaded value) loaded,
+    required TResult Function(FavoritesError value) error,
+  }) {
+    return error(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(FavoritesInitial value)? initial,
+    TResult? Function(FavoritesLoading value)? loading,
+    TResult? Function(FavoritesLoaded value)? loaded,
+    TResult? Function(FavoritesError value)? error,
+  }) {
+    return error?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(FavoritesInitial value)? initial,
+    TResult Function(FavoritesLoading value)? loading,
+    TResult Function(FavoritesLoaded value)? loaded,
+    TResult Function(FavoritesError value)? error,
+    required TResult orElse(),
+  }) {
+    if (error != null) {
+      return error(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class FavoritesError implements FavoritesState {
+  const factory FavoritesError({required final String message}) =
+      _$FavoritesErrorImpl;
+
+  String get message;
+
+  /// Create a copy of FavoritesState
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$FavoritesErrorImplCopyWith<_$FavoritesErrorImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

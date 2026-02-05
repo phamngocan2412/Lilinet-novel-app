@@ -1,4 +1,3 @@
-// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -10,53 +9,40 @@ part of 'subtitle.dart';
 // FreezedGenerator
 // **************************************************************************
 
-// dart format off
 T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$Subtitle {
-  String get url;
-  String get lang;
+  String get url => throw _privateConstructorUsedError;
+  String get lang => throw _privateConstructorUsedError;
 
   /// Create a copy of Subtitle
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
   $SubtitleCopyWith<Subtitle> get copyWith =>
-      _$SubtitleCopyWithImpl<Subtitle>(this as Subtitle, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is Subtitle &&
-            (identical(other.url, url) || other.url == url) &&
-            (identical(other.lang, lang) || other.lang == lang));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, url, lang);
-
-  @override
-  String toString() {
-    return 'Subtitle(url: $url, lang: $lang)';
-  }
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract mixin class $SubtitleCopyWith<$Res> {
-  factory $SubtitleCopyWith(Subtitle value, $Res Function(Subtitle) _then) =
-      _$SubtitleCopyWithImpl;
+abstract class $SubtitleCopyWith<$Res> {
+  factory $SubtitleCopyWith(Subtitle value, $Res Function(Subtitle) then) =
+      _$SubtitleCopyWithImpl<$Res, Subtitle>;
   @useResult
   $Res call({String url, String lang});
 }
 
 /// @nodoc
-class _$SubtitleCopyWithImpl<$Res> implements $SubtitleCopyWith<$Res> {
-  _$SubtitleCopyWithImpl(this._self, this._then);
+class _$SubtitleCopyWithImpl<$Res, $Val extends Subtitle>
+    implements $SubtitleCopyWith<$Res> {
+  _$SubtitleCopyWithImpl(this._value, this._then);
 
-  final Subtitle _self;
-  final $Res Function(Subtitle) _then;
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
   /// Create a copy of Subtitle
   /// with the given fields replaced by the non-null parameter values.
@@ -66,13 +52,53 @@ class _$SubtitleCopyWithImpl<$Res> implements $SubtitleCopyWith<$Res> {
     Object? url = null,
     Object? lang = null,
   }) {
-    return _then(_self.copyWith(
+    return _then(_value.copyWith(
       url: null == url
-          ? _self.url
+          ? _value.url
           : url // ignore: cast_nullable_to_non_nullable
               as String,
       lang: null == lang
-          ? _self.lang
+          ? _value.lang
+          : lang // ignore: cast_nullable_to_non_nullable
+              as String,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$SubtitleImplCopyWith<$Res>
+    implements $SubtitleCopyWith<$Res> {
+  factory _$$SubtitleImplCopyWith(
+          _$SubtitleImpl value, $Res Function(_$SubtitleImpl) then) =
+      __$$SubtitleImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call({String url, String lang});
+}
+
+/// @nodoc
+class __$$SubtitleImplCopyWithImpl<$Res>
+    extends _$SubtitleCopyWithImpl<$Res, _$SubtitleImpl>
+    implements _$$SubtitleImplCopyWith<$Res> {
+  __$$SubtitleImplCopyWithImpl(
+      _$SubtitleImpl _value, $Res Function(_$SubtitleImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of Subtitle
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? url = null,
+    Object? lang = null,
+  }) {
+    return _then(_$SubtitleImpl(
+      url: null == url
+          ? _value.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String,
+      lang: null == lang
+          ? _value.lang
           : lang // ignore: cast_nullable_to_non_nullable
               as String,
     ));
@@ -81,27 +107,24 @@ class _$SubtitleCopyWithImpl<$Res> implements $SubtitleCopyWith<$Res> {
 
 /// @nodoc
 
-class _Subtitle implements Subtitle {
-  const _Subtitle({required this.url, required this.lang});
+class _$SubtitleImpl implements _Subtitle {
+  const _$SubtitleImpl({required this.url, required this.lang});
 
   @override
   final String url;
   @override
   final String lang;
 
-  /// Create a copy of Subtitle
-  /// with the given fields replaced by the non-null parameter values.
   @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  _$SubtitleCopyWith<_Subtitle> get copyWith =>
-      __$SubtitleCopyWithImpl<_Subtitle>(this, _$identity);
+  String toString() {
+    return 'Subtitle(url: $url, lang: $lang)';
+  }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _Subtitle &&
+            other is _$SubtitleImpl &&
             (identical(other.url, url) || other.url == url) &&
             (identical(other.lang, lang) || other.lang == lang));
   }
@@ -109,48 +132,28 @@ class _Subtitle implements Subtitle {
   @override
   int get hashCode => Object.hash(runtimeType, url, lang);
 
+  /// Create a copy of Subtitle
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  String toString() {
-    return 'Subtitle(url: $url, lang: $lang)';
-  }
+  @pragma('vm:prefer-inline')
+  _$$SubtitleImplCopyWith<_$SubtitleImpl> get copyWith =>
+      __$$SubtitleImplCopyWithImpl<_$SubtitleImpl>(this, _$identity);
 }
 
-/// @nodoc
-abstract mixin class _$SubtitleCopyWith<$Res>
-    implements $SubtitleCopyWith<$Res> {
-  factory _$SubtitleCopyWith(_Subtitle value, $Res Function(_Subtitle) _then) =
-      __$SubtitleCopyWithImpl;
+abstract class _Subtitle implements Subtitle {
+  const factory _Subtitle(
+      {required final String url, required final String lang}) = _$SubtitleImpl;
+
   @override
-  @useResult
-  $Res call({String url, String lang});
-}
-
-/// @nodoc
-class __$SubtitleCopyWithImpl<$Res> implements _$SubtitleCopyWith<$Res> {
-  __$SubtitleCopyWithImpl(this._self, this._then);
-
-  final _Subtitle _self;
-  final $Res Function(_Subtitle) _then;
+  String get url;
+  @override
+  String get lang;
 
   /// Create a copy of Subtitle
   /// with the given fields replaced by the non-null parameter values.
   @override
-  @pragma('vm:prefer-inline')
-  $Res call({
-    Object? url = null,
-    Object? lang = null,
-  }) {
-    return _then(_Subtitle(
-      url: null == url
-          ? _self.url
-          : url // ignore: cast_nullable_to_non_nullable
-              as String,
-      lang: null == lang
-          ? _self.lang
-          : lang // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SubtitleImplCopyWith<_$SubtitleImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
-
-// dart format on

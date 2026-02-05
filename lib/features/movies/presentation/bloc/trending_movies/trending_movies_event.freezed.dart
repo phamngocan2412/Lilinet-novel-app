@@ -1,4 +1,3 @@
-// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -10,91 +9,101 @@ part of 'trending_movies_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
-// dart format off
 T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
 /// @nodoc
 mixin _$TrendingMoviesEvent {
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is TrendingMoviesEvent);
-  }
-
-  @override
-  int get hashCode => runtimeType.hashCode;
-
-  @override
-  String toString() {
-    return 'TrendingMoviesEvent()';
-  }
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(String type) load,
+    required TResult Function() refresh,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String type)? load,
+    TResult? Function()? refresh,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String type)? load,
+    TResult Function()? refresh,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(LoadTrendingMovies value) load,
+    required TResult Function(RefreshTrendingMovies value) refresh,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(LoadTrendingMovies value)? load,
+    TResult? Function(RefreshTrendingMovies value)? refresh,
+  }) =>
+      throw _privateConstructorUsedError;
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(LoadTrendingMovies value)? load,
+    TResult Function(RefreshTrendingMovies value)? refresh,
+    required TResult orElse(),
+  }) =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-class $TrendingMoviesEventCopyWith<$Res> {
-  $TrendingMoviesEventCopyWith(
-      TrendingMoviesEvent _, $Res Function(TrendingMoviesEvent) __);
+abstract class $TrendingMoviesEventCopyWith<$Res> {
+  factory $TrendingMoviesEventCopyWith(
+          TrendingMoviesEvent value, $Res Function(TrendingMoviesEvent) then) =
+      _$TrendingMoviesEventCopyWithImpl<$Res, TrendingMoviesEvent>;
 }
 
 /// @nodoc
+class _$TrendingMoviesEventCopyWithImpl<$Res, $Val extends TrendingMoviesEvent>
+    implements $TrendingMoviesEventCopyWith<$Res> {
+  _$TrendingMoviesEventCopyWithImpl(this._value, this._then);
 
-class LoadTrendingMovies implements TrendingMoviesEvent {
-  const LoadTrendingMovies({this.type = 'all'});
-
-  @JsonKey()
-  final String type;
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
 
   /// Create a copy of TrendingMoviesEvent
   /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @pragma('vm:prefer-inline')
-  $LoadTrendingMoviesCopyWith<LoadTrendingMovies> get copyWith =>
-      _$LoadTrendingMoviesCopyWithImpl<LoadTrendingMovies>(this, _$identity);
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is LoadTrendingMovies &&
-            (identical(other.type, type) || other.type == type));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, type);
-
-  @override
-  String toString() {
-    return 'TrendingMoviesEvent.load(type: $type)';
-  }
 }
 
 /// @nodoc
-abstract mixin class $LoadTrendingMoviesCopyWith<$Res>
-    implements $TrendingMoviesEventCopyWith<$Res> {
-  factory $LoadTrendingMoviesCopyWith(
-          LoadTrendingMovies value, $Res Function(LoadTrendingMovies) _then) =
-      _$LoadTrendingMoviesCopyWithImpl;
+abstract class _$$LoadTrendingMoviesImplCopyWith<$Res> {
+  factory _$$LoadTrendingMoviesImplCopyWith(_$LoadTrendingMoviesImpl value,
+          $Res Function(_$LoadTrendingMoviesImpl) then) =
+      __$$LoadTrendingMoviesImplCopyWithImpl<$Res>;
   @useResult
   $Res call({String type});
 }
 
 /// @nodoc
-class _$LoadTrendingMoviesCopyWithImpl<$Res>
-    implements $LoadTrendingMoviesCopyWith<$Res> {
-  _$LoadTrendingMoviesCopyWithImpl(this._self, this._then);
-
-  final LoadTrendingMovies _self;
-  final $Res Function(LoadTrendingMovies) _then;
+class __$$LoadTrendingMoviesImplCopyWithImpl<$Res>
+    extends _$TrendingMoviesEventCopyWithImpl<$Res, _$LoadTrendingMoviesImpl>
+    implements _$$LoadTrendingMoviesImplCopyWith<$Res> {
+  __$$LoadTrendingMoviesImplCopyWithImpl(_$LoadTrendingMoviesImpl _value,
+      $Res Function(_$LoadTrendingMoviesImpl) _then)
+      : super(_value, _then);
 
   /// Create a copy of TrendingMoviesEvent
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
+  @override
   $Res call({
     Object? type = null,
   }) {
-    return _then(LoadTrendingMovies(
+    return _then(_$LoadTrendingMoviesImpl(
       type: null == type
-          ? _self.type
+          ? _value.type
           : type // ignore: cast_nullable_to_non_nullable
               as String,
     ));
@@ -103,22 +112,217 @@ class _$LoadTrendingMoviesCopyWithImpl<$Res>
 
 /// @nodoc
 
-class RefreshTrendingMovies implements TrendingMoviesEvent {
-  const RefreshTrendingMovies();
+class _$LoadTrendingMoviesImpl implements LoadTrendingMovies {
+  const _$LoadTrendingMoviesImpl({this.type = 'all'});
+
+  @override
+  @JsonKey()
+  final String type;
+
+  @override
+  String toString() {
+    return 'TrendingMoviesEvent.load(type: $type)';
+  }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
-        (other.runtimeType == runtimeType && other is RefreshTrendingMovies);
+        (other.runtimeType == runtimeType &&
+            other is _$LoadTrendingMoviesImpl &&
+            (identical(other.type, type) || other.type == type));
+  }
+
+  @override
+  int get hashCode => Object.hash(runtimeType, type);
+
+  /// Create a copy of TrendingMoviesEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$LoadTrendingMoviesImplCopyWith<_$LoadTrendingMoviesImpl> get copyWith =>
+      __$$LoadTrendingMoviesImplCopyWithImpl<_$LoadTrendingMoviesImpl>(
+          this, _$identity);
+
+  @override
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(String type) load,
+    required TResult Function() refresh,
+  }) {
+    return load(type);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String type)? load,
+    TResult? Function()? refresh,
+  }) {
+    return load?.call(type);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String type)? load,
+    TResult Function()? refresh,
+    required TResult orElse(),
+  }) {
+    if (load != null) {
+      return load(type);
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(LoadTrendingMovies value) load,
+    required TResult Function(RefreshTrendingMovies value) refresh,
+  }) {
+    return load(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(LoadTrendingMovies value)? load,
+    TResult? Function(RefreshTrendingMovies value)? refresh,
+  }) {
+    return load?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(LoadTrendingMovies value)? load,
+    TResult Function(RefreshTrendingMovies value)? refresh,
+    required TResult orElse(),
+  }) {
+    if (load != null) {
+      return load(this);
+    }
+    return orElse();
+  }
+}
+
+abstract class LoadTrendingMovies implements TrendingMoviesEvent {
+  const factory LoadTrendingMovies({final String type}) =
+      _$LoadTrendingMoviesImpl;
+
+  String get type;
+
+  /// Create a copy of TrendingMoviesEvent
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$LoadTrendingMoviesImplCopyWith<_$LoadTrendingMoviesImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class _$$RefreshTrendingMoviesImplCopyWith<$Res> {
+  factory _$$RefreshTrendingMoviesImplCopyWith(
+          _$RefreshTrendingMoviesImpl value,
+          $Res Function(_$RefreshTrendingMoviesImpl) then) =
+      __$$RefreshTrendingMoviesImplCopyWithImpl<$Res>;
+}
+
+/// @nodoc
+class __$$RefreshTrendingMoviesImplCopyWithImpl<$Res>
+    extends _$TrendingMoviesEventCopyWithImpl<$Res, _$RefreshTrendingMoviesImpl>
+    implements _$$RefreshTrendingMoviesImplCopyWith<$Res> {
+  __$$RefreshTrendingMoviesImplCopyWithImpl(_$RefreshTrendingMoviesImpl _value,
+      $Res Function(_$RefreshTrendingMoviesImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of TrendingMoviesEvent
+  /// with the given fields replaced by the non-null parameter values.
+}
+
+/// @nodoc
+
+class _$RefreshTrendingMoviesImpl implements RefreshTrendingMovies {
+  const _$RefreshTrendingMoviesImpl();
+
+  @override
+  String toString() {
+    return 'TrendingMoviesEvent.refresh()';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$RefreshTrendingMoviesImpl);
   }
 
   @override
   int get hashCode => runtimeType.hashCode;
 
   @override
-  String toString() {
-    return 'TrendingMoviesEvent.refresh()';
+  @optionalTypeArgs
+  TResult when<TResult extends Object?>({
+    required TResult Function(String type) load,
+    required TResult Function() refresh,
+  }) {
+    return refresh();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? whenOrNull<TResult extends Object?>({
+    TResult? Function(String type)? load,
+    TResult? Function()? refresh,
+  }) {
+    return refresh?.call();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeWhen<TResult extends Object?>({
+    TResult Function(String type)? load,
+    TResult Function()? refresh,
+    required TResult orElse(),
+  }) {
+    if (refresh != null) {
+      return refresh();
+    }
+    return orElse();
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult map<TResult extends Object?>({
+    required TResult Function(LoadTrendingMovies value) load,
+    required TResult Function(RefreshTrendingMovies value) refresh,
+  }) {
+    return refresh(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult? mapOrNull<TResult extends Object?>({
+    TResult? Function(LoadTrendingMovies value)? load,
+    TResult? Function(RefreshTrendingMovies value)? refresh,
+  }) {
+    return refresh?.call(this);
+  }
+
+  @override
+  @optionalTypeArgs
+  TResult maybeMap<TResult extends Object?>({
+    TResult Function(LoadTrendingMovies value)? load,
+    TResult Function(RefreshTrendingMovies value)? refresh,
+    required TResult orElse(),
+  }) {
+    if (refresh != null) {
+      return refresh(this);
+    }
+    return orElse();
   }
 }
 
-// dart format on
+abstract class RefreshTrendingMovies implements TrendingMoviesEvent {
+  const factory RefreshTrendingMovies() = _$RefreshTrendingMoviesImpl;
+}
