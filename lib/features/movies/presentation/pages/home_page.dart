@@ -185,6 +185,11 @@ class HomePageView extends StatelessWidget {
                     if (categories.isNotEmpty)
                       SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
+                          // Optimization: Calculate cache width for 130px items
+                          final int memCacheWidth =
+                              (130 * MediaQuery.of(context).devicePixelRatio)
+                                  .toInt();
+
                           final categoryName = categories.keys.elementAt(index);
                           final categoryMovies = categories[categoryName]!;
 
