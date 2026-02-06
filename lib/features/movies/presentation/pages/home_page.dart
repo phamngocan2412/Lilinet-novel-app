@@ -90,6 +90,10 @@ class HomePageView extends StatelessWidget {
               ),
               loaded: (trending, categories) {
                 final trendingMovies = trending.toSet().toList();
+                // Optimization: Pre-calculate cache width for horizontal lists
+                final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+                final horizontalListMemCacheWidth =
+                    (130 * devicePixelRatio).toInt();
 
                 final genres = {
                   'Action': '28',
@@ -228,8 +232,7 @@ class HomePageView extends StatelessWidget {
                                           lookupKey = 'Action';
                                         }
 
-                                        final genreId =
-                                            genres[lookupKey] ??
+                                        final genreId = genres[lookupKey] ??
                                             genres[categoryName
                                                 .replaceAll('Movies', '')
                                                 .trim()];
@@ -254,7 +257,7 @@ class HomePageView extends StatelessWidget {
                                     horizontal: 16,
                                   ),
                                   itemCount: categoryMovies.length,
-                                  separatorBuilder: (_, __) =>
+                                  separatorBuilder: (context, index) =>
                                       const SizedBox(width: 12),
                                   itemBuilder: (context, index) {
                                     final movie = categoryMovies[index];
