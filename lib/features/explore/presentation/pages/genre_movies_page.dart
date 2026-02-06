@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/services/miniplayer_height_notifier.dart';
 import '../../../../injection_container.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/widgets/empty_state_widget.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../movies/presentation/widgets/movie_card.dart';
 import '../bloc/explore_bloc.dart';
@@ -49,8 +50,9 @@ class GenreMoviesPage extends StatelessWidget {
 
             if (state is MoviesLoaded) {
               if (state.movies.isEmpty) {
-                return const Center(
-                  child: Text('No movies found for this genre'),
+                return const EmptyStateWidget(
+                  message: 'No movies found for this genre',
+                  icon: Icons.movie_outlined,
                 );
               }
 

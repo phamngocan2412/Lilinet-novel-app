@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../../../../injection_container.dart';
+import '../../../../core/utils/debouncer.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_widget.dart';
 import '../../../../core/widgets/content_unavailable_widget.dart';
@@ -23,7 +25,7 @@ import '../../../../core/services/miniplayer_height_notifier.dart';
 import '../widgets/movie_details_header.dart';
 import '../widgets/movie_info_section.dart';
 import '../widgets/movie_cast_section.dart';
-import '../widgets/movie_recommendations_section.dart';
+// import '../widgets/movie_recommendations_section.dart';
 
 class MovieDetailsPage extends StatelessWidget {
   final String movieId;
@@ -83,7 +85,8 @@ class MovieDetailsView extends StatefulWidget {
 }
 
 class _MovieDetailsViewState extends State<MovieDetailsView> {
-  bool _showRecommendations = false;
+  // bool _showRecommendations = false;
+  final _playDebouncer = Debouncer(milliseconds: 500);
 
   Duration? _getStartPosition(BuildContext context, String episodeId) {
     final state = context.read<HistoryBloc>().state;
@@ -102,22 +105,47 @@ class _MovieDetailsViewState extends State<MovieDetailsView> {
     return null;
   }
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     if (mounted) {
+  //       setState(() {
+  //         _showRecommendations = true;
+  //       });
+  //     }
+  //   });
+  // }
+
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _showRecommendations = true;
-        });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _precacheMovieImage();
+  }
+
+  @override
+  void dispose() {
+    _playDebouncer.dispose();
+    super.dispose();
+  }
+
+  void _precacheMovieImage() {
+    final movie = widget.moviePreview;
+    if (movie != null) {
+      final imageUrl = movie.poster ?? movie.cover;
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        precacheImage(CachedNetworkImageProvider(imageUrl), context);
       }
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
+      backgroundColor: colorScheme.surface,
       body: BlocConsumer<MovieDetailsBloc, MovieDetailsState>(
         listener: (context, state) {
           if (state is MovieDetailsLoaded && widget.initialEpisodeId != null) {
@@ -223,47 +251,50 @@ class _MovieDetailsViewState extends State<MovieDetailsView> {
             final VoidCallback? onPlayPressed = isLoading
                 ? null
                 : () {
-                    if (hasEpisodes) {
-                      final firstEpisode = episodes.first;
-                      final startPos = _getStartPosition(
-                        context,
-                        firstEpisode.id,
-                      );
+                    _playDebouncer.run(() {
+                      if (!mounted) return;
+                      if (hasEpisodes) {
+                        final firstEpisode = episodes.first;
+                        final startPos = _getStartPosition(
+                          context,
+                          firstEpisode.id,
+                        );
 
-                      context.read<VideoPlayerBloc>().add(
-                        PlayVideo(
-                          episodeId: firstEpisode.id,
-                          mediaId: movie.id,
-                          title: movie.title,
-                          posterUrl:
-                              (firstEpisode.image != null &&
-                                  firstEpisode.image!.isNotEmpty)
-                              ? firstEpisode.image
-                              : (movie.poster ?? movie.cover),
-                          episodeTitle: firstEpisode.title.isNotEmpty
-                              ? firstEpisode.title
-                              : 'Episode ${firstEpisode.number}',
-                          startPosition: startPos,
-                          mediaType: movie.type,
-                          movie: movie,
-                        ),
-                      );
-                    } else if (movie.type.toLowerCase() == 'movie') {
-                      final episodeId = movie.episodeId ?? movie.id;
-                      final startPos = _getStartPosition(context, episodeId);
+                        context.read<VideoPlayerBloc>().add(
+                          PlayVideo(
+                            episodeId: firstEpisode.id,
+                            mediaId: movie.id,
+                            title: movie.title,
+                            posterUrl:
+                                (firstEpisode.image != null &&
+                                    firstEpisode.image!.isNotEmpty)
+                                ? firstEpisode.image
+                                : (movie.poster ?? movie.cover),
+                            episodeTitle: firstEpisode.title.isNotEmpty
+                                ? firstEpisode.title
+                                : 'Episode ${firstEpisode.number}',
+                            startPosition: startPos,
+                            mediaType: movie.type,
+                            movie: movie,
+                          ),
+                        );
+                      } else if (movie.type.toLowerCase() == 'movie') {
+                        final episodeId = movie.episodeId ?? movie.id;
+                        final startPos = _getStartPosition(context, episodeId);
 
-                      context.read<VideoPlayerBloc>().add(
-                        PlayVideo(
-                          episodeId: episodeId,
-                          mediaId: movie.id,
-                          title: movie.title,
-                          posterUrl: movie.poster ?? movie.cover,
-                          startPosition: startPos,
-                          mediaType: movie.type,
-                          movie: movie,
-                        ),
-                      );
-                    }
+                        context.read<VideoPlayerBloc>().add(
+                          PlayVideo(
+                            episodeId: episodeId,
+                            mediaId: movie.id,
+                            title: movie.title,
+                            posterUrl: movie.poster ?? movie.cover,
+                            startPosition: startPos,
+                            mediaType: movie.type,
+                            movie: movie,
+                          ),
+                        );
+                      }
+                    });
                   };
 
             return CustomScrollView(
@@ -296,9 +327,7 @@ class _MovieDetailsViewState extends State<MovieDetailsView> {
                               '${movie.episodes?.length ?? 0} episodes total',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withValues(alpha: 0.6),
+                                color: colorScheme.onSurface.withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -349,19 +378,19 @@ class _MovieDetailsViewState extends State<MovieDetailsView> {
 
                   MovieCastSection(movie: movie),
 
-                  MovieRecommendationsSection(
-                    recommendations: movie.recommendations ?? [],
-                    showRecommendations: _showRecommendations,
-                  ),
+                  // MovieRecommendationsSection(
+                  //   recommendations: movie.recommendations ?? [],
+                  //   showRecommendations: _showRecommendations,
+                  // ),
                 ],
 
-                // Add bottom padding for Miniplayer
+                  // Add bottom padding for Miniplayer
                 SliverToBoxAdapter(
                   child: ListenableBuilder(
                     listenable: getIt<MiniplayerHeightNotifier>(),
                     builder: (context, _) {
                       final height = getIt<MiniplayerHeightNotifier>().height;
-                      return SizedBox(height: height);
+                      return SizedBox(height: height + 16);
                     },
                   ),
                 ),

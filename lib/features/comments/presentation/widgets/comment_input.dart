@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 
 class CommentInput extends StatefulWidget {
   final ValueChanged<String> onSend;
@@ -73,18 +74,20 @@ class _CommentInputState extends State<CommentInput> {
                 ? TextField(
                     controller: _controller,
                     maxLines: null,
-                    decoration: const InputDecoration(
-                      hintText: 'Add a comment...',
+                    decoration: InputDecoration(
+                      hintText: AppLocalizations.of(context)!.addCommentHint,
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 8),
                     ),
                   )
                 : GestureDetector(
                     onTap: () {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Vui lòng đăng nhập để bình luận'),
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(context)!.loginToComment,
+                          ),
                           behavior: SnackBarBehavior.floating,
                         ),
                       );
@@ -92,7 +95,7 @@ class _CommentInputState extends State<CommentInput> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Text(
-                        'Vui lòng đăng nhập để bình luận',
+                        AppLocalizations.of(context)!.loginToComment,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).disabledColor,
                         ),

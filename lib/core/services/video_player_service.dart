@@ -7,6 +7,7 @@ import 'package:simple_pip_mode/simple_pip.dart';
 
 import '../../features/movies/domain/entities/streaming_link.dart';
 import '../../features/settings/domain/entities/app_settings.dart';
+import 'network_monitor_service.dart';
 
 @lazySingleton
 class VideoPlayerService {
@@ -60,7 +61,9 @@ class VideoPlayerService {
     if (_player != null) return; // Already initialized
 
     _player = Player(
-      configuration: const PlayerConfiguration(bufferSize: 64 * 1024 * 1024),
+      configuration: const PlayerConfiguration(
+        bufferSize: 128 * 1024 * 1024, // Increased from 64MB to 128MB
+      ),
     );
 
     _controller = VideoController(
@@ -250,7 +253,7 @@ class VideoPlayerService {
       // Resume original player if switch failed
       await _player?.play();
 
-      onError?.call('Quality switch failed. Continuing with current quality.');
+      onError?.call('quality_switch_failed');
       return;
     }
 
@@ -331,6 +334,41 @@ class VideoPlayerService {
         orElse: () => links.first,
       );
     }
+  }
+
+  /// Select streaming link with adaptive quality based on network conditions
+  ///
+  /// [links] - List of available streaming links
+  /// [userQuality] - User's preferred quality setting
+  /// [isLowBandwidth] - Whether to prefer lower quality
+  /// Returns the best matching link based on network conditions
+  static StreamingLink selectAdaptiveQuality(
+    List<StreamingLink> links,
+    VideoQuality userQuality,
+    bool isLowBandwidth,
+  ) {
+    if (links.isEmpty) {
+      throw Exception('No streaming links available');
+    }
+
+    // If user has a specific preference, use it (unless low bandwidth)
+    if (userQuality != VideoQuality.auto && !isLowBandwidth) {
+      return selectLinkByQuality(links, userQuality);
+    }
+
+    // Use network monitor to get optimal quality
+    final networkMonitor = NetworkMonitorService();
+    final optimalQuality = networkMonitor.getOptimalQuality();
+
+    if (isLowBandwidth || optimalQuality != VideoQuality.auto) {
+      return selectLinkByQuality(links, optimalQuality);
+    }
+
+    // Default to auto if no bandwidth data
+    return links.firstWhere(
+      (l) => l.quality == 'auto' || l.isM3U8,
+      orElse: () => links.first,
+    );
   }
 
   /// Stop current playback

@@ -27,6 +27,12 @@ class HistoryCubit extends Cubit<HistoryState> {
        _deleteWatchProgress = deleteWatchProgress,
        super(const HistoryInitial());
 
+  @override
+  Future<void> close() {
+    // Ensure all resources are disposed
+    return super.close();
+  }
+
   Future<void> loadHistory() async {
     emit(const HistoryLoading());
     try {
@@ -56,7 +62,7 @@ class HistoryCubit extends Cubit<HistoryState> {
       // Optimistic update to avoid full reload
       if (state is HistoryLoaded) {
         final currentState = state as HistoryLoaded;
-        final currentList = List<WatchProgress>.from(currentState.history);
+        var currentList = List<WatchProgress>.from(currentState.history);
 
         // Find existing index
         final index = currentList.indexWhere((item) =>
@@ -73,6 +79,11 @@ class HistoryCubit extends Cubit<HistoryState> {
 
         // Re-sort by lastUpdated desc
         currentList.sort((a, b) => b.lastUpdated.compareTo(a.lastUpdated));
+
+        // Enforce limit of 100 items in memory to match data source
+        if (currentList.length > 100) {
+          currentList = currentList.sublist(0, 100);
+        }
 
         // Recalculate stats
         int totalTime = 0;

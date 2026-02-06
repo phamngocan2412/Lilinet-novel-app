@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lilinet_app/features/movies/presentation/widgets/movie_card.dart';
+import 'package:lilinet_app/features/movies/presentation/widgets/trending_carousel.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/error_widget.dart';
@@ -11,8 +14,6 @@ import '../../../comments/presentation/widgets/home_trending_section.dart';
 import '../bloc/trending_movies/trending_movies_bloc.dart';
 import '../bloc/trending_movies/trending_movies_event.dart';
 import '../bloc/trending_movies/trending_movies_state.dart';
-import '../widgets/trending_carousel.dart';
-import '../widgets/movie_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -23,25 +24,44 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class HomePageView extends StatelessWidget {
+class HomePageView extends StatefulWidget {
   const HomePageView({super.key});
 
   @override
+  State<HomePageView> createState() => _HomePageViewState();
+}
+
+class _HomePageViewState extends State<HomePageView>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
+  // _checkLastSession methods removed
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final devicePixelRatio = mediaQuery.devicePixelRatio;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'LILINET',
-          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+          style: textTheme.headlineMedium?.copyWith(
             fontWeight: FontWeight.w900,
-            letterSpacing: 1.5,
-            color: Theme.of(context).colorScheme.primary,
+            color: colorScheme.primary,
           ),
         ),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
             onPressed: () => context.push('/search'),
+            tooltip: AppLocalizations.of(context)!.search,
           ),
           GestureDetector(
             onTap: () => context.push('/settings'),
@@ -49,11 +69,11 @@ class HomePageView extends StatelessWidget {
               margin: const EdgeInsets.only(right: 16, left: 8),
               child: CircleAvatar(
                 radius: 16,
-                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                backgroundColor: colorScheme.primaryContainer,
                 child: Icon(
                   Icons.person,
                   size: 20,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: colorScheme.onPrimaryContainer,
                 ),
               ),
             ),
@@ -100,6 +120,10 @@ class HomePageView extends StatelessWidget {
                   return const Center(child: Text('No anime found'));
                 }
 
+                // Optimization: Calculate explicit cache width to avoid LayoutBuilder overhead
+                final trendingCacheWidth =
+                    ((screenWidth - 32) * devicePixelRatio).toInt();
+
                 return CustomScrollView(
                   slivers: [
                     // Genre chips
@@ -130,40 +154,33 @@ class HomePageView extends StatelessWidget {
                         ),
                       ),
                     ),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: SliverToBoxAdapter(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (trendingMovies.isNotEmpty) ...[
-                            Text(
-                              'TRENDING NOW',
-                              style: Theme.of(context).textTheme.headlineSmall
-                                  ?.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    letterSpacing: 1.2,
-                                  ),
-                            ),
-                            const SizedBox(height: 16),
-                            TrendingCarousel(
-                              movies: trendingMovies.take(5).toList(),
-                              // Optimization: Calculate explicit cache width to avoid LayoutBuilder overhead
-                              memCacheWidth: ((MediaQuery.of(context).size.width - 32) *
-                                      MediaQuery.of(context).devicePixelRatio)
-                                  .toInt(),
-                              onMovieTap: (movie) => context.push(
-                                '/movie/${movie.id}?type=${movie.type}',
-                                extra: movie,
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      sliver: SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (trendingMovies.isNotEmpty) ...[
+                              Text(
+                                'TRENDING NOW',
+                                style: textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w900,
+                                  color: colorScheme.primary,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 32),
+                              const SizedBox(height: 16),
+                              TrendingCarousel(
+                                movies: trendingMovies.take(5).toList(),
+                                memCacheWidth: trendingCacheWidth,
+                                onMovieTap: (movie) => context.push(
+                                  '/movie/${movie.id}?type=${movie.type}',
+                                  extra: movie,
+                                ),
+                              ),
+                              const SizedBox(height: 32),
+                            ],
                           ],
-                        ],
-                      ),
+                        ),
                       ),
                     ),
 
@@ -194,16 +211,10 @@ class HomePageView extends StatelessWidget {
                                   children: [
                                     Text(
                                       categoryName.toUpperCase(),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
-                                            letterSpacing: 1.0,
-                                          ),
+                                      style: textTheme.titleMedium?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: colorScheme.secondary,
+                                      ),
                                     ),
                                     TextButton(
                                       onPressed: () {
@@ -234,19 +245,19 @@ class HomePageView extends StatelessWidget {
                               ),
                               SizedBox(
                                 height: 200,
-                                child: ListView.separated(
+                                child: ListView.builder(
                                   cacheExtent: 300,
                                   scrollDirection: Axis.horizontal,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                   ),
                                   itemCount: categoryMovies.length,
-                                  separatorBuilder: (context, index) =>
-                                      const SizedBox(width: 12),
+                                  itemExtent: 142, // 130 width + 12 spacing
                                   itemBuilder: (context, index) {
                                     final movie = categoryMovies[index];
-                                    return SizedBox(
+                                    return Container(
                                       width: 130,
+                                      margin: const EdgeInsets.only(right: 12),
                                       child: MovieCard(
                                         movie: movie,
                                         onTap: () => context.push(
@@ -269,7 +280,8 @@ class HomePageView extends StatelessWidget {
                       child: ListenableBuilder(
                         listenable: getIt<MiniplayerHeightNotifier>(),
                         builder: (context, _) {
-                          final miniplayerHeight = getIt<MiniplayerHeightNotifier>().height;
+                          final miniplayerHeight =
+                              getIt<MiniplayerHeightNotifier>().height;
                           // Add extra 16px padding for spacing
                           return SizedBox(height: miniplayerHeight + 16);
                         },

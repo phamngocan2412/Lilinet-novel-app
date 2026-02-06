@@ -158,6 +158,8 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
       fileName: event.fileName,
       movieId: event.movieId,
       movieTitle: event.movieTitle,
+      episodeTitle: event.episodeTitle,
+      posterUrl: event.posterUrl,
     );
   }
 }

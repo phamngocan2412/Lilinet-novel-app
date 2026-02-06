@@ -10,6 +10,7 @@ import '../../../explore/domain/entities/filter_options.dart';
 import '../bloc/search/search_bloc.dart';
 import '../bloc/search/search_event.dart';
 import '../bloc/search/search_state.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 import '../widgets/movie_card.dart';
 import '../widgets/filter_bottom_sheet.dart';
 
@@ -52,7 +53,7 @@ class _SearchPageViewState extends State<SearchPageView> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
-      context.read<SearchBloc>().add(SearchLoadMore());
+      context.read<SearchBloc>().add(const SearchLoadMore());
     }
   }
 
@@ -79,8 +80,9 @@ class _SearchPageViewState extends State<SearchPageView> {
                     icon: const Icon(Icons.clear),
                     onPressed: () {
                       _controller.clear();
-                      context.read<SearchBloc>().add(SearchCleared());
+                      context.read<SearchBloc>().add(const SearchCleared());
                     },
+                    tooltip: AppLocalizations.of(context)!.clear,
                   ),
                 BlocBuilder<SearchBloc, SearchState>(
                   builder: (context, state) {
@@ -109,6 +111,7 @@ class _SearchPageViewState extends State<SearchPageView> {
                           ),
                         );
                       },
+                      tooltip: AppLocalizations.of(context)!.filter,
                     );
                   },
                 ),

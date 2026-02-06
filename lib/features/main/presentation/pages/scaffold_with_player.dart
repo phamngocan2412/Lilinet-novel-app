@@ -30,8 +30,25 @@ class ScaffoldWithPlayer extends StatelessWidget {
             final isExpanded = playerState.status == VideoPlayerStatus.expanded;
             final isClosed = playerState.status == VideoPlayerStatus.closed;
 
+            // Determine if we should show the Navigation Bar
+            bool showNavBar = true;
+            final path = state.uri.path;
+            if (path.startsWith('/movie/') ||
+                path == '/search' ||
+                path == '/settings') {
+              showNavBar = false;
+            }
+
+            // Calculate miniplayer height based on Nav Bar visibility
+            // If Nav Bar is visible, Miniplayer sits on top of it (no bottom padding needed)
+            // If Nav Bar is hidden, Miniplayer sits at bottom of screen (needs bottom padding)
+            final double baseHeight = 60;
+            final double bottomPadding = MediaQuery.of(context).padding.bottom;
+            final double miniplayerHeight = showNavBar
+                ? baseHeight
+                : (baseHeight + bottomPadding);
+
             // Update miniplayer height notifier
-            final miniplayerHeight = 60 + MediaQuery.of(context).padding.bottom;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (isClosed) {
                 miniplayerNotifier.reset();
@@ -43,53 +60,48 @@ class ScaffoldWithPlayer extends StatelessWidget {
                 miniplayerNotifier.reset();
               }
             });
-
-            // Determine if we should show the Navigation Bar
-            // We hide it if:
-            // 1. We are on a detail page (starts with /movie/)
-            // 2. We are on Search or Settings pages
-            bool showNavBar = true;
-            final path = state.uri.path;
-            if (path.startsWith('/movie/') ||
-                path == '/search' ||
-                path == '/settings') {
-              showNavBar = false;
-            }
             // Logic removed: Don't hide navbar based on player state to prevent layout bugs if state desyncs
 
             return Scaffold(
               body: Stack(
                 children: [
-                  // Main Content
-                  // We add padding to the bottom of the child content
-                  // ONLY if the Player is visible (minimized) AND we are NOT on a detail page (where player floats)
-                  // Wait, if miniplayer is visible, it floats over the content.
-                  // If we are on Home/MainScreen, the content (IndexedStack) takes full height.
-                  // The Miniplayer will sit at the bottom.
-                  // We might want to add padding to the `child` so the last list item isn't obscured by the miniplayer.
-                  // But `child` is opaque here. `MainScreen` doesn't know about padding.
-                  // Usually, lists have 'bottom content padding'.
-                  // For now, we will just let it float over. Overlap is better than broken layout.
-                  // We can add a bottom safe area later if needed.
-                  child,
+                  // Main Content with bottom padding when miniplayer is visible
+                  // This ensures content isn't hidden behind the miniplayer
+                  Padding(
+                    padding: EdgeInsets.only(
+                      bottom: (!isClosed && !isExpanded) ? miniplayerHeight : 0,
+                    ),
+                    child: child,
+                  ),
 
-                  // Video Player Overlay
-                  if (!isClosed)
+                  // Video Player Overlay - ONLY when not expanded
+                  // Positioned ABOVE the bottom navigation bar when nav bar is visible
+                  if (!isClosed && !isExpanded)
                     Positioned(
                       left: 0,
                       right: 0,
-                      bottom: 0,
+                      bottom: showNavBar
+                          ? 80
+                          : 0, // Add space for bottom nav bar
                       child: MiniplayerWidget(
-                        // Fixed height to prevent inconsistency when navigating
-                        // Always add bottom padding for safe area consistency
-                        miniplayerHeight:
-                            60 + MediaQuery.of(context).padding.bottom,
+                        // Dynamic height based on Nav Bar visibility
+                        miniplayerHeight: miniplayerHeight,
+                        maxWidth: MediaQuery.of(context).size.width,
+                      ),
+                    ),
+
+                  // Fullscreen Video Player Overlay - when expanded
+                  // This goes on top of everything
+                  if (isExpanded)
+                    Positioned.fill(
+                      child: MiniplayerWidget(
+                        miniplayerHeight: miniplayerHeight,
                         maxWidth: MediaQuery.of(context).size.width,
                       ),
                     ),
                 ],
               ),
-              bottomNavigationBar: showNavBar
+              bottomNavigationBar: showNavBar && !isExpanded
                   ? NavigationBar(
                       selectedIndex: navIndex,
                       onDestinationSelected: (index) {

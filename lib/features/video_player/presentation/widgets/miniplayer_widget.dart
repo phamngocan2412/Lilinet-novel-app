@@ -12,10 +12,6 @@ import '../bloc/video_player_state.dart';
 
 import 'video_player_content.dart';
 
-// Colors
-const kBgColor = Color(0xFF101010);
-const kOrangeColor = Color(0xFFC6A664);
-
 class MiniplayerWidget extends StatefulWidget {
   final double miniplayerHeight;
   final double maxWidth;
@@ -69,41 +65,51 @@ class _MiniplayerWidgetState extends State<MiniplayerWidget> {
         // Use LayoutBuilder to get proper constraints
         return LayoutBuilder(
           builder: (context, constraints) {
-            return PopScope(
-              canPop: state.status != VideoPlayerStatus.expanded,
-              onPopInvokedWithResult: (didPop, result) {
-                if (didPop) return;
+            // Only use PopScope when expanded to intercept back button
+            // When minimized, allow normal navigation
+            Widget playerContent = Miniplayer(
+              controller: _miniplayerController,
+              minHeight: widget.miniplayerHeight,
+              maxHeight: constraints.maxHeight.isFinite
+                  ? constraints.maxHeight
+                  : MediaQuery.of(context).size.height,
+              builder: (height, percentage) {
+                final isMini = percentage < 0.2;
 
-                // If expanded, minimize instead of popping
-                if (state.status == VideoPlayerStatus.expanded) {
+                return VideoPlayerContent(
+                  // Use stable key to prevent unnecessary rebuilds
+                  // Only recreate when episode actually changes, not on every state update
+                  key: ValueKey(state.episodeId ?? 'no_episode'),
+                  state: state,
+                  isMini: isMini,
+                  percentage: percentage,
+                  miniplayerController: _miniplayerController,
+                  height: height,
+                  miniplayerHeight: widget.miniplayerHeight,
+                );
+              },
+              onDismissed: () {
+                context.read<VideoPlayerBloc>().add(CloseVideo());
+              },
+            );
+
+            // Only wrap with PopScope when expanded
+            if (state.status == VideoPlayerStatus.expanded) {
+              return PopScope(
+                canPop: false,
+                onPopInvokedWithResult: (didPop, result) {
+                  if (didPop) return;
+
+                  // If expanded, minimize instead of popping
                   _miniplayerController.animateToHeight(state: PanelState.MIN);
                   context.read<VideoPlayerBloc>().add(MinimizeVideo());
-                }
-              },
-              child: Miniplayer(
-                controller: _miniplayerController,
-                minHeight: widget.miniplayerHeight,
-                maxHeight: constraints.maxHeight.isFinite
-                    ? constraints.maxHeight
-                    : MediaQuery.of(context).size.height,
-                builder: (height, percentage) {
-                  final isMini = percentage < 0.2;
+                },
+                child: playerContent,
+              );
+            }
 
-                  return VideoPlayerContent(
-                    key: ValueKey(state.episodeId),
-                    state: state,
-                    isMini: isMini,
-                    percentage: percentage,
-                    miniplayerController: _miniplayerController,
-                    height: height,
-                    miniplayerHeight: widget.miniplayerHeight,
-                  );
-                },
-                onDismissed: () {
-                  context.read<VideoPlayerBloc>().add(CloseVideo());
-                },
-              ),
-            );
+            // When minimized, return without PopScope to allow normal navigation
+            return playerContent;
           },
         );
       },

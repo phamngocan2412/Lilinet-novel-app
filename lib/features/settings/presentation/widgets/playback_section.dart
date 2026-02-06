@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../injection_container.dart';
+import '../../../video_player/presentation/bloc/video_player_bloc.dart';
+import '../../../video_player/presentation/bloc/video_player_event.dart';
 import '../../domain/entities/app_settings.dart' as domain;
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
@@ -43,6 +46,14 @@ class PlaybackSection extends StatelessWidget {
     );
   }
 
+  void _minimizePlayer(BuildContext context) {
+    // Minimize player before showing dialog to prevent overlay issues
+    final videoBloc = getIt<VideoPlayerBloc>();
+    if (videoBloc.state.status.toString() != 'VideoPlayerStatus.minimized') {
+      videoBloc.add(MinimizeVideo());
+    }
+  }
+
   Widget _buildQualitySelector(BuildContext context) {
     return ListTile(
       title: const Text('Default Quality'),
@@ -50,6 +61,7 @@ class PlaybackSection extends StatelessWidget {
       leading: const Icon(Icons.high_quality),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
+        _minimizePlayer(context);
         final settingsBloc = context.read<SettingsBloc>();
         showModalBottomSheet(
           context: context,
@@ -88,6 +100,7 @@ class PlaybackSection extends StatelessWidget {
       leading: const Icon(Icons.dns),
       trailing: const Icon(Icons.chevron_right),
       onTap: () {
+        _minimizePlayer(context);
         final settingsBloc = context.read<SettingsBloc>();
         showModalBottomSheet(
           context: context,
@@ -197,9 +210,11 @@ class PlaybackSection extends StatelessWidget {
   }
 
   void _showProviderSheet(BuildContext context, {required bool isMovie}) {
+    _minimizePlayer(context);
     final settingsBloc = context.read<SettingsBloc>();
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true, // Show above miniplayer
       builder: (bottomSheetContext) => BlocProvider.value(
         value: settingsBloc,
         child: Column(

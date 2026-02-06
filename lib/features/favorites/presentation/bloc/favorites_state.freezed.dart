@@ -128,12 +128,12 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Favorite> favorites)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<Favorite> favorites,  int currentPage,  bool hasMore)?  loaded,TResult Function( String message)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case FavoritesInitial() when initial != null:
 return initial();case FavoritesLoading() when loading != null:
 return loading();case FavoritesLoaded() when loaded != null:
-return loaded(_that.favorites);case FavoritesError() when error != null:
+return loaded(_that.favorites,_that.currentPage,_that.hasMore);case FavoritesError() when error != null:
 return error(_that.message);case _:
   return orElse();
 
@@ -152,12 +152,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Favorite> favorites)  loaded,required TResult Function( String message)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<Favorite> favorites,  int currentPage,  bool hasMore)  loaded,required TResult Function( String message)  error,}) {final _that = this;
 switch (_that) {
 case FavoritesInitial():
 return initial();case FavoritesLoading():
 return loading();case FavoritesLoaded():
-return loaded(_that.favorites);case FavoritesError():
+return loaded(_that.favorites,_that.currentPage,_that.hasMore);case FavoritesError():
 return error(_that.message);case _:
   throw StateError('Unexpected subclass');
 
@@ -175,12 +175,12 @@ return error(_that.message);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Favorite> favorites)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<Favorite> favorites,  int currentPage,  bool hasMore)?  loaded,TResult? Function( String message)?  error,}) {final _that = this;
 switch (_that) {
 case FavoritesInitial() when initial != null:
 return initial();case FavoritesLoading() when loading != null:
 return loading();case FavoritesLoaded() when loaded != null:
-return loaded(_that.favorites);case FavoritesError() when error != null:
+return loaded(_that.favorites,_that.currentPage,_that.hasMore);case FavoritesError() when error != null:
 return error(_that.message);case _:
   return null;
 
@@ -257,7 +257,7 @@ String toString() {
 
 
 class FavoritesLoaded implements FavoritesState {
-  const FavoritesLoaded({required final  List<Favorite> favorites}): _favorites = favorites;
+  const FavoritesLoaded({required final  List<Favorite> favorites, this.currentPage = 1, this.hasMore = true}): _favorites = favorites;
   
 
  final  List<Favorite> _favorites;
@@ -267,6 +267,8 @@ class FavoritesLoaded implements FavoritesState {
   return EqualUnmodifiableListView(_favorites);
 }
 
+@JsonKey() final  int currentPage;
+@JsonKey() final  bool hasMore;
 
 /// Create a copy of FavoritesState
 /// with the given fields replaced by the non-null parameter values.
@@ -278,16 +280,16 @@ $FavoritesLoadedCopyWith<FavoritesLoaded> get copyWith => _$FavoritesLoadedCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is FavoritesLoaded&&const DeepCollectionEquality().equals(other._favorites, _favorites));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is FavoritesLoaded&&const DeepCollectionEquality().equals(other._favorites, _favorites)&&(identical(other.currentPage, currentPage) || other.currentPage == currentPage)&&(identical(other.hasMore, hasMore) || other.hasMore == hasMore));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_favorites));
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_favorites),currentPage,hasMore);
 
 @override
 String toString() {
-  return 'FavoritesState.loaded(favorites: $favorites)';
+  return 'FavoritesState.loaded(favorites: $favorites, currentPage: $currentPage, hasMore: $hasMore)';
 }
 
 
@@ -298,7 +300,7 @@ abstract mixin class $FavoritesLoadedCopyWith<$Res> implements $FavoritesStateCo
   factory $FavoritesLoadedCopyWith(FavoritesLoaded value, $Res Function(FavoritesLoaded) _then) = _$FavoritesLoadedCopyWithImpl;
 @useResult
 $Res call({
- List<Favorite> favorites
+ List<Favorite> favorites, int currentPage, bool hasMore
 });
 
 
@@ -315,10 +317,12 @@ class _$FavoritesLoadedCopyWithImpl<$Res>
 
 /// Create a copy of FavoritesState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? favorites = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? favorites = null,Object? currentPage = null,Object? hasMore = null,}) {
   return _then(FavoritesLoaded(
 favorites: null == favorites ? _self._favorites : favorites // ignore: cast_nullable_to_non_nullable
-as List<Favorite>,
+as List<Favorite>,currentPage: null == currentPage ? _self.currentPage : currentPage // ignore: cast_nullable_to_non_nullable
+as int,hasMore: null == hasMore ? _self.hasMore : hasMore // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

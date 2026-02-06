@@ -59,16 +59,13 @@ class MovieRecommendationsSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: Hero(
-                        tag: 'poster_${item.id}',
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(12),
-                          child: AppCachedImage(
-                            imageUrl: item.poster ?? item.cover ?? '',
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            memCacheWidth: memCacheWidth,
-                          ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: AppCachedImage(
+                          imageUrl: item.poster ?? item.cover ?? '',
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          memCacheWidth: memCacheWidth,
                         ),
                       ),
                     ),

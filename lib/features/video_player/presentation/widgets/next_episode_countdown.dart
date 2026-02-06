@@ -88,7 +88,7 @@ class _NextEpisodeCountdownState extends State<NextEpisodeCountdown> {
                   CircularProgressIndicator(
                     value: _secondsRemaining / widget.durationSeconds,
                     strokeWidth: 6,
-                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFC6A664)), // Orange
+                    valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFFC6A664)),
                     backgroundColor: Colors.white24,
                   ),
                   Text(

@@ -20,14 +20,14 @@ extension RepositoryHelper on Object {
           message.contains('auth') ||
           e.code == '42501') {
         return const Left(
-          Failure.server('Không thể truy cập. Vui lòng đăng nhập.'),
+          Failure.server('Authentication required'),
         );
       }
       return Left(Failure.server(message));
     } on SocketException {
-      return const Left(Failure.network('Không có kết nối internet'));
+      return const Left(Failure.network('No internet connection'));
     } on FormatException {
-      return const Left(Failure.server('Định dạng phản hồi không hợp lệ'));
+      return const Left(Failure.server('Invalid response format'));
     } catch (e) {
       // Check if it's an auth/permission error
       final errorStr = e.toString().toLowerCase();
@@ -36,7 +36,7 @@ extension RepositoryHelper on Object {
           errorStr.contains('jwt') ||
           errorStr.contains('auth')) {
         return const Left(
-          Failure.server('Không thể truy cập dữ liệu. Vui lòng đăng nhập.'),
+          Failure.server('Authentication required'),
         );
       }
       return Left(Failure.server(e.toString()));
@@ -48,9 +48,9 @@ extension RepositoryHelper on Object {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
-        return const Failure.network('Kết nối quá hạn (Timeout)');
+        return const Failure.network('Connection timeout');
       case DioExceptionType.connectionError:
-        return const Failure.network('Không có kết nối internet');
+        return const Failure.network('No internet connection');
       case DioExceptionType.badResponse:
         final data = error.response?.data;
 
@@ -64,23 +64,17 @@ extension RepositoryHelper on Object {
             // Map specific backend error codes to user-friendly messages
             switch (code) {
               case 'SOURCE_UNAVAILABLE':
-                return Failure.server(
-                  'Nguồn phát không khả dụng. Vui lòng thử server hoặc phim khác.\n($message)',
-                );
+                return const Failure.server('Source unavailable');
               case 'RATE_LIMITED':
-                return const Failure.server(
-                  'Hệ thống đang bận (Rate Limit). Vui lòng thử lại sau vài giây.',
-                );
+                return const Failure.server('Rate limit reached');
               case 'NOT_FOUND':
-                return const Failure.server('Không tìm thấy dữ liệu.');
+                return const Failure.server('Data not found');
               case 'INVALID_PARAM':
               case 'MISSING_PARAM':
               case 'BAD_REQUEST':
                 return Failure.validation(message);
               case 'PROVIDER_ERROR':
-                return Failure.server(
-                  'Lỗi từ nguồn dữ liệu (Provider). Vui lòng thử lại sau.\n($message)',
-                );
+                return const Failure.server('Provider error');
               default:
                 return Failure.server(message);
             }
@@ -94,26 +88,24 @@ extension RepositoryHelper on Object {
 
         final statusCode = error.response?.statusCode;
         if (statusCode == 401) {
-          return const Failure.server('Phiên đăng nhập hết hạn (Unauthorized)');
+          return const Failure.server('Unauthorized');
         }
         if (statusCode == 403) {
-          return const Failure.server('Không có quyền truy cập (Forbidden)');
+          return const Failure.server('Forbidden');
         }
         if (statusCode == 404) {
-          return const Failure.server('Không tìm thấy dữ liệu (404)');
+          return const Failure.server('Not found');
         }
         if (statusCode == 500) {
-          return const Failure.server('Lỗi máy chủ (Internal Server Error)');
+          return const Failure.server('Internal server error');
         }
         if (statusCode == 503) {
-          return const Failure.server(
-            'Dịch vụ tạm thời gián đoạn (Service Unavailable)',
-          );
+          return const Failure.server('Service unavailable');
         }
 
-        return Failure.server(error.message ?? 'Lỗi không xác định');
+        return Failure.server(error.message ?? 'Unknown error');
       default:
-        return Failure.server(error.message ?? 'Lỗi kết nối không xác định');
+        return Failure.server(error.message ?? 'Unknown connection error');
     }
   }
 }

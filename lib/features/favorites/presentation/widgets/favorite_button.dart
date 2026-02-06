@@ -2,15 +2,17 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/utils/debouncer.dart';
 import '../../../auth/presentation/bloc/auth_bloc.dart';
 import '../../../auth/presentation/bloc/auth_state.dart';
 import '../../../auth/presentation/widgets/auth_dialog.dart';
 import '../bloc/favorites_bloc.dart';
 import '../bloc/favorites_event.dart';
 import '../bloc/favorites_state.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 import 'folder_selection_dialog.dart';
 
-class FavoriteButton extends StatelessWidget {
+class FavoriteButton extends StatefulWidget {
   final String movieId;
   final String? movieTitle;
   final String? moviePoster;
@@ -27,6 +29,19 @@ class FavoriteButton extends StatelessWidget {
   });
 
   @override
+  State<FavoriteButton> createState() => _FavoriteButtonState();
+}
+
+class _FavoriteButtonState extends State<FavoriteButton> {
+  final _debouncer = Debouncer(milliseconds: 300);
+
+  @override
+  void dispose() {
+    _debouncer.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Optimization: Removed redundant BlocBuilder<AuthBloc, AuthState> wrapper.
     // The button doesn't change appearance based on auth state, only behavior.
@@ -34,7 +49,7 @@ class FavoriteButton extends StatelessWidget {
     return BlocSelector<FavoritesBloc, FavoritesState, bool>(
       selector: (state) {
         if (state is FavoritesLoaded) {
-          return state.isFavorite(movieId);
+          return state.isFavorite(widget.movieId);
         }
         return false;
       },
@@ -52,32 +67,38 @@ class FavoriteButton extends StatelessWidget {
                       .colorScheme
                       .error // Red
                   : Theme.of(context).colorScheme.onSurface,
-              size: size,
+              size: widget.size,
             ),
+            tooltip: isFavorite
+                ? AppLocalizations.of(context)!.removeFromFavorites
+                : AppLocalizations.of(context)!.addToFavorites,
             onPressed: () {
-              final authState = context.read<AuthBloc>().state;
-              // ★★★ LAZY LOGIN LOGIC HERE ★★★
-              if (authState is! Authenticated) {
-                // User NOT logged in → Show login dialog
-                showDialog(
-                  context: context,
-                  builder: (dialogContext) => AuthDialog(
-                    onLoginSuccess: () {
-                      // After login success, prompt for folder then add
-                      _showFolderSelectionAndAdd(context);
-                    },
-                  ),
-                );
-              } else {
-                // User IS logged in
-                if (isFavorite) {
-                  context.read<FavoritesBloc>().add(
-                        RemoveFavoriteEvent(movieId: movieId),
-                      );
+              _debouncer.run(() {
+                if (!mounted) return;
+                final authState = context.read<AuthBloc>().state;
+                // ★★★ LAZY LOGIN LOGIC HERE ★★★
+                if (authState is! Authenticated) {
+                  // User NOT logged in → Show login dialog
+                  showDialog(
+                    context: context,
+                    builder: (dialogContext) => AuthDialog(
+                      onLoginSuccess: () {
+                        // After login success, prompt for folder then add
+                        if (mounted) _showFolderSelectionAndAdd(context);
+                      },
+                    ),
+                  );
                 } else {
-                  _showFolderSelectionAndAdd(context);
+                  // User IS logged in
+                  if (isFavorite) {
+                    context.read<FavoritesBloc>().add(
+                          RemoveFavoriteEvent(movieId: widget.movieId),
+                        );
+                  } else {
+                    _showFolderSelectionAndAdd(context);
+                  }
                 }
-              }
+              });
             },
           ),
         );
@@ -102,10 +123,10 @@ class FavoriteButton extends StatelessWidget {
         onFolderSelected: (folder) {
           context.read<FavoritesBloc>().add(
                 AddFavoriteEvent(
-                  movieId: movieId,
-                  movieTitle: movieTitle,
-                  moviePoster: moviePoster,
-                  movieType: movieType,
+                  movieId: widget.movieId,
+                  movieTitle: widget.movieTitle,
+                  moviePoster: widget.moviePoster,
+                  movieType: widget.movieType,
                   folder: folder,
                 ),
               );

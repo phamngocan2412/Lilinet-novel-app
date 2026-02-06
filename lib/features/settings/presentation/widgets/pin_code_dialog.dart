@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 
 class PinCodeDialog extends StatefulWidget {
   final bool isSettingPin; // true = set/change pin, false = verify pin
@@ -13,6 +14,7 @@ class PinCodeDialog extends StatefulWidget {
   }) {
     return showDialog<bool>(
       context: context,
+      useRootNavigator: true, // Show above miniplayer
       barrierDismissible: false,
       builder: (context) =>
           PinCodeDialog(isSettingPin: isSettingPin, currentPin: currentPin),
@@ -22,6 +24,7 @@ class PinCodeDialog extends StatefulWidget {
   static Future<String?> showSetPin(BuildContext context) {
     return showDialog<String>(
       context: context,
+      useRootNavigator: true, // Show above miniplayer
       barrierDismissible: false,
       builder: (context) => const PinCodeDialog(isSettingPin: true),
     );
@@ -34,19 +37,10 @@ class PinCodeDialog extends StatefulWidget {
 class _PinCodeDialogState extends State<PinCodeDialog> {
   final _pinController = TextEditingController();
   String _errorMessage = '';
-  String _title = '';
-  String _instruction = '';
 
   @override
   void initState() {
     super.initState();
-    if (widget.isSettingPin) {
-      _title = 'Set PIN';
-      _instruction = 'Enter a 4-digit PIN to secure adult content.';
-    } else {
-      _title = 'Enter PIN';
-      _instruction = 'Enter your PIN to access this feature.';
-    }
   }
 
   @override
@@ -56,9 +50,10 @@ class _PinCodeDialogState extends State<PinCodeDialog> {
   }
 
   void _onSubmit(String value) {
+    final l10n = AppLocalizations.of(context)!;
     if (value.length != 4) {
       setState(() {
-        _errorMessage = 'PIN must be 4 digits';
+        _errorMessage = l10n.pinMustBe4Digits;
         _pinController.clear();
       });
       return;
@@ -73,7 +68,7 @@ class _PinCodeDialogState extends State<PinCodeDialog> {
         Navigator.pop(context, true);
       } else {
         setState(() {
-          _errorMessage = 'Incorrect PIN';
+          _errorMessage = l10n.incorrectPin;
           _pinController.clear();
         });
       }
@@ -82,12 +77,17 @@ class _PinCodeDialogState extends State<PinCodeDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final title = widget.isSettingPin ? l10n.setPinTitle : l10n.enterPinTitle;
+    final instruction =
+        widget.isSettingPin ? l10n.setPinInstruction : l10n.enterPinInstruction;
+
     return AlertDialog(
-      title: Text(_title),
+      title: Text(title),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(_instruction),
+          Text(instruction),
           const SizedBox(height: 16),
           TextField(
             controller: _pinController,
@@ -122,7 +122,7 @@ class _PinCodeDialogState extends State<PinCodeDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context, null),
-          child: const Text('Cancel'),
+          child: Text(l10n.cancel),
         ),
       ],
     );

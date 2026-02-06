@@ -13,15 +13,24 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   final RemoveFavorite removeFavoriteUseCase;
   final GetFavorites getFavoritesUseCase;
 
+  static const int _limit = 20;
+
   FavoritesBloc({
     required this.addFavoriteUseCase,
     required this.removeFavoriteUseCase,
     required this.getFavoritesUseCase,
   }) : super(const FavoritesInitial()) {
     on<LoadFavorites>(_onLoadFavorites);
+    on<LoadMoreFavorites>(_onLoadMoreFavorites);
     on<AddFavoriteEvent>(_onAddFavorite);
     on<RemoveFavoriteEvent>(_onRemoveFavorite);
     on<ClearFavorites>(_onClearFavorites);
+  }
+
+  @override
+  Future<void> close() {
+    // Ensure all resources are disposed
+    return super.close();
   }
 
   void _onClearFavorites(ClearFavorites event, Emitter<FavoritesState> emit) {
@@ -32,11 +41,44 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     LoadFavorites event,
     Emitter<FavoritesState> emit,
   ) async {
-    emit(const FavoritesLoading());
-    final result = await getFavoritesUseCase();
+    if (event.page == 1) {
+      emit(const FavoritesLoading());
+    }
+
+    final result = await getFavoritesUseCase(page: event.page, limit: _limit);
     result.fold(
       (failure) => emit(FavoritesError(message: failure.message)),
-      (favorites) => emit(FavoritesLoaded(favorites: favorites)),
+      (favorites) => emit(FavoritesLoaded(
+        favorites: favorites,
+        currentPage: event.page,
+        hasMore: favorites.length >= _limit,
+      )),
+    );
+  }
+
+  Future<void> _onLoadMoreFavorites(
+    LoadMoreFavorites event,
+    Emitter<FavoritesState> emit,
+  ) async {
+    final currentState = state;
+    if (currentState is! FavoritesLoaded) return;
+    if (!currentState.hasMore) return;
+
+    final nextPage = currentState.currentPage + 1;
+
+    final result = await getFavoritesUseCase(page: nextPage, limit: _limit);
+
+    result.fold(
+      (failure) => emit(FavoritesError(message: failure.message)),
+      (newFavorites) {
+        emit(
+          currentState.copyWith(
+            favorites: [...currentState.favorites, ...newFavorites],
+            currentPage: nextPage,
+            hasMore: newFavorites.length >= _limit,
+          ),
+        );
+      },
     );
   }
 
@@ -46,8 +88,13 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   ) async {
     final currentState = state;
     List<Favorite> currentFavorites = [];
+    int currentPage = 1;
+    bool hasMore = true;
+
     if (currentState is FavoritesLoaded) {
       currentFavorites = List.from(currentState.favorites);
+      currentPage = currentState.currentPage;
+      hasMore = currentState.hasMore;
     }
 
     final result = await addFavoriteUseCase(
@@ -62,8 +109,12 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
       favorite,
     ) {
       // Optimistic update: Add to list immediately without reloading
-      currentFavorites.add(favorite);
-      emit(FavoritesLoaded(favorites: currentFavorites));
+      currentFavorites.insert(0, favorite); // Add to top
+      emit(FavoritesLoaded(
+        favorites: currentFavorites,
+        currentPage: currentPage,
+        hasMore: hasMore,
+      ));
     });
   }
 
@@ -73,8 +124,13 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
   ) async {
     final currentState = state;
     List<Favorite> currentFavorites = [];
+    int currentPage = 1;
+    bool hasMore = true;
+
     if (currentState is FavoritesLoaded) {
       currentFavorites = List.from(currentState.favorites);
+      currentPage = currentState.currentPage;
+      hasMore = currentState.hasMore;
     }
 
     final result = await removeFavoriteUseCase(event.movieId);
@@ -84,7 +140,11 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
     ) {
       // Optimistic update: Remove from list immediately without reloading
       currentFavorites.removeWhere((f) => f.movieId == event.movieId);
-      emit(FavoritesLoaded(favorites: currentFavorites));
+      emit(FavoritesLoaded(
+        favorites: currentFavorites,
+        currentPage: currentPage,
+        hasMore: hasMore,
+      ));
     });
   }
 }

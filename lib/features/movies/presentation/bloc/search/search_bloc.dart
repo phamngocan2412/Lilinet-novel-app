@@ -23,6 +23,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<SearchOptionsChanged>(_onSearchOptionsChanged);
   }
 
+  @override
+  Future<void> close() {
+    // Ensure all resources are disposed
+    return super.close();
+  }
+
   void _onSearchFilterChanged(
     SearchFilterChanged event,
     Emitter<SearchState> emit,
@@ -118,6 +124,12 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   ) async {
     if (!state.hasMore || state.isLoading) return;
 
+    // Memory Optimization: Limit total results to ~400 items (20 pages)
+    if (state.rawMovies.length >= 400) {
+      emit(state.copyWith(hasMore: false));
+      return;
+    }
+
     final nextPage = state.currentPage + 1;
     emit(state.copyWith(isLoading: true));
 
@@ -153,11 +165,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   }
 
   List<Movie> _applyFilters(List<Movie> movies, FilterOptions options) {
-    var result = List<Movie>.from(movies);
+    Iterable<Movie> result = movies;
 
     // 1. Media Type
     if (options.mediaType != MediaType.all) {
-      // Compare against lowercase types from entity
       result = result.where((m) {
         final type = m.type.toLowerCase();
         if (options.mediaType == MediaType.movie) {
@@ -165,20 +176,23 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         } else {
           return type.contains('tv') || type.contains('series');
         }
-      }).toList();
+      });
     }
 
     // 2. Min Rating
     if (options.minRating != null && options.minRating! > 0) {
-      result = result
-          .where((m) => (m.rating ?? 0) >= options.minRating!)
-          .toList();
+      result = result.where((m) => (m.rating ?? 0) >= options.minRating!);
     }
 
-    // 3. Sorting
-    MovieSorter.sort(result, options.sortBy);
+    // Convert to list only once at the end
+    var filteredList = result.toList();
 
-    return result;
+    // 3. Sorting (in-place)
+    if (filteredList.isNotEmpty) {
+      MovieSorter.sort(filteredList, options.sortBy);
+    }
+
+    return filteredList;
   }
 }
 

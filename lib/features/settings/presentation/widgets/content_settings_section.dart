@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../injection_container.dart';
+import '../../../video_player/presentation/bloc/video_player_bloc.dart';
+import '../../../video_player/presentation/bloc/video_player_event.dart';
 import '../../domain/entities/app_settings.dart' as domain;
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
@@ -22,6 +25,9 @@ class ContentSettingsSection extends StatelessWidget {
           subtitle: const Text('Show adult content'),
           value: settings.adultContent,
           onChanged: (value) async {
+            // Minimize player before showing PIN dialog
+            getIt<VideoPlayerBloc>().add(MinimizeVideo());
+
             final bloc = context.read<SettingsBloc>();
 
             if (value) {
@@ -59,6 +65,9 @@ class ContentSettingsSection extends StatelessWidget {
             title: const Text('Change PIN'),
             leading: const Icon(Icons.lock_outline),
             onTap: () async {
+              // Minimize player before showing PIN dialog
+              getIt<VideoPlayerBloc>().add(MinimizeVideo());
+
               // Verify old PIN first
               final isVerified = await PinCodeDialog.show(
                 context,

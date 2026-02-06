@@ -161,7 +161,7 @@ class MovieRemoteDataSource {
       debugPrint('Using PATH param strategy for $providerKey');
       final response = await _dio.get(
         '/$category/$providerKey/watch/${Uri.encodeComponent(episodeId)}',
-        queryParameters: {'server': ?server},
+        queryParameters: server != null ? {'server': server} : null,
       );
       return StreamingResponseModel.fromJson(response.data);
     } else {
@@ -169,9 +169,14 @@ class MovieRemoteDataSource {
       debugPrint(
         'Using QUERY param strategy for $providerKey (Movies/AnimePahe)',
       );
-      final queryParams = {'episodeId': episodeId, 'server': ?server};
+      final queryParams = {'episodeId': episodeId};
 
-      // Only mmovies need mediaId
+      // Add server if provided
+      if (server != null) {
+        queryParams['server'] = server;
+      }
+
+      // Only movies need mediaId
       if (!isAnime) {
         queryParams['mediaId'] = mediaId;
       }

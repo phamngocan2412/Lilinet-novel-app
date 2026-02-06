@@ -77,6 +77,8 @@ dependencies:
   timezone: ^0.10.0
   path_provider_platform_interface: ^2.1.2
   plugin_platform_interface: ^2.1.8
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -107,6 +109,7 @@ dev_dependencies:
   # Bạn ép cứng version 7.0.0 dễ gây xung đột (như cái warning màu vàng lúc nãy).
 
 flutter:
+  generate: true
   uses-material-design: true
 
   assets:

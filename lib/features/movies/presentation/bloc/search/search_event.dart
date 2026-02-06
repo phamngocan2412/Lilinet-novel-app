@@ -17,9 +17,13 @@ class SearchQueryChanged extends SearchEvent {
   List<Object> get props => [query];
 }
 
-class SearchLoadMore extends SearchEvent {}
+class SearchLoadMore extends SearchEvent {
+  const SearchLoadMore();
+}
 
-class SearchCleared extends SearchEvent {}
+class SearchCleared extends SearchEvent {
+  const SearchCleared();
+}
 
 class SearchFilterChanged extends SearchEvent {
   final String filter; // 'All', 'TV Series', 'Movie'

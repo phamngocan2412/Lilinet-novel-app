@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/auth_bloc.dart';
 import '../bloc/auth_event.dart';
+import '../../../../core/widgets/loading_indicator.dart';
 import '../bloc/auth_state.dart';
 
 class ChangePasswordDialog extends StatefulWidget {
@@ -118,7 +119,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                     BlocBuilder<AuthBloc, AuthState>(
                       builder: (context, state) {
                         if (state is AuthLoading) {
-                          return const CircularProgressIndicator();
+                          return const LoadingIndicator(size: 20);
                         }
                         return FilledButton(
                           onPressed: () {

@@ -9,6 +9,7 @@ import '../bloc/video_player_event.dart';
 import '../bloc/video_player_state.dart';
 import 'custom_video_controls.dart';
 import 'next_episode_countdown.dart';
+import '../../../movies/domain/entities/streaming_link.dart';
 
 class FullPlayerContent extends StatelessWidget {
   final VideoPlayerState state;
@@ -17,6 +18,13 @@ class FullPlayerContent extends StatelessWidget {
   final MiniplayerController miniplayerController;
   final bool showCountdown;
   final String? nextEpisodeTitle;
+  final List<String> availableServers;
+  final String? currentServer;
+  final List<StreamingLink> availableQualities;
+  final String? currentQuality;
+  final Function(String) onServerSelected;
+  final Function(StreamingLink) onQualitySelected;
+  final VoidCallback onDownload;
   final VoidCallback onPlayNext;
   final VoidCallback onPlayPrevious;
   final VoidCallback onCancelCountdown;
@@ -30,6 +38,13 @@ class FullPlayerContent extends StatelessWidget {
     required this.miniplayerController,
     required this.showCountdown,
     this.nextEpisodeTitle,
+    required this.availableServers,
+    this.currentServer,
+    required this.availableQualities,
+    this.currentQuality,
+    required this.onServerSelected,
+    required this.onQualitySelected,
+    required this.onDownload,
     required this.onPlayNext,
     required this.onPlayPrevious,
     required this.onCancelCountdown,
@@ -98,6 +113,13 @@ class FullPlayerContent extends StatelessWidget {
                       );
                     }
                   },
+                  onDownload: onDownload,
+                  availableServers: availableServers,
+                  currentServer: currentServer ?? '',
+                  availableQualities: availableQualities,
+                  currentQuality: currentQuality ?? '',
+                  onServerSelected: onServerSelected,
+                  onQualitySelected: onQualitySelected,
                   hasNext: hasNext,
                   hasPrev: hasPrev,
                 ),

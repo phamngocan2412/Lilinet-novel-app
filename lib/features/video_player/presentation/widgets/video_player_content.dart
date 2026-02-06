@@ -4,13 +4,16 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:lilinet_app/core/constants/streaming_config.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 import 'package:miniplayer/miniplayer.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../../../injection_container.dart';
 import '../../../../core/services/video_player_service.dart';
 import '../../../../core/services/video_session_repository.dart';
+import '../../../../core/services/network_monitor_service.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../../../core/widgets/cached_image.dart';
 import '../../../history/domain/entities/watch_progress.dart';
@@ -30,6 +33,8 @@ import 'expanded_player_content.dart';
 import 'video_error_widget.dart';
 
 import '../../../../core/network/network_cubit.dart';
+
+import '../../../../features/movies/domain/usecases/get_movie_details.dart';
 
 // Colors
 const kBgColor = Color(0xFF101010);
@@ -61,15 +66,25 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
   final GlobalKey _videoKey = GlobalKey();
 
+  // Only keep alive when video is playing to prevent memory leaks
+  // When video is paused or closed, allow disposal
   @override
-  bool get wantKeepAlive => true; // Prevent disposal when scrolling
+  bool get wantKeepAlive {
+    // Keep alive only when player is initialized and playing
+    if (_isPlayerInitialized && _videoService.player.state.playing) {
+      return true;
+    }
+    // Allow disposal when video is paused, minimized, or closed
+    return false;
+  }
 
   // Access video service via Bloc to keep widget "dumb" about service instantiation
   late final VideoPlayerService _videoService;
 
   late VideoSessionRepository _videoSessionRepository;
 
-  String? _currentServer = 'vidcloud';
+  String? currentServer = 'vidcloud';
+  String? _playbackError;
 
   // Streaming Cubit instance managed here to reset on new video
   late StreamingCubit _streamingCubit;
@@ -87,6 +102,7 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
   String? _nextEpisodeTitle;
 
   bool _isPlayerInitialized = false;
+  bool _isPreloaded = false; // Track if next episode is preloaded
 
   @override
   void initState() {
@@ -105,10 +121,62 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     _streamingCubit = getIt<StreamingCubit>();
     _loadSettingsAndVideo();
 
+    // H-003: If movie details are missing (restored session), fetch them
+    if (widget.state.movie == null && widget.state.mediaId != null) {
+      _fetchMovieDetails();
+    }
+
+    // Listen to player playing state to update keep alive
+    _videoService.player.stream.playing.listen((playing) {
+      if (mounted) {
+        updateKeepAlive();
+      }
+    });
+
     if (widget.state.status == VideoPlayerStatus.expanded) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         widget.miniplayerController.animateToHeight(state: PanelState.MAX);
       });
+    }
+  }
+
+  // H-003: Fetch movie details for restored sessions
+  Future<void> _fetchMovieDetails() async {
+    try {
+      final getMovieDetails = getIt<GetMovieDetails>();
+      final result = await getMovieDetails(
+        GetMovieDetailsParams(
+          id: widget.state.mediaId!,
+          type: widget.state.mediaType ?? 'Movie',
+        ),
+      );
+
+      if (!mounted) return;
+
+      result.fold(
+        (failure) {
+          debugPrint(
+            '⚠️ Failed to fetch movie details for restored session: ${failure.message}',
+          );
+        },
+        (movie) {
+          debugPrint('✅ Restored movie details for: ${movie.title}');
+          context.read<VideoPlayerBloc>().add(
+            PlayVideo(
+              episodeId: widget.state.episodeId!,
+              mediaId: widget.state.mediaId!,
+              title: widget.state.title!,
+              posterUrl: widget.state.posterUrl,
+              episodeTitle: widget.state.episodeTitle,
+              startPosition: widget.state.startPosition,
+              mediaType: widget.state.mediaType,
+              movie: movie,
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      debugPrint('⚠️ Error fetching movie details: $e');
     }
   }
 
@@ -121,6 +189,12 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
       // Close old cubit and get a new one for the new video
       _streamingCubit.close();
       _streamingCubit = getIt<StreamingCubit>();
+
+      // Reset error state
+      setState(() {
+        _playbackError = null;
+      });
+
       _loadSettingsAndVideo();
     }
   }
@@ -133,6 +207,12 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     _videoService.onError = (error) {
       if (kDebugMode) {
         debugPrint('❌ Video error: $error');
+      }
+      // H-002: Show error UI
+      if (mounted) {
+        setState(() {
+          _playbackError = error;
+        });
       }
     };
     _videoService.onQualitySwitchStateChanged = (isSwitching) {
@@ -193,9 +273,9 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     );
   }
 
-  void _switchServer(String server) {
+  void switchServer(String server) {
     setState(() {
-      _currentServer = server;
+      currentServer = server;
     });
 
     final provider =
@@ -232,6 +312,9 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     // Detach callbacks but don't dispose service to keep player alive
     _videoService.detachCallbacks();
 
+    // Cancel any pending network requests before closing
+    _streamingCubit.cancelPendingRequests();
+
     // Do NOT close the singleton Cubit
     // BUT since we changed it to Factory, we SHOULD close it now!
     _streamingCubit.close();
@@ -257,6 +340,41 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
             _nextEpisodeTitle = nextEpisode.title;
             _showCountdown = true;
           });
+        }
+      }
+    }
+  }
+
+  /// Preload next episode when current episode is 70% complete
+  void _preloadNextEpisode(Duration position, Duration duration) {
+    // Only preload for TV Series
+    if (widget.state.mediaType != 'TV Series') return;
+
+    // Check if we're at 70% of the video
+    if (duration.inSeconds > 0 &&
+        position.inSeconds > (duration.inSeconds * 0.7) &&
+        !_isPreloaded) {
+      _isPreloaded = true;
+
+      final movie = widget.state.movie;
+      if (movie != null) {
+        final episodes = movie.episodes;
+        if (episodes != null && episodes.isNotEmpty) {
+          final currentIndex = episodes.indexWhere(
+            (e) => e.id == widget.state.episodeId,
+          );
+
+          // Preload next episode if exists
+          if (currentIndex != -1 && currentIndex < episodes.length - 1) {
+            final nextEpisode = episodes[currentIndex + 1];
+            // Trigger preload without playing
+            _streamingCubit.preloadLinks(
+              episodeId: nextEpisode.id,
+              mediaId: widget.state.mediaId!,
+              provider: movie.provider ?? _movieProvider,
+              preferredServer: _preferredServer,
+            );
+          }
         }
       }
     }
@@ -331,6 +449,9 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
 
     final duration = _videoService.player.state.duration;
     if (duration == Duration.zero) return;
+
+    // Preload next episode when we're at 70% of current episode
+    _preloadNextEpisode(position, duration);
 
     final progress = WatchProgress(
       mediaId: widget.state.mediaId!,
@@ -467,18 +588,6 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
                   Expanded(
                     child: ExpandedPlayerContent(
                       state: widget.state,
-                      currentServer: _currentServer ?? 'vidcloud',
-                      defaultQuality: _defaultQuality,
-                      onServerSelected: _switchServer,
-                      onQualitySelected: (url, subUrl, subLang, headers) {
-                        _playVideo(
-                          url,
-                          subtitleUrl: subUrl,
-                          subtitleLang: subLang,
-                          headers: headers,
-                          isQualitySwitch: true,
-                        );
-                      },
                       onMinimize: () {
                         widget.miniplayerController.animateToHeight(
                           state: PanelState.MIN,
@@ -505,6 +614,8 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
                               fileName: fileName,
                               movieId: widget.state.mediaId,
                               movieTitle: widget.state.title,
+                              episodeTitle: widget.state.episodeTitle,
+                              posterUrl: widget.state.posterUrl,
                             ),
                           );
 
@@ -559,13 +670,27 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
 
     // Sync local state with actual server used by Cubit
     if (state.selectedServer != null) {
-      _currentServer = state.selectedServer;
+      currentServer = state.selectedServer;
     }
 
-    final link = VideoPlayerService.selectLinkByQuality(
+    // Check if we're on a slow connection (mobile data with poor signal)
+    final networkMonitor = NetworkMonitorService();
+    final isLowBandwidth =
+        !networkMonitor.isConnected ||
+        networkMonitor.connectionType == ConnectivityResult.mobile ||
+        networkMonitor.averageBandwidth < 500 * 1024; // < 500 KB/s
+
+    final link = VideoPlayerService.selectAdaptiveQuality(
       state.links,
       _defaultQuality,
+      isLowBandwidth,
     );
+
+    if (kDebugMode) {
+      debugPrint(
+        '🔗 Selected quality: ${link.quality} (low bandwidth: $isLowBandwidth)',
+      );
+    }
 
     String? subUrl;
     String? subLang;
@@ -622,6 +747,24 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
         }
       },
       builder: (context, state) {
+        // H-002: Playback Error UI
+        if (_playbackError != null) {
+          return Stack(
+            children: [
+              Container(color: Colors.black),
+              VideoErrorWidget(
+                message: _playbackError!,
+                onRetry: () {
+                  setState(() => _playbackError = null);
+                  _loadVideo();
+                },
+                onClose: () =>
+                    context.read<VideoPlayerBloc>().add(CloseVideo()),
+              ),
+            ],
+          );
+        }
+
         if (state is StreamingLoading ||
             state is StreamingInitial ||
             state is StreamingError) {
@@ -644,6 +787,19 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
                   onClose: () =>
                       context.read<VideoPlayerBloc>().add(CloseVideo()),
                 ),
+              // Close button for loading state (mini player mode)
+              if (state is StreamingLoading && widget.isMini)
+                Positioned(
+                  top: 8,
+                  right: 8,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () {
+                      context.read<VideoPlayerBloc>().add(CloseVideo());
+                    },
+                    tooltip: AppLocalizations.of(context)!.close,
+                  ),
+                ),
             ],
           );
         }
@@ -660,6 +816,8 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
         }
 
         // Full Player with Custom Controls
+        final streamingState = state is StreamingLoaded ? state : null;
+
         return FullPlayerContent(
           state: widget.state,
           videoService: _videoService,
@@ -667,6 +825,41 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
           miniplayerController: widget.miniplayerController,
           showCountdown: _showCountdown,
           nextEpisodeTitle: _nextEpisodeTitle,
+          availableServers: streamingState?.availableServers ?? [],
+          currentServer: streamingState?.selectedServer,
+          availableQualities: streamingState?.links ?? [],
+          currentQuality: _videoService
+              .player
+              .state
+              .playlist
+              .medias
+              .firstOrNull
+              ?.uri, // This might need a better way to track current quality
+          onServerSelected: (server) {
+            _streamingCubit.selectServer(
+              episodeId: widget.state.episodeId!,
+              mediaId: widget.state.mediaId!,
+              server: server,
+              provider: widget.state.mediaType == 'Anime'
+                  ? _animeProvider
+                  : _movieProvider,
+              preferredServer: _preferredServer,
+            );
+          },
+          onQualitySelected: (link) {
+            _streamingCubit.changeQuality(link);
+            _videoService.playVideo(
+              url: link.url,
+              headers: link.headers,
+              isQualitySwitch: true,
+            );
+          },
+          onDownload: () {
+            // Implement download logic or pass it from parent
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Download started...')),
+            );
+          },
           onPlayNext: _playNextEpisode,
           onPlayPrevious: _playPreviousEpisode,
           onCancelCountdown: () {

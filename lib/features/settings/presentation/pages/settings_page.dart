@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../injection_container.dart';
 import '../../../../core/services/miniplayer_height_notifier.dart';
 import '../../../../core/widgets/loading_indicator.dart';
+import '../../../../core/constants/app_spacing.dart';
+// import '../../../../core/constants/app_border_radius.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../auth/presentation/bloc/auth_event.dart';
+import '../../../video_player/presentation/bloc/video_player_bloc.dart';
+import '../../../video_player/presentation/bloc/video_player_event.dart';
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
 import '../bloc/settings_state.dart';
@@ -31,11 +37,15 @@ class SettingsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Settings',
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: Text(
+          l10n.settingsTitle,
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: BlocBuilder<SettingsBloc, SettingsState>(
@@ -62,25 +72,25 @@ class SettingsView extends StatelessWidget {
 
                 return ListView(
                   padding: EdgeInsets.only(
-                    top: 16,
-                    bottom: 16 + miniplayerHeight,
+                    top: AppSpacing.lg,
+                    bottom: AppSpacing.lg + miniplayerHeight,
                   ),
                   children: [
                     AccountSection(
                       onDeleteAccount: () => _showDeleteAccountDialog(context),
                     ),
-                    const Divider(height: 32),
+                    const Divider(height: AppSpacing.xxl),
                     AppearanceSection(settings: settings),
-                    const Divider(height: 32),
+                    const Divider(height: AppSpacing.xxl),
                     PlaybackSection(settings: settings),
-                    const Divider(height: 32),
+                    const Divider(height: AppSpacing.xxl),
                     SettingsSection(
-                      title: 'Download',
+                      title: l10n.downloadSection,
                       icon: Icons.download,
                       children: [
                         SettingsSwitchTile(
-                          title: 'WiFi Only',
-                          subtitle: 'Download only on WiFi connection',
+                          title: l10n.wifiOnly,
+                          subtitle: l10n.wifiOnlySubtitle,
                           value: settings.downloadOverWifiOnly,
                           onChanged: (value) {
                             context.read<SettingsBloc>().add(
@@ -90,16 +100,24 @@ class SettingsView extends StatelessWidget {
                             );
                           },
                         ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.download_done),
+                          title: Text(l10n.myDownloads),
+                          subtitle: Text(l10n.myDownloadsSubtitle),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => context.push('/downloads'),
+                        ),
                       ],
                     ),
-                    const Divider(height: 32),
+                    const Divider(height: AppSpacing.xxl),
                     SettingsSection(
-                      title: 'Notifications',
+                      title: l10n.notificationsSection,
                       icon: Icons.notifications,
                       children: [
                         SettingsSwitchTile(
-                          title: 'Push Notifications',
-                          subtitle: 'Receive app notifications',
+                          title: l10n.pushNotifications,
+                          subtitle: l10n.pushNotificationsSubtitle,
                           value: settings.showNotifications,
                           onChanged: (value) {
                             context.read<SettingsBloc>().add(
@@ -111,31 +129,37 @@ class SettingsView extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const Divider(height: 32),
+                    const Divider(height: AppSpacing.xxl),
                     ContentSettingsSection(settings: settings),
-                    const Divider(height: 32),
+                    const Divider(height: AppSpacing.xxl),
                     StorageSettingsSection(
                       onClearCache: () => _showClearCacheDialog(context),
                     ),
-                    const Divider(height: 32),
+                    const Divider(height: AppSpacing.xxl),
                     AboutSection(onLaunchURL: (url) => _launchURL(url)),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: AppSpacing.xxl),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                      ),
                       child: OutlinedButton.icon(
                         onPressed: () {
                           _showResetDialog(context);
                         },
                         icon: const Icon(Icons.restore),
-                        label: const Text('Reset All Settings'),
+                        label: Text(l10n.resetAllSettings),
                         style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.red,
-                          side: const BorderSide(color: Colors.red),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          foregroundColor: colorScheme.error,
+                          side: BorderSide(
+                            color: colorScheme.error,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            vertical: AppSpacing.lg,
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: AppSpacing.xxl),
                   ],
                 );
               },
@@ -149,8 +173,12 @@ class SettingsView extends StatelessWidget {
   }
 
   void _showClearCacheDialog(BuildContext context) {
+    // Minimize player before showing dialog
+    getIt<VideoPlayerBloc>().add(MinimizeVideo());
+
     showDialog(
       context: context,
+      useRootNavigator: true, // Show above miniplayer
       builder: (dialogContext) => AlertDialog(
         title: const Text('Clear Cache'),
         content: const Text(
@@ -177,8 +205,12 @@ class SettingsView extends StatelessWidget {
   }
 
   void _showResetDialog(BuildContext context) {
+    // Minimize player before showing dialog
+    getIt<VideoPlayerBloc>().add(MinimizeVideo());
+
     showDialog(
       context: context,
+      useRootNavigator: true, // Show above miniplayer
       builder: (dialogContext) => AlertDialog(
         title: const Text('Reset Settings'),
         content: const Text(
@@ -206,8 +238,12 @@ class SettingsView extends StatelessWidget {
   }
 
   void _showDeleteAccountDialog(BuildContext context) {
+    // Minimize player before showing dialog
+    getIt<VideoPlayerBloc>().add(MinimizeVideo());
+
     showDialog(
       context: context,
+      useRootNavigator: true, // Show above miniplayer
       builder: (dialogContext) => AlertDialog(
         title: const Text('Delete Account'),
         content: const Text(

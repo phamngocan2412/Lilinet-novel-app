@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
+import '../../../../core/services/error_handler_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../core/widgets/loading_indicator.dart';
 import '../../presentation/manager/comment_cubit.dart';
 import '../../presentation/manager/comment_state.dart';
 import 'comment_header.dart';
@@ -50,9 +53,13 @@ class CommentBottomSheetWrapper extends StatelessWidget {
         state.maybeMap(
           loaded: (s) {
             if (s.errorMessage != null) {
+              final l10n = AppLocalizations.of(context)!;
+              final userFriendlyMsg = GetIt.I<ErrorHandlerService>()
+                  .getUserFriendlyMessage(s.errorMessage!, l10n);
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(s.errorMessage!),
+                  content: Text(userFriendlyMsg),
                   backgroundColor: Colors.red,
                   behavior: SnackBarBehavior.floating,
                   duration: const Duration(seconds: 3),
@@ -86,11 +93,11 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
   void _showLoginPrompt() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Row(
+        content: Row(
           children: [
-            Icon(Icons.lock_outline, color: Colors.white),
-            SizedBox(width: 8),
-            Text('Vui lòng đăng nhập để thực hiện thao tác này'),
+            const Icon(Icons.lock_outline, color: Colors.white),
+            const SizedBox(width: 8),
+            Text(AppLocalizations.of(context)!.loginRequiredAction),
           ],
         ),
         backgroundColor: Colors.orangeAccent,
@@ -129,7 +136,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
     }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('Chức năng dislike đang phát triển'),
+        content: Text(AppLocalizations.of(context)!.dislikeFeaturePending),
         backgroundColor: Colors.blue,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
@@ -160,6 +167,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return DraggableScrollableSheet(
       initialChildSize: 0.85,
@@ -271,7 +279,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Đang trả lời',
+                              l10n.replyingTo,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: theme.textTheme.bodySmall?.color,
@@ -302,10 +310,8 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                 child: BlocBuilder<CommentCubit, CommentState>(
                   builder: (context, state) {
                     return state.when(
-                      initial: () =>
-                          const Center(child: CircularProgressIndicator()),
-                      loading: () =>
-                          const Center(child: CircularProgressIndicator()),
+                      initial: () => const Center(child: LoadingIndicator()),
+                      loading: () => const Center(child: LoadingIndicator()),
                       error: (msg) => Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -319,7 +325,8 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              msg,
+                              GetIt.I<ErrorHandlerService>()
+                                  .getUserFriendlyMessage(msg, l10n),
                               textAlign: TextAlign.center,
                               style: theme.textTheme.titleMedium,
                             ),
@@ -329,7 +336,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                                   .read<CommentCubit>()
                                   .loadComments(widget.videoId),
                               icon: const Icon(Icons.refresh),
-                              label: const Text('Thử lại'),
+                              label: Text(l10n.retry),
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
                                   horizontal: 24,
@@ -370,7 +377,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                                     ),
                                     const SizedBox(height: 24),
                                     Text(
-                                      'Chưa có bình luận nào',
+                                      l10n.noComments,
                                       style: theme.textTheme.titleLarge
                                           ?.copyWith(
                                             fontWeight: FontWeight.bold,
@@ -378,7 +385,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'Hãy là người đầu tiên bình luận!',
+                                      l10n.beFirstToComment,
                                       style: theme.textTheme.bodyMedium
                                           ?.copyWith(
                                             color: theme
@@ -501,8 +508,8 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                 maxLines: null,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) => _sendReply(),
-                decoration: const InputDecoration(
-                  hintText: 'Viết trả lời...',
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.writeReply,
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,

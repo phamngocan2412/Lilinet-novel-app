@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:miniplayer/miniplayer.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 
 import '../../../../core/services/video_player_service.dart';
 import '../bloc/video_player_bloc.dart';
@@ -28,69 +29,78 @@ class MiniPlayerContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.read<VideoPlayerBloc>().add(MaximizeVideo()),
-      behavior: HitTestBehavior.translucent,
-      child: Row(
-        children: [
-          ClipRect(
-            child: SizedBox(
-              height: miniplayerHeight - 10,
-              width: (miniplayerHeight - 10) * 16 / 9,
-              child: Video(
-                key: videoKey,
-                controller: videoService.controller,
-                controls: NoVideoControls,
+      behavior: HitTestBehavior.opaque, // Changed from translucent to opaque
+      child: Material(
+        // Add Material widget for proper elevation and touch handling
+        color: const Color(0xFF1A1A1A),
+        elevation: 8,
+        child: Row(
+          children: [
+            ClipRect(
+              child: SizedBox(
+                height: miniplayerHeight - 10,
+                width: (miniplayerHeight - 10) * 16 / 9,
+                child: Video(
+                  key: videoKey,
+                  controller: videoService.controller,
+                  controls: NoVideoControls,
+                ),
               ),
             ),
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    state.title ?? '',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  if (state.episodeTitle != null)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Text(
-                      state.episodeTitle!,
+                      state.title ?? '',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                ],
+                    if (state.episodeTitle != null)
+                      Text(
+                        state.episodeTitle!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-          IconButton(
-            icon: StreamBuilder<bool>(
+            StreamBuilder<bool>(
               stream: videoService.player.stream.playing,
               initialData: videoService.player.state.playing,
               builder: (context, snapshot) {
                 final playing = snapshot.data ?? false;
-                return Icon(playing ? Icons.pause : Icons.play_arrow);
+                return IconButton(
+                  icon: Icon(playing ? Icons.pause : Icons.play_arrow),
+                  onPressed: () =>
+                      context.read<VideoPlayerBloc>().add(TogglePlayPause()),
+                  tooltip: playing
+                      ? AppLocalizations.of(context)!.pause
+                      : AppLocalizations.of(context)!.play,
+                );
               },
             ),
-            onPressed: () =>
-                context.read<VideoPlayerBloc>().add(TogglePlayPause()),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () {
-              context.read<VideoPlayerBloc>().add(CloseVideo());
-            },
-          ),
-        ],
+            IconButton(
+              icon: const Icon(Icons.close),
+              onPressed: () {
+                context.read<VideoPlayerBloc>().add(CloseVideo());
+              },
+              tooltip: AppLocalizations.of(context)!.close,
+            ),
+          ],
+        ),
       ),
     );
   }

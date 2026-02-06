@@ -186,12 +186,12 @@ class CommentCubit extends Cubit<CommentState> {
           (failure) {
             debugPrint('❌ Failed to add comment: ${failure.message}');
             emit(loadedState.copyWith(isAddingComment: false));
-            // Emit error as a separate state that preserves comments
+            // Emit error message without hardcoded label. UI will handle formatting if needed.
             emit(
               CommentState.loaded(
                 comments: loadedState.comments,
                 sortType: loadedState.sortType,
-                errorMessage: 'Không thể gửi bình luận: ${failure.message}',
+                errorMessage: failure.message,
               ),
             );
           },

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../injection_container.dart';
+import '../../../video_player/presentation/bloc/video_player_bloc.dart';
+import '../../../video_player/presentation/bloc/video_player_event.dart';
 import '../../domain/entities/app_settings.dart' as domain;
 import '../bloc/settings_bloc.dart';
 import '../bloc/settings_event.dart';
@@ -22,6 +25,10 @@ class AppearanceSection extends StatelessWidget {
           leading: const Icon(Icons.brightness_6),
           trailing: const Icon(Icons.chevron_right),
           onTap: () {
+            // Minimize player before showing bottom sheet
+            final videoBloc = getIt<VideoPlayerBloc>();
+            videoBloc.add(MinimizeVideo());
+
             final settingsBloc = context.read<SettingsBloc>();
             showModalBottomSheet(
               context: context,

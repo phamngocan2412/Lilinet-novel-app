@@ -58,7 +58,13 @@ class LoadVideo extends VideoPlayerEvent {
   });
 
   @override
-  List<Object?> get props => [url, subtitleUrl, subtitleLang, headers, isQualitySwitch];
+  List<Object?> get props => [
+    url,
+    subtitleUrl,
+    subtitleLang,
+    headers,
+    isQualitySwitch,
+  ];
 }
 
 class TogglePlayPause extends VideoPlayerEvent {}
@@ -104,14 +110,25 @@ class DownloadCurrentVideo extends VideoPlayerEvent {
   final String fileName;
   final String? movieId;
   final String? movieTitle;
+  final String? episodeTitle;
+  final String? posterUrl;
 
   const DownloadCurrentVideo({
     required this.url,
     required this.fileName,
     this.movieId,
     this.movieTitle,
+    this.episodeTitle,
+    this.posterUrl,
   });
 
   @override
-  List<Object?> get props => [url, fileName, movieId, movieTitle];
+  List<Object?> get props => [
+    url,
+    fileName,
+    movieId,
+    movieTitle,
+    episodeTitle,
+    posterUrl,
+  ];
 }

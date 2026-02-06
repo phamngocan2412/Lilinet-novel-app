@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/constants/app_spacing.dart';
 
 class SettingsSection extends StatelessWidget {
   final String title;
@@ -18,7 +19,10 @@ class SettingsSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.sm,
+          ),
           child: Row(
             children: [
               Icon(
@@ -26,7 +30,7 @@ class SettingsSection extends StatelessWidget {
                 size: 20,
                 color: Theme.of(context).colorScheme.primary,
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               Text(
                 title,
                 style: TextStyle(
@@ -62,7 +66,10 @@ class SettingsSwitchTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return SwitchListTile(
       title: Text(title),
-      subtitle: Text(subtitle, style: TextStyle(color: Colors.grey[600])),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+      ),
       value: value,
       onChanged: onChanged,
     );
