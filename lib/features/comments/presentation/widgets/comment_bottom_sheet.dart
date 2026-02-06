@@ -500,6 +500,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                   border: InputBorder.none,
                   isDense: true,
                   contentPadding: EdgeInsets.zero,
+                  counterText: "",
                 ),
               ),
             ),

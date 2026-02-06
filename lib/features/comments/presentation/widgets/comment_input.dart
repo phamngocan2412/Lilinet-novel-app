@@ -80,6 +80,7 @@ class _CommentInputState extends State<CommentInput> {
                       border: InputBorder.none,
                       isDense: true,
                       contentPadding: EdgeInsets.symmetric(vertical: 8),
+                      counterText: "",
                     ),
                   )
                 : GestureDetector(
