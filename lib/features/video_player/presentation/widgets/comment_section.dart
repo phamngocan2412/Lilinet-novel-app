@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/widgets/cached_image.dart';
 import '../../../../injection_container.dart';
 import '../bloc/comments/comments_cubit.dart';
 import '../bloc/comments/comments_state.dart';
@@ -253,23 +254,30 @@ class _CommentSectionViewState extends State<_CommentSectionView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Avatar
-          CircleAvatar(
-            radius: 18,
-            backgroundColor: Colors.grey[800],
-            backgroundImage: comment.userAvatarUrl != null
-                ? NetworkImage(comment.userAvatarUrl!)
-                : null,
-            child: comment.userAvatarUrl == null
-                ? Text(
-                    comment.userName.isNotEmpty
-                        ? comment.userName[0].toUpperCase()
-                        : _CommentSectionStrings.unknownUserInitial,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+          SizedBox(
+            width: 36,
+            height: 36,
+            child: ClipOval(
+              child: comment.userAvatarUrl != null
+                  ? AppCachedImage(
+                      imageUrl: comment.userAvatarUrl!,
+                      width: 36,
+                      height: 36,
+                      fit: BoxFit.cover,
+                    )
+                  : CircleAvatar(
+                      backgroundColor: Colors.grey[800],
+                      child: Text(
+                        comment.userName.isNotEmpty
+                            ? comment.userName[0].toUpperCase()
+                            : _CommentSectionStrings.unknownUserInitial,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
-                  )
-                : null,
+            ),
           ),
           const SizedBox(width: 12),
           // Content

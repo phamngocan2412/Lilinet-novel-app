@@ -13,7 +13,6 @@ import 'package:dio/dio.dart' as _i361;
 import 'package:get_it/get_it.dart' as _i174;
 import 'package:hive_ce/hive.dart' as _i738;
 import 'package:hive_ce/hive_ce.dart' as _i1055;
-import 'package:hive_ce_flutter/hive_ce_flutter.dart' as _i965;
 import 'package:injectable/injectable.dart' as _i526;
 import 'package:shared_preferences/shared_preferences.dart' as _i460;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i454;
@@ -129,19 +128,19 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.prefs,
       preResolve: true,
     );
-    await gh.factoryAsync<_i965.Box<_i422.WatchProgressModel>>(
+    await gh.factoryAsync<_i1055.Box<_i422.WatchProgressModel>>(
       () => registerModule.watchHistoryBox,
       preResolve: true,
     );
-    await gh.factoryAsync<_i965.Box<_i892.MovieListResponse>>(
+    await gh.factoryAsync<_i1055.Box<_i892.MovieListResponse>>(
       () => registerModule.movieCacheBox,
       preResolve: true,
     );
-    await gh.factoryAsync<_i965.Box<_i892.MovieModel>>(
+    await gh.factoryAsync<_i1055.Box<_i892.MovieModel>>(
       () => registerModule.movieDetailsBox,
       preResolve: true,
     );
-    await gh.factoryAsync<_i965.Box<DateTime>>(
+    await gh.factoryAsync<_i1055.Box<DateTime>>(
       () => registerModule.cacheTimestampBox,
       preResolve: true,
     );

@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:hive_ce_flutter/hive_ce_flutter.dart';
+import 'package:hive_ce/hive_ce.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import '../../domain/entities/genre.dart';
 
 part 'genre_model.freezed.dart';
