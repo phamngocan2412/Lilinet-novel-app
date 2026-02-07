@@ -295,11 +295,13 @@ class _CommentSectionViewState extends State<_CommentSectionView> {
             child: TextField(
               controller: _controller,
               style: const TextStyle(color: Colors.white),
+              maxLength: 1000,
               decoration: InputDecoration(
                 hintText: l10n.addCommentHint,
                 hintStyle: TextStyle(color: Colors.grey[600]),
                 border: InputBorder.none,
                 isDense: true,
+                counterText: "",
               ),
               minLines: 1,
               maxLines: 3,
