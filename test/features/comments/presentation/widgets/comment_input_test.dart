@@ -5,7 +5,8 @@ import 'package:lilinet_app/features/comments/presentation/widgets/comment_input
 import 'package:lilinet_app/l10n/app_localizations.dart';
 
 void main() {
-  testWidgets('CommentInput has maxLength limit to prevent DoS', (tester) async {
+  testWidgets('CommentInput has maxLength limit to prevent DoS',
+      (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         localizationsDelegates: const [
@@ -32,6 +33,7 @@ void main() {
     final textField = tester.widget<TextField>(textFieldFinder);
 
     // Check maxLength - initially this will fail as it is null
-    expect(textField.maxLength, 1000, reason: 'TextField should have maxLength set to 1000 to prevent DoS');
+    expect(textField.maxLength, 1000,
+        reason: 'TextField should have maxLength set to 1000 to prevent DoS');
   });
 }
