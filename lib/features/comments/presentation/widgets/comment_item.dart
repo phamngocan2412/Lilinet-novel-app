@@ -124,9 +124,7 @@ class _CommentContentState extends State<_CommentContent> {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.5,
-                    ),
+                    color: colorScheme.surfaceContainerHighest.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Column(
@@ -343,7 +341,8 @@ class _ActionButtons extends StatelessWidget {
                   Icon(
                     isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
                     size: isReply ? 16 : 18,
-                    color: isLiked ? theme.colorScheme.primary : theme.hintColor,
+                    color:
+                        isLiked ? theme.colorScheme.primary : theme.hintColor,
                   ),
                   if (likes > 0) ...[
                     const SizedBox(width: 6),
@@ -354,7 +353,8 @@ class _ActionButtons extends StatelessWidget {
                         color: isLiked
                             ? theme.colorScheme.primary
                             : theme.hintColor,
-                        fontWeight: isLiked ? FontWeight.w600 : FontWeight.normal,
+                        fontWeight:
+                            isLiked ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ],
@@ -405,14 +405,14 @@ class _ActionButtons extends StatelessWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(minHeight: 48),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: isRepliesExpanded
-                      ? theme.colorScheme.primary.withValues(alpha: 0.1)
-                      : theme.colorScheme.surfaceContainerHighest.withValues(
-                          alpha: 0.5,
-                        ),
+                      ? theme.colorScheme.primary.withOpacity(0.1)
+                      : theme.colorScheme.surfaceContainerHighest
+                          .withOpacity(0.5),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(

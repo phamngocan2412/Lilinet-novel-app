@@ -158,9 +158,9 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
     if (_replyingToCommentId == null) return;
 
     context.read<CommentCubit>().addComment(
-      _replyController.text,
-      parentId: _replyingToCommentId,
-    );
+          _replyController.text,
+          parentId: _replyingToCommentId,
+        );
     _cancelReply();
   }
 
@@ -180,7 +180,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
+                color: Colors.black.withOpacity(0.2),
                 blurRadius: 20,
                 offset: const Offset(0, -5),
               ),
@@ -250,10 +250,10 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                     vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                    color: theme.colorScheme.primary.withOpacity(0.08),
                     border: Border(
                       bottom: BorderSide(
-                        color: theme.dividerColor.withValues(alpha: 0.2),
+                        color: theme.dividerColor.withOpacity(0.2),
                       ),
                     ),
                   ),
@@ -262,9 +262,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.primary.withValues(
-                            alpha: 0.15,
-                          ),
+                          color: theme.colorScheme.primary.withOpacity(0.15),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
@@ -347,96 +345,90 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                           ],
                         ),
                       ),
-                      loaded:
-                          (
-                            comments,
-                            sortType,
-                            expandedReplies,
-                            isAdding,
-                            totalComments, // totalComments
-                            likedCommentIds,
-                            totalLikes, // totalLikes
-                          ) {
-                            if (comments.isEmpty) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(24),
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.primary
-                                            .withValues(alpha: 0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.chat_bubble_outline,
-                                        size: 48,
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    Text(
-                                      l10n.noComments,
-                                      style: theme.textTheme.titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      l10n.beFirstToComment,
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                            color: theme
-                                                .textTheme
-                                                .bodySmall
-                                                ?.color,
-                                          ),
-                                    ),
-                                  ],
+                      loaded: (
+                        comments,
+                        sortType,
+                        expandedReplies,
+                        isAdding,
+                        totalComments, // totalComments
+                        likedCommentIds,
+                        totalLikes, // totalLikes
+                      ) {
+                        if (comments.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary
+                                        .withOpacity(0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.chat_bubble_outline,
+                                    size: 48,
+                                    color: theme.colorScheme.primary,
+                                  ),
                                 ),
-                              );
-                            }
-
-                            return ListView.builder(
-                              cacheExtent: 300,
-                              controller: scrollController,
-                              itemCount: comments.length,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              itemBuilder: (context, index) {
-                                final comment = comments[index];
-                                final isExpanded = expandedReplies.containsKey(
-                                  comment.id,
-                                );
-
-                                return CommentItem(
-                                  comment: comment.copyWith(
-                                    replies: isExpanded
-                                        ? (expandedReplies[comment.id] ?? [])
-                                        : [],
+                                const SizedBox(height: 24),
+                                Text(
+                                  l10n.noComments,
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  onLike: () => _handleLike(comment.id),
-                                  onDislike: () => _handleDislike(comment.id),
-                                  onReply: () => _handleReply(
-                                    comment.id,
-                                    comment.userName,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  l10n.beFirstToComment,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.textTheme.bodySmall?.color,
                                   ),
-                                  onToggleReplies: () => context
-                                      .read<CommentCubit>()
-                                      .toggleReplies(comment.id),
-                                  isRepliesExpanded: isExpanded,
-                                  isLiked: likedCommentIds.contains(comment.id),
-                                  onReplyLike: _handleLike,
-                                  onReplyReply: _handleReply,
-                                  onLoadMoreReplies: () => context
-                                      .read<CommentCubit>()
-                                      .toggleReplies(comment.id),
-                                  likedReplyIds: likedCommentIds,
-                                );
-                              },
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          cacheExtent: 300,
+                          controller: scrollController,
+                          itemCount: comments.length,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemBuilder: (context, index) {
+                            final comment = comments[index];
+                            final isExpanded = expandedReplies.containsKey(
+                              comment.id,
+                            );
+
+                            return CommentItem(
+                              comment: comment.copyWith(
+                                replies: isExpanded
+                                    ? (expandedReplies[comment.id] ?? [])
+                                    : [],
+                              ),
+                              onLike: () => _handleLike(comment.id),
+                              onDislike: () => _handleDislike(comment.id),
+                              onReply: () => _handleReply(
+                                comment.id,
+                                comment.userName,
+                              ),
+                              onToggleReplies: () => context
+                                  .read<CommentCubit>()
+                                  .toggleReplies(comment.id),
+                              isRepliesExpanded: isExpanded,
+                              isLiked: likedCommentIds.contains(comment.id),
+                              onReplyLike: _handleLike,
+                              onReplyReply: _handleReply,
+                              onLoadMoreReplies: () => context
+                                  .read<CommentCubit>()
+                                  .toggleReplies(comment.id),
+                              likedReplyIds: likedCommentIds,
                             );
                           },
+                        );
+                      },
                     );
                   },
                 ),
@@ -448,12 +440,12 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                   color: theme.scaffoldBackgroundColor,
                   border: Border(
                     top: BorderSide(
-                      color: theme.dividerColor.withValues(alpha: 0.2),
+                      color: theme.dividerColor.withOpacity(0.2),
                     ),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withOpacity(0.05),
                       blurRadius: 10,
                       offset: const Offset(0, -5),
                     ),
@@ -482,11 +474,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
           CircleAvatar(
             radius: 18,
             backgroundImage: NetworkImage(
-              Supabase
-                      .instance
-                      .client
-                      .auth
-                      .currentUser
+              Supabase.instance.client.auth.currentUser
                       ?.userMetadata?['avatar_url'] ??
                   'https://ui-avatars.com/api/?name=User',
             ),
@@ -499,7 +487,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
-                  color: Theme.of(context).dividerColor.withValues(alpha: 0.2),
+                  color: Theme.of(context).dividerColor.withOpacity(0.2),
                 ),
               ),
               child: TextField(
@@ -565,11 +553,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
             context.read<CommentCubit>().addComment(content);
           },
           userAvatar: Supabase
-              .instance
-              .client
-              .auth
-              .currentUser
-              ?.userMetadata?['avatar_url'],
+              .instance.client.auth.currentUser?.userMetadata?['avatar_url'],
           isLoggedIn: _isLoggedIn,
         );
       },

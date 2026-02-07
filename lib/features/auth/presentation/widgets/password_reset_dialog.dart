@@ -50,7 +50,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                     child: Text(
                       AppLocalizations.of(
                         context,
-                      )!.passwordResetEmailSent(state.email),
+                      )!
+                          .passwordResetEmailSent(state.email),
                     ),
                   ),
                 ],
@@ -89,7 +90,7 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(alpha: 0.1),
+                        color: theme.colorScheme.primary.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -163,9 +164,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
 
                     // Cancel button
                     TextButton(
-                      onPressed: isLoading
-                          ? null
-                          : () => Navigator.pop(context),
+                      onPressed:
+                          isLoading ? null : () => Navigator.pop(context),
                       child: Text(AppLocalizations.of(context)!.cancel),
                     ),
                   ],
@@ -185,8 +185,8 @@ class _PasswordResetDialogState extends State<PasswordResetDialog> {
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
-        PasswordResetRequested(email: _emailController.text.trim()),
-      );
+            PasswordResetRequested(email: _emailController.text.trim()),
+          );
     }
   }
 }
