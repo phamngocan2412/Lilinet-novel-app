@@ -11,15 +11,43 @@ import '../../../comments/presentation/widgets/comment_item.dart';
 import '../../../comments/presentation/widgets/comment_sort_tabs.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 
-class PlayerCommentsSection extends StatelessWidget {
+class PlayerCommentsSection extends StatefulWidget {
   final String mediaId;
 
   const PlayerCommentsSection({super.key, required this.mediaId});
 
   @override
+  State<PlayerCommentsSection> createState() => _PlayerCommentsSectionState();
+}
+
+class _PlayerCommentsSectionState extends State<PlayerCommentsSection> {
+  late final CommentCubit _commentCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _commentCubit = GetIt.I<CommentCubit>();
+    _commentCubit.loadComments(widget.mediaId);
+  }
+
+  @override
+  void didUpdateWidget(PlayerCommentsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mediaId != widget.mediaId) {
+      _commentCubit.loadComments(widget.mediaId);
+    }
+  }
+
+  @override
+  void dispose() {
+    _commentCubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetIt.I<CommentCubit>()..loadComments(mediaId),
+    return BlocProvider.value(
+      value: _commentCubit,
       child: const PlayerCommentsView(),
     );
   }

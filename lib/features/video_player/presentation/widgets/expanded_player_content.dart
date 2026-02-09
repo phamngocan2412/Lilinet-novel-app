@@ -57,9 +57,15 @@ class ExpandedPlayerContent extends StatelessWidget {
                       ...contentChildren,
                       const SizedBox(height: 24),
                       // Comments section first (above recommendations)
-                      PlayerCommentsSection(
-                        mediaId: state.mediaId ?? 'unknown',
-                      ),
+                      if (state.mediaId != null)
+                        PlayerCommentsSection(
+                          mediaId: state.mediaId!,
+                        ),
+                      if (state.mediaId == null)
+                        const Text(
+                          'Comments will appear once the video loads.',
+                          style: TextStyle(color: Colors.white54),
+                        ),
                       const SizedBox(height: 24),
                       if (state.movie?.recommendations != null &&
                           state.movie!.recommendations!.isNotEmpty) ...[
