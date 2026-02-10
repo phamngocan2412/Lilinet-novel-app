@@ -87,7 +87,8 @@ class SecureInterceptor extends Interceptor {
           final headers = response.headers.map;
           if (headers.isNotEmpty) {
             final sanitizedHeaders = SecurityUtils.sanitizeData(headers);
-            _log('Error Response Headers: $sanitizedHeaders', name: 'SecureLogger');
+            _log('Error Response Headers: $sanitizedHeaders',
+                name: 'SecureLogger');
           }
 
           final data = response.data;
