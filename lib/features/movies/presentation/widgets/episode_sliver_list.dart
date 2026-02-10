@@ -23,8 +23,7 @@ class EpisodeSliverList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Optimization: Create a map for O(1) lookup
-    // This avoids O(N*M) complexity where N is episodes count and M is history size
+    // Optimization: Create a map for O(1) access to watch progress
     final progressMap = {
       for (final p in watchProgress)
         if (p.mediaId == mediaId && p.episodeId != null) p.episodeId!: p
