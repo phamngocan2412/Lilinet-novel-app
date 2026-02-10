@@ -185,6 +185,7 @@ class _PlayerCommentsViewState extends State<PlayerCommentsView>
                     )
                   else
                     ListView.separated(
+                      controller: _scrollController,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: comments.length,
