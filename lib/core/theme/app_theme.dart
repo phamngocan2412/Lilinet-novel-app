@@ -100,7 +100,7 @@ class AppTheme {
         textColor: AppColors.lightTextPrimary,
         contentPadding: EdgeInsets.symmetric(horizontal: 16),
       ),
-      dialogTheme: const DialogThemeData(
+      dialogTheme: const DialogTheme(
         shape: RoundedRectangleBorder(
           borderRadius:
               BorderRadius.all(Radius.circular(AppBorderRadius.xlarge)),
@@ -159,7 +159,7 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.darkBackground,
-        indicatorColor: AppColors.netflixRed.withValues(alpha: 0.2),
+        indicatorColor: AppColors.netflixRed.withOpacity(0.2),
         labelTextStyle: MaterialStateProperty.all(
           const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
         ),
@@ -170,7 +170,7 @@ class AppTheme {
           return const IconThemeData(color: AppColors.darkTextTertiary);
         }),
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AppColors.darkSurface,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -216,7 +216,7 @@ class AppTheme {
           elevation: 0,
         ),
       ),
-      dialogTheme: const DialogThemeData(
+      dialogTheme: const DialogTheme(
         shape: RoundedRectangleBorder(
           borderRadius:
               BorderRadius.all(Radius.circular(AppBorderRadius.xlarge)),
@@ -263,7 +263,7 @@ class AppTheme {
           bodyMedium: GoogleFonts.outfit(fontSize: 14, color: bodyColor),
           bodySmall: GoogleFonts.outfit(
             fontSize: 12,
-            color: bodyColor.withValues(alpha: 0.7),
+            color: bodyColor.withOpacity(0.7),
           ),
         )
         .apply(bodyColor: bodyColor, displayColor: displayColor);

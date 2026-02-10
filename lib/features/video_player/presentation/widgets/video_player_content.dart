@@ -602,7 +602,43 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
                 else
                   SizedBox(
                     height: 250 > widget.height ? widget.height : 250,
-                    child: _buildVideoPlayer(),
+                    child: Stack(
+                      children: [
+                        _buildVideoPlayer(),
+                        if (_isOffline)
+                          Container(
+                            color: Colors.black.withOpacity(0.7),
+                            child: const Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.wifi_off_rounded,
+                                    color: Colors.white,
+                                    size: 48,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'No Internet Connection',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Text(
+                                    'Waiting for network...',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
 
                 // Expanded Content Area - Only render when needed to prevent

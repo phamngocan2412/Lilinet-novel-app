@@ -136,27 +136,90 @@ class _PlayerCommentsViewState extends State<PlayerCommentsView>
             final expandedReplies = loadedState.expandedReplies;
             final likedCommentIds = loadedState.likedCommentIds;
 
-            return SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!
-                            .commentsCount(comments.length),
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!
+                          .commentsCount(comments.length),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
-                      CommentSortTabs(
-                        currentSort: sortType,
-                        onSortChanged: (type) {
-                          context.read<CommentCubit>().changeSortType(type);
+                    ),
+                    CommentSortTabs(
+                      currentSort: sortType,
+                      onSortChanged: (type) {
+                        context.read<CommentCubit>().changeSortType(type);
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Divider(height: 1, color: Colors.white24),
+                const SizedBox(height: 12),
+                if (comments.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Text(
+                        AppLocalizations.of(context)!.noCommentsYet,
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  )
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: comments.length,
+                    separatorBuilder: (_, i) =>
+                        const Divider(height: 1, color: Colors.white12),
+                    itemBuilder: (context, index) {
+                      final comment = comments[index];
+                      final isExpanded = expandedReplies.containsKey(
+                        comment.id,
+                      );
+                      return CommentItem(
+                        comment: comment.copyWith(
+                          replies: isExpanded
+                              ? (expandedReplies[comment.id] ?? [])
+                              : [],
+                        ),
+                        onLike: () {
+                          context.read<CommentCubit>().likeComment(
+                                comment.id,
+                              );
+                        },
+                        onDislike: () {},
+                        onReply: () {
+                          _showReplyDialog(
+                            context,
+                            comment.id,
+                            comment.userName,
+                          );
+                        },
+                        onToggleReplies: () {
+                          context.read<CommentCubit>().toggleReplies(
+                                comment.id,
+                              );
+                        },
+                        isRepliesExpanded: isExpanded,
+                        isLiked: likedCommentIds.contains(comment.id),
+                        onReplyLike: (replyId) {
+                          context.read<CommentCubit>().likeComment(replyId);
+                        },
+                        onReplyReply: (replyId, userName) {
+                          _showReplyDialog(context, replyId, userName);
+                        },
+                        onLoadMoreReplies: () {
+                          context.read<CommentCubit>().toggleReplies(
+                                comment.id,
+                              );
                         },
                       ),
                     ],
