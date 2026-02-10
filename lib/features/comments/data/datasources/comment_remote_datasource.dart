@@ -43,7 +43,9 @@ class SupabaseCommentDataSource implements CommentRemoteDataSource {
           callback: (payload) {
             final record = payload.newRecord.isNotEmpty
                 ? payload.newRecord
-                : (payload.oldRecord.isNotEmpty ? payload.oldRecord : <String, dynamic>{});
+                : (payload.oldRecord.isNotEmpty
+                    ? payload.oldRecord
+                    : <String, dynamic>{});
             controller.add([record]);
           },
         )
@@ -66,10 +68,8 @@ class SupabaseCommentDataSource implements CommentRemoteDataSource {
           .order('created_at', ascending: false);
 
       // Get unique user IDs
-      final userIds = response
-          .map((r) => r['user_id'] as String)
-          .toSet()
-          .toList();
+      final userIds =
+          response.map((r) => r['user_id'] as String).toSet().toList();
 
       // Fetch profiles separately
       final profilesResponse = await _supabase
@@ -204,10 +204,8 @@ class SupabaseCommentDataSource implements CommentRemoteDataSource {
       if (response.isEmpty) return [];
 
       // Get unique user IDs
-      final userIds = response
-          .map((r) => r['user_id'] as String)
-          .toSet()
-          .toList();
+      final userIds =
+          response.map((r) => r['user_id'] as String).toSet().toList();
 
       // Fetch profiles separately
       final profilesResponse = await _supabase
@@ -254,10 +252,8 @@ class SupabaseCommentDataSource implements CommentRemoteDataSource {
       if (response.isEmpty) return [];
 
       // Get unique user IDs
-      final userIds = response
-          .map((r) => r['user_id'] as String)
-          .toSet()
-          .toList();
+      final userIds =
+          response.map((r) => r['user_id'] as String).toSet().toList();
 
       // Fetch profiles separately
       final profilesResponse = await _supabase
@@ -304,9 +300,8 @@ class SupabaseCommentDataSource implements CommentRemoteDataSource {
 
       if (commentsResponse.isEmpty) return [];
 
-      final commentIds = commentsResponse
-          .map((c) => c['id'] as String)
-          .toList();
+      final commentIds =
+          commentsResponse.map((c) => c['id'] as String).toList();
 
       // Get likes for these comments by current user
       final likesResponse = await _supabase
@@ -324,13 +319,37 @@ class SupabaseCommentDataSource implements CommentRemoteDataSource {
 
   CommentModel _mapToCommentModel(Map<String, dynamic> item) {
     final profile = item['profiles'] as Map<String, dynamic>?;
+    final userId = item['user_id'] as String?;
+
+    // Get user name with better fallback
+    String userName = (profile?['user_name'] as String?) ?? '';
+    if (userName.isEmpty) {
+      // Try auth metadata as second source (for current user)
+      final currentUser = _supabase.auth.currentUser;
+      if (currentUser != null && userId == currentUser.id) {
+        userName = currentUser.userMetadata?['display_name'] as String? ??
+            currentUser.userMetadata?['name'] as String? ??
+            currentUser.email?.split('@').first ??
+            'Anonymous';
+      } else {
+        userName = 'Anonymous';
+      }
+    }
+
+    // Get avatar URL with fallback
+    String? avatarUrl = profile?['avatar_url'] as String?;
+    if (avatarUrl == null || avatarUrl.isEmpty) {
+      // Generate avatar with user's actual name
+      final encodedName = Uri.encodeComponent(userName);
+      avatarUrl =
+          'https://ui-avatars.com/api/?name=$encodedName&background=random';
+    }
 
     return CommentModel(
       id: item['id'],
       videoId: item['video_id'],
-      userName: profile?['user_name'] ?? 'Unknown',
-      avatarUrl:
-          profile?['avatar_url'] ?? 'https://ui-avatars.com/api/?name=User',
+      userName: userName,
+      avatarUrl: avatarUrl,
       content: item['content'],
       likes: item['likes'] ?? 0,
       dislikes: item['dislikes'] ?? 0,

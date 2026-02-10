@@ -37,6 +37,8 @@ class _AuthDialogState extends State<AuthDialog> {
     final l10n = AppLocalizations.of(context)!;
     return BlocConsumer<AuthBloc, AuthState>(
       listener: (context, state) {
+        if (!context.mounted) return;
+
         if (state is Authenticated) {
           Navigator.pop(context);
           widget.onLoginSuccess?.call();
@@ -170,7 +172,8 @@ class _AuthDialogState extends State<AuthDialog> {
                       child: FilledButton(
                         onPressed: isLoading ? null : _handleSubmit,
                         child: isLoading
-                            ? const LoadingIndicator(size: 20, color: Colors.white)
+                            ? const LoadingIndicator(
+                                size: 20, color: Colors.white)
                             : Text(_isLogin ? l10n.login : l10n.signUp),
                       ),
                     ),
