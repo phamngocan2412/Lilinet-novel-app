@@ -3,7 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lilinet_app/l10n/app_localizations.dart';
 import 'package:get_it/get_it.dart';
 import '../../../../core/services/error_handler_service.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../core/widgets/cached_image.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 import '../../presentation/manager/comment_cubit.dart';
 import '../../presentation/manager/comment_state.dart';
@@ -90,6 +92,12 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
 
   bool get _isLoggedIn => Supabase.instance.client.auth.currentUser != null;
 
+  String? get _userName {
+    final user = Supabase.instance.client.auth.currentUser;
+    return user?.userMetadata?['display_name'] as String? ??
+        user?.email?.split('@').first;
+  }
+
   void _showLoginPrompt() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -158,9 +166,9 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
     if (_replyingToCommentId == null) return;
 
     context.read<CommentCubit>().addComment(
-      _replyController.text,
-      parentId: _replyingToCommentId,
-    );
+          _replyController.text,
+          parentId: _replyingToCommentId,
+        );
     _cancelReply();
   }
 
@@ -347,96 +355,90 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
                           ],
                         ),
                       ),
-                      loaded:
-                          (
-                            comments,
-                            sortType,
-                            expandedReplies,
-                            isAdding,
-                            totalComments, // totalComments
-                            likedCommentIds,
-                            totalLikes, // totalLikes
-                          ) {
-                            if (comments.isEmpty) {
-                              return Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(24),
-                                      decoration: BoxDecoration(
-                                        color: theme.colorScheme.primary
-                                            .withValues(alpha: 0.1),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.chat_bubble_outline,
-                                        size: 48,
-                                        color: theme.colorScheme.primary,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 24),
-                                    Text(
-                                      l10n.noComments,
-                                      style: theme.textTheme.titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      l10n.beFirstToComment,
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                            color: theme
-                                                .textTheme
-                                                .bodySmall
-                                                ?.color,
-                                          ),
-                                    ),
-                                  ],
+                      loaded: (
+                        comments,
+                        sortType,
+                        expandedReplies,
+                        isAdding,
+                        totalComments, // totalComments
+                        likedCommentIds,
+                        totalLikes, // totalLikes
+                      ) {
+                        if (comments.isEmpty) {
+                          return Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primary
+                                        .withValues(alpha: 0.1),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.chat_bubble_outline,
+                                    size: 48,
+                                    color: theme.colorScheme.primary,
+                                  ),
                                 ),
-                              );
-                            }
-
-                            return ListView.builder(
-                              cacheExtent: 300,
-                              controller: scrollController,
-                              itemCount: comments.length,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              itemBuilder: (context, index) {
-                                final comment = comments[index];
-                                final isExpanded = expandedReplies.containsKey(
-                                  comment.id,
-                                );
-
-                                return CommentItem(
-                                  comment: comment.copyWith(
-                                    replies: isExpanded
-                                        ? (expandedReplies[comment.id] ?? [])
-                                        : [],
+                                const SizedBox(height: 24),
+                                Text(
+                                  l10n.noComments,
+                                  style: theme.textTheme.titleLarge?.copyWith(
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  onLike: () => _handleLike(comment.id),
-                                  onDislike: () => _handleDislike(comment.id),
-                                  onReply: () => _handleReply(
-                                    comment.id,
-                                    comment.userName,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  l10n.beFirstToComment,
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.textTheme.bodySmall?.color,
                                   ),
-                                  onToggleReplies: () => context
-                                      .read<CommentCubit>()
-                                      .toggleReplies(comment.id),
-                                  isRepliesExpanded: isExpanded,
-                                  isLiked: likedCommentIds.contains(comment.id),
-                                  onReplyLike: _handleLike,
-                                  onReplyReply: _handleReply,
-                                  onLoadMoreReplies: () => context
-                                      .read<CommentCubit>()
-                                      .toggleReplies(comment.id),
-                                  likedReplyIds: likedCommentIds,
-                                );
-                              },
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          cacheExtent: 300,
+                          controller: scrollController,
+                          itemCount: comments.length,
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          itemBuilder: (context, index) {
+                            final comment = comments[index];
+                            final isExpanded = expandedReplies.containsKey(
+                              comment.id,
+                            );
+
+                            return CommentItem(
+                              comment: comment.copyWith(
+                                replies: isExpanded
+                                    ? (expandedReplies[comment.id] ?? [])
+                                    : [],
+                              ),
+                              onLike: () => _handleLike(comment.id),
+                              onDislike: () => _handleDislike(comment.id),
+                              onReply: () => _handleReply(
+                                comment.id,
+                                comment.userName,
+                              ),
+                              onToggleReplies: () => context
+                                  .read<CommentCubit>()
+                                  .toggleReplies(comment.id),
+                              isRepliesExpanded: isExpanded,
+                              isLiked: likedCommentIds.contains(comment.id),
+                              onReplyLike: _handleLike,
+                              onReplyReply: _handleReply,
+                              onLoadMoreReplies: () => context
+                                  .read<CommentCubit>()
+                                  .toggleReplies(comment.id),
+                              likedReplyIds: likedCommentIds,
                             );
                           },
+                        );
+                      },
                     );
                   },
                 ),
@@ -473,24 +475,50 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
     );
   }
 
+  /// Builds the avatar for the reply input using [AppCachedImage] with shimmer.
+  Widget _buildReplyAvatar() {
+    final user = Supabase.instance.client.auth.currentUser;
+    final userName = user?.userMetadata?['display_name'] as String? ??
+        user?.userMetadata?['name'] as String? ??
+        user?.email?.split('@').first ??
+        'Anonymous';
+    final avatarUrl = user?.userMetadata?['avatar_url'] as String? ??
+        'https://ui-avatars.com/api/?name=${Uri.encodeComponent(userName)}';
+
+    final shimmerBase = Theme.of(context).brightness == Brightness.dark
+        ? Colors.grey[800]!
+        : Colors.grey[300]!;
+    final shimmerHighlight = Theme.of(context).brightness == Brightness.dark
+        ? Colors.grey[700]!
+        : Colors.grey[100]!;
+
+    return CircleAvatar(
+      radius: 18,
+      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+      child: ClipOval(
+        child: AppCachedImage(
+          imageUrl: avatarUrl,
+          width: 36,
+          height: 36,
+          fit: BoxFit.cover,
+          memCacheWidth: 72,
+          placeholder: Shimmer.fromColors(
+            baseColor: shimmerBase,
+            highlightColor: shimmerHighlight,
+            child: Container(width: 36, height: 36, color: shimmerBase),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildReplyInput() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          CircleAvatar(
-            radius: 18,
-            backgroundImage: NetworkImage(
-              Supabase
-                      .instance
-                      .client
-                      .auth
-                      .currentUser
-                      ?.userMetadata?['avatar_url'] ??
-                  'https://ui-avatars.com/api/?name=User',
-            ),
-          ),
+          _buildReplyAvatar(),
           const SizedBox(width: 12),
           Expanded(
             child: Container(
@@ -564,12 +592,7 @@ class _CommentBottomSheetViewState extends State<_CommentBottomSheetView> {
           onSend: (content) {
             context.read<CommentCubit>().addComment(content);
           },
-          userAvatar: Supabase
-              .instance
-              .client
-              .auth
-              .currentUser
-              ?.userMetadata?['avatar_url'],
+          userName: _userName,
           isLoggedIn: _isLoggedIn,
         );
       },

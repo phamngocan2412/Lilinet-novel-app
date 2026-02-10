@@ -11,15 +11,43 @@ import '../../../comments/presentation/widgets/comment_item.dart';
 import '../../../comments/presentation/widgets/comment_sort_tabs.dart';
 import '../../../../core/widgets/loading_indicator.dart';
 
-class PlayerCommentsSection extends StatelessWidget {
+class PlayerCommentsSection extends StatefulWidget {
   final String mediaId;
 
   const PlayerCommentsSection({super.key, required this.mediaId});
 
   @override
+  State<PlayerCommentsSection> createState() => _PlayerCommentsSectionState();
+}
+
+class _PlayerCommentsSectionState extends State<PlayerCommentsSection> {
+  late final CommentCubit _commentCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _commentCubit = GetIt.I<CommentCubit>();
+    _commentCubit.loadComments(widget.mediaId);
+  }
+
+  @override
+  void didUpdateWidget(PlayerCommentsSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mediaId != widget.mediaId) {
+      _commentCubit.loadComments(widget.mediaId);
+    }
+  }
+
+  @override
+  void dispose() {
+    _commentCubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetIt.I<CommentCubit>()..loadComments(mediaId),
+    return BlocProvider.value(
+      value: _commentCubit,
       child: const PlayerCommentsView(),
     );
   }
@@ -32,14 +60,19 @@ class PlayerCommentsView extends StatefulWidget {
   State<PlayerCommentsView> createState() => _PlayerCommentsViewState();
 }
 
-class _PlayerCommentsViewState extends State<PlayerCommentsView> {
+class _PlayerCommentsViewState extends State<PlayerCommentsView>
+    with AutomaticKeepAliveClientMixin {
   bool get _isLoggedIn => Supabase.instance.client.auth.currentUser != null;
   final ScrollController _scrollController = ScrollController();
   String? _lastAddedCommentId;
 
-  String? get _userAvatar {
+  @override
+  bool get wantKeepAlive => true;
+
+  String? get _userName {
     final user = Supabase.instance.client.auth.currentUser;
-    return user?.userMetadata?['avatar_url'] as String?;
+    return user?.userMetadata?['display_name'] as String? ??
+        user?.email?.split('@').first;
   }
 
   @override
@@ -60,6 +93,7 @@ class _PlayerCommentsViewState extends State<PlayerCommentsView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin
     return BlocConsumer<CommentCubit, CommentState>(
       listener: (context, state) {
         state.mapOrNull(
@@ -133,7 +167,7 @@ class _PlayerCommentsViewState extends State<PlayerCommentsView> {
                   // Comment Input at the top
                   CommentInput(
                     isLoggedIn: _isLoggedIn,
-                    userAvatar: _userAvatar,
+                    userName: _userName,
                     isSending: loadedState.isAddingComment,
                     onSend: (text) {
                       context.read<CommentCubit>().addComment(text);

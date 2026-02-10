@@ -35,11 +35,24 @@ class AppTheme {
         ),
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.darkBackground, // Black nav bar
-        selectedItemColor: AppColors.netflixRed, // Red active item
-        unselectedItemColor: AppColors.darkTextTertiary,
+        backgroundColor: AppColors.lightSurface,
+        selectedItemColor: AppColors.brandPrimary,
+        unselectedItemColor: AppColors.lightTextTertiary,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: AppColors.lightSurface,
+        indicatorColor: AppColors.brandPrimary.withValues(alpha: 0.2),
+        labelTextStyle: MaterialStateProperty.all(
+          const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+        ),
+        iconTheme: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return const IconThemeData(color: AppColors.brandPrimary);
+          }
+          return const IconThemeData(color: AppColors.lightTextTertiary);
+        }),
       ),
       cardTheme: CardThemeData(
         color: AppColors.lightSurface,
@@ -71,7 +84,6 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.netflixRed, width: 1.5),
         ),
       ),
-
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           backgroundColor: AppColors.brandPrimary,
@@ -90,7 +102,8 @@ class AppTheme {
       ),
       dialogTheme: const DialogThemeData(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppBorderRadius.xlarge)),
+          borderRadius:
+              BorderRadius.all(Radius.circular(AppBorderRadius.xlarge)),
         ),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
@@ -205,7 +218,8 @@ class AppTheme {
       ),
       dialogTheme: const DialogThemeData(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(AppBorderRadius.xlarge)),
+          borderRadius:
+              BorderRadius.all(Radius.circular(AppBorderRadius.xlarge)),
         ),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
