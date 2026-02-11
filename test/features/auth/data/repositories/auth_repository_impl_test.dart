@@ -21,6 +21,8 @@ void main() {
   const tPassword = 'password123';
   const tSensitiveError = 'Database connection failed: 192.168.1.5';
 
+  const tGenericError = 'An unexpected error occurred. Please try again later.';
+
   group('signInWithEmail', () {
     test(
       'should return sanitized Failure when a generic Exception occurs',
@@ -42,7 +44,7 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server('Exception: $tSensitiveError'))),
+          equals(const Left(Failure.server(tGenericError))),
         );
       },
     );
@@ -70,7 +72,7 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server('Exception: $tSensitiveError'))),
+          equals(const Left(Failure.server(tGenericError))),
         );
       },
     );
@@ -91,7 +93,7 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server('Exception: $tSensitiveError'))),
+          equals(const Left(Failure.server(tGenericError))),
         );
       },
     );
@@ -112,13 +114,7 @@ void main() {
         // Assert
         expect(
           result,
-          equals(
-            const Left(
-              Failure.server(
-                'Đã xảy ra lỗi không mong muốn khi gửi email đặt lại mật khẩu.',
-              ),
-            ),
-          ),
+          equals(const Left(Failure.server(tGenericError))),
         );
       },
     );
