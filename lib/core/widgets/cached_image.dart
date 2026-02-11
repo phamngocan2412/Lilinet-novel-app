@@ -65,11 +65,7 @@ class AppCachedImage extends StatelessWidget {
 
       int? optimalMemCacheHeight = _calculateOptimalHeight(devicePixelRatio);
 
-      return _buildImage(
-        context,
-        optimalMemCacheWidth,
-        optimalMemCacheHeight,
-      );
+      return _buildImage(context, optimalMemCacheWidth, optimalMemCacheHeight);
     }
 
     return LayoutBuilder(
@@ -78,8 +74,8 @@ class AppCachedImage extends StatelessWidget {
         int? optimalMemCacheWidth;
 
         if (constraints.hasBoundedWidth) {
-          optimalMemCacheWidth =
-              (constraints.maxWidth * devicePixelRatio).toInt();
+          optimalMemCacheWidth = (constraints.maxWidth * devicePixelRatio)
+              .toInt();
         } else {
           optimalMemCacheWidth = 700; // Fallback
         }

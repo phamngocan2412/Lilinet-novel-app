@@ -21,14 +21,15 @@ extension RepositoryHelper on Object {
       if (message.contains('JWT') ||
           message.contains('auth') ||
           e.code == '42501') {
-        return const Left(
-          Failure.server('Authentication required'),
-        );
+        return const Left(Failure.server('Authentication required'));
       }
       // PostgrestException messages are usually safe from Supabase (e.g. "User not found")
       // but logging it is good practice.
-      developer.log('Supabase error: $message',
-          error: e, name: 'RepositoryHelper');
+      developer.log(
+        'Supabase error: $message',
+        error: e,
+        name: 'RepositoryHelper',
+      );
       return Left(Failure.server(message));
     } on SocketException {
       return const Left(Failure.network('No internet connection'));
@@ -50,21 +51,21 @@ extension RepositoryHelper on Object {
           errorStr.contains('permission') ||
           errorStr.contains('jwt') ||
           errorStr.contains('auth')) {
-        return const Left(
-          Failure.server('Authentication required'),
-        );
+        return const Left(Failure.server('Authentication required'));
       }
 
       // Return generic message instead of raw exception string
-      return const Left(Failure.server(
-          'An unexpected error occurred. Please try again later.'));
+      return const Left(
+        Failure.server('An unexpected error occurred. Please try again later.'),
+      );
     }
   }
 
   Failure _mapDioErrorToFailure(DioException error) {
     // Log the details securely
-    final sanitizedMessage =
-        SecurityUtils.sanitizeUrlInString(error.message ?? 'Unknown error');
+    final sanitizedMessage = SecurityUtils.sanitizeUrlInString(
+      error.message ?? 'Unknown error',
+    );
     developer.log(
       'Dio error: $sanitizedMessage',
       error: error,

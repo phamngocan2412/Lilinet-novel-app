@@ -55,11 +55,11 @@ class _UpdateProfileDialogState extends State<UpdateProfileDialog> {
 
   void _handleSubmit() {
     context.read<AuthBloc>().add(
-          UpdateProfileRequested(
-            displayName: _nameController.text.trim(),
-            avatarUrl: _avatarController.text.trim(),
-          ),
-        );
+      UpdateProfileRequested(
+        displayName: _nameController.text.trim(),
+        avatarUrl: _avatarController.text.trim(),
+      ),
+    );
   }
 
   @override
@@ -81,10 +81,7 @@ class _UpdateProfileDialogState extends State<UpdateProfileDialog> {
           );
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },
@@ -92,8 +89,9 @@ class _UpdateProfileDialogState extends State<UpdateProfileDialog> {
         final isLoading = state is AuthLoading;
 
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -133,8 +131,9 @@ class _UpdateProfileDialogState extends State<UpdateProfileDialog> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed:
-                            isLoading ? null : () => Navigator.pop(context),
+                        onPressed: isLoading
+                            ? null
+                            : () => Navigator.pop(context),
                         child: Text(l10n.cancel),
                       ),
                       const SizedBox(width: 8),

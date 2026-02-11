@@ -97,11 +97,10 @@ class SettingsView extends StatelessWidget {
                           value: settings.downloadOverWifiOnly,
                           onChanged: (value) {
                             context.read<SettingsBloc>().add(
-                                  UpdateSettings(
-                                    settings.copyWith(
-                                        downloadOverWifiOnly: value),
-                                  ),
-                                );
+                              UpdateSettings(
+                                settings.copyWith(downloadOverWifiOnly: value),
+                              ),
+                            );
                           },
                         ),
                         const Divider(height: 1),
@@ -125,10 +124,10 @@ class SettingsView extends StatelessWidget {
                           value: settings.showNotifications,
                           onChanged: (value) {
                             context.read<SettingsBloc>().add(
-                                  UpdateSettings(
-                                    settings.copyWith(showNotifications: value),
-                                  ),
-                                );
+                              UpdateSettings(
+                                settings.copyWith(showNotifications: value),
+                              ),
+                            );
                           },
                         ),
                       ],
@@ -154,9 +153,7 @@ class SettingsView extends StatelessWidget {
                         label: Text(l10n.resetAllSettings),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: colorScheme.error,
-                          side: BorderSide(
-                            color: colorScheme.error,
-                          ),
+                          side: BorderSide(color: colorScheme.error),
                           padding: const EdgeInsets.symmetric(
                             vertical: AppSpacing.lg,
                           ),

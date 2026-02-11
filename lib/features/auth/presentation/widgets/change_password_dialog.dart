@@ -36,10 +36,8 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
-            ChangePasswordRequested(
-              newPassword: _passwordController.text.trim(),
-            ),
-          );
+        ChangePasswordRequested(newPassword: _passwordController.text.trim()),
+      );
     }
   }
 
@@ -62,10 +60,7 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
           );
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },
@@ -73,8 +68,9 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
         final isLoading = state is AuthLoading;
 
         return Dialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Form(
@@ -144,8 +140,9 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
-                        onPressed:
-                            isLoading ? null : () => Navigator.pop(context),
+                        onPressed: isLoading
+                            ? null
+                            : () => Navigator.pop(context),
                         child: Text(l10n.cancel),
                       ),
                       const SizedBox(width: 8),

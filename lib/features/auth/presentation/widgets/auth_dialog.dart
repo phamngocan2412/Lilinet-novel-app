@@ -45,16 +45,14 @@ class _AuthDialogState extends State<AuthDialog> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                  l10n.welcomeUser(state.user.displayName ?? state.user.email)),
+                l10n.welcomeUser(state.user.displayName ?? state.user.email),
+              ),
               backgroundColor: Colors.green,
             ),
           );
         } else if (state is AuthError) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-              backgroundColor: Colors.red,
-            ),
+            SnackBar(content: Text(state.message), backgroundColor: Colors.red),
           );
         }
       },
@@ -87,8 +85,9 @@ class _AuthDialogState extends State<AuthDialog> {
                             l10n.login,
                             style: TextStyle(
                               fontWeight: _isLogin ? FontWeight.bold : null,
-                              decoration:
-                                  _isLogin ? TextDecoration.underline : null,
+                              decoration: _isLogin
+                                  ? TextDecoration.underline
+                                  : null,
                             ),
                           ),
                         ),
@@ -99,8 +98,9 @@ class _AuthDialogState extends State<AuthDialog> {
                             l10n.signUp,
                             style: TextStyle(
                               fontWeight: !_isLogin ? FontWeight.bold : null,
-                              decoration:
-                                  !_isLogin ? TextDecoration.underline : null,
+                              decoration: !_isLogin
+                                  ? TextDecoration.underline
+                                  : null,
                             ),
                           ),
                         ),
@@ -112,7 +112,8 @@ class _AuthDialogState extends State<AuthDialog> {
                       maxLength: 30,
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
-                            RegExp(r'[a-zA-Z0-9_.]')),
+                          RegExp(r'[a-zA-Z0-9_.]'),
+                        ),
                       ],
                       decoration: InputDecoration(
                         labelText: l10n.username,
@@ -173,7 +174,9 @@ class _AuthDialogState extends State<AuthDialog> {
                         onPressed: isLoading ? null : _handleSubmit,
                         child: isLoading
                             ? const LoadingIndicator(
-                                size: 20, color: Colors.white)
+                                size: 20,
+                                color: Colors.white,
+                              )
                             : Text(_isLogin ? l10n.login : l10n.signUp),
                       ),
                     ),
@@ -211,12 +214,12 @@ class _AuthDialogState extends State<AuthDialog> {
   void _handleSubmit() {
     if (_formKey.currentState!.validate()) {
       context.read<AuthBloc>().add(
-            AuthSubmitted(
-              username: _usernameController.text.trim(),
-              password: _passwordController.text,
-              isLogin: _isLogin,
-            ),
-          );
+        AuthSubmitted(
+          username: _usernameController.text.trim(),
+          password: _passwordController.text,
+          isLogin: _isLogin,
+        ),
+      );
     }
   }
 }

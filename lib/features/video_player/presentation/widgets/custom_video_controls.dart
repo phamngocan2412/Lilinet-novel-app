@@ -149,9 +149,7 @@ class _CustomVideoControlsState extends State<CustomVideoControls> {
             GestureDetector(
               onTap: _toggleControls,
               behavior: HitTestBehavior.translucent,
-              child: Container(
-                color: Colors.transparent,
-              ),
+              child: Container(color: Colors.transparent),
             ),
             if (_controlsVisible) ...[
               // Top Bar (Minimize Button)
@@ -504,8 +502,9 @@ class _CustomVideoControlsState extends State<CustomVideoControls> {
                     color: isSelected ? errorColor : colorScheme.onSurface,
                   ),
                 ),
-                trailing:
-                    isSelected ? Icon(Icons.check, color: errorColor) : null,
+                trailing: isSelected
+                    ? Icon(Icons.check, color: errorColor)
+                    : null,
                 onTap: () {
                   widget.onSpeedChanged(speed);
                   Navigator.pop(context);

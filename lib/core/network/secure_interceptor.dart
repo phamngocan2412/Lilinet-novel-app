@@ -10,8 +10,9 @@ class SecureInterceptor extends Interceptor {
   final LogCallback _log;
 
   SecureInterceptor({LogCallback? logCallback})
-      : _log = logCallback ??
-            ((message, {name = ''}) => developer.log(message, name: name));
+    : _log =
+          logCallback ??
+          ((message, {name = ''}) => developer.log(message, name: name));
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
@@ -36,8 +37,9 @@ class SecureInterceptor extends Interceptor {
             final sanitized = _sanitizeData(data);
             if (sanitized is Map || sanitized is List) {
               try {
-                final prettyJson =
-                    const JsonEncoder.withIndent('  ').convert(sanitized);
+                final prettyJson = const JsonEncoder.withIndent(
+                  '  ',
+                ).convert(sanitized);
                 _log('Request Body:\n$prettyJson', name: 'SecureLogger');
               } catch (e) {
                 _log('Request Body: $sanitized', name: 'SecureLogger');
@@ -58,8 +60,10 @@ class SecureInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
       try {
-        _log('Response: ${response.statusCode} ${response.requestOptions.uri}',
-            name: 'SecureLogger');
+        _log(
+          'Response: ${response.statusCode} ${response.requestOptions.uri}',
+          name: 'SecureLogger',
+        );
 
         // Log Headers (sanitized)
         final headers = response.headers.map;
@@ -83,10 +87,7 @@ class SecureInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
       try {
-        _log(
-          'Error: ${err.error} ${err.message}',
-          name: 'SecureLogger',
-        );
+        _log('Error: ${err.error} ${err.message}', name: 'SecureLogger');
 
         final response = err.response;
         if (response != null) {
@@ -98,8 +99,10 @@ class SecureInterceptor extends Interceptor {
           final headers = response.headers.map;
           if (headers.isNotEmpty) {
             final sanitizedHeaders = SecurityUtils.sanitizeData(headers);
-            _log('Error Response Headers: $sanitizedHeaders',
-                name: 'SecureLogger');
+            _log(
+              'Error Response Headers: $sanitizedHeaders',
+              name: 'SecureLogger',
+            );
           }
 
           final data = response.data;
@@ -118,8 +121,9 @@ class SecureInterceptor extends Interceptor {
     final sanitized = SecurityUtils.sanitizeData(data);
     if (sanitized is Map || sanitized is List) {
       try {
-        final prettyJson =
-            const JsonEncoder.withIndent('  ').convert(sanitized);
+        final prettyJson = const JsonEncoder.withIndent(
+          '  ',
+        ).convert(sanitized);
         _log('$label:\n$prettyJson', name: 'SecureLogger');
       } catch (e) {
         _log('$label: $sanitized', name: 'SecureLogger');
@@ -128,5 +132,4 @@ class SecureInterceptor extends Interceptor {
       _log('$label: $sanitized', name: 'SecureLogger');
     }
   }
-
 }

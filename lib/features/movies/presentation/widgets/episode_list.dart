@@ -52,7 +52,7 @@ class _EpisodeListState extends State<EpisodeList> {
   void _updateProgressMap() {
     _progressMap = {
       for (final p in widget.watchProgress)
-        if (p.mediaId == widget.mediaId && p.episodeId != null) p.episodeId!: p
+        if (p.mediaId == widget.mediaId && p.episodeId != null) p.episodeId!: p,
     };
   }
 

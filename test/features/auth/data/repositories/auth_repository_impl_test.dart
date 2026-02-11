@@ -102,8 +102,9 @@ void main() {
       'should return sanitized Failure when a generic Exception occurs',
       () async {
         // Arrange
-        when(() => mockDataSource.sendPasswordResetEmail(any()))
-            .thenThrow(Exception(tSensitiveError));
+        when(
+          () => mockDataSource.sendPasswordResetEmail(any()),
+        ).thenThrow(Exception(tSensitiveError));
 
         // Act
         final result = await repository.sendPasswordResetEmail(tEmail);
@@ -111,8 +112,13 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server(
-              'Đã xảy ra lỗi không mong muốn khi gửi email đặt lại mật khẩu.'))),
+          equals(
+            const Left(
+              Failure.server(
+                'Đã xảy ra lỗi không mong muốn khi gửi email đặt lại mật khẩu.',
+              ),
+            ),
+          ),
         );
       },
     );

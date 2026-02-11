@@ -106,16 +106,17 @@ class _HomePageViewState extends State<HomePageView>
                   message: message,
                   onRetry: () {
                     context.read<TrendingMoviesBloc>().add(
-                          const TrendingMoviesEvent.load(),
-                        );
+                      const TrendingMoviesEvent.load(),
+                    );
                   },
                 ),
               ),
               loaded: (trending, categories) {
                 final trendingMovies = trending.toSet().toList();
                 // Optimization: Pre-calculate cache width for horizontal lists
-                final devicePixelRatio =
-                    MediaQuery.of(context).devicePixelRatio;
+                final devicePixelRatio = MediaQuery.of(
+                  context,
+                ).devicePixelRatio;
                 // final horizontalListMemCacheWidth =
                 //     (130 * devicePixelRatio).toInt();
 
@@ -237,7 +238,8 @@ class _HomePageViewState extends State<HomePageView>
                                           lookupKey = 'Action';
                                         }
 
-                                        final genreId = genres[lookupKey] ??
+                                        final genreId =
+                                            genres[lookupKey] ??
                                             genres[categoryName
                                                 .replaceAll('Movies', '')
                                                 .trim()];

@@ -57,18 +57,20 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
       '🎬 VideoPlayerBloc: PlayVideo event received for ${event.title}',
     );
 
-    emit(state.copyWith(
-      status: VideoPlayerStatus.expanded,
-      episodeId: event.episodeId,
-      mediaId: event.mediaId,
-      title: event.title,
-      posterUrl: event.posterUrl,
-      episodeTitle: event.episodeTitle,
-      startPosition: event.startPosition,
-      mediaType: event.mediaType,
-      movie: event.movie,
-      streamingState: const StreamingState.loading(),
-    ));
+    emit(
+      state.copyWith(
+        status: VideoPlayerStatus.expanded,
+        episodeId: event.episodeId,
+        mediaId: event.mediaId,
+        title: event.title,
+        posterUrl: event.posterUrl,
+        episodeTitle: event.episodeTitle,
+        startPosition: event.startPosition,
+        mediaType: event.mediaType,
+        movie: event.movie,
+        streamingState: const StreamingState.loading(),
+      ),
+    );
 
     await _loadStreamingLinks(
       emit,
@@ -109,11 +111,13 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
         (failure) async {
           debugPrint('❌ Server $tryServer failed: ${failure.message}');
           if (tryServer == servers.last) {
-            emit(state.copyWith(
-              streamingState: const StreamingState.error(
-                'Unable to load video from any server. Please try again.',
+            emit(
+              state.copyWith(
+                streamingState: const StreamingState.error(
+                  'Unable to load video from any server. Please try again.',
+                ),
               ),
-            ));
+            );
           }
         },
         (response) async {
@@ -138,27 +142,35 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
                 headers: selectedLink.headers,
               );
 
-              emit(state.copyWith(
-                streamingState: StreamingState.loaded(
-                  links: response.links,
-                  selectedServer: tryServer,
-                  selectedQuality: selectedLink.quality,
+              emit(
+                state.copyWith(
+                  streamingState: StreamingState.loaded(
+                    links: response.links,
+                    selectedServer: tryServer,
+                    selectedQuality: selectedLink.quality,
+                  ),
+                  currentServer: tryServer,
+                  currentQuality: selectedLink.quality,
                 ),
-                currentServer: tryServer,
-                currentQuality: selectedLink.quality,
-              ));
+              );
             } catch (e) {
               debugPrint('❌ Error playing video: $e');
-              emit(state.copyWith(
-                streamingState: StreamingState.error('Error playing video: $e'),
-              ));
+              emit(
+                state.copyWith(
+                  streamingState: StreamingState.error(
+                    'Error playing video: $e',
+                  ),
+                ),
+              );
             }
           } else {
-            emit(state.copyWith(
-              streamingState: const StreamingState.error(
-                'No streaming links available',
+            emit(
+              state.copyWith(
+                streamingState: const StreamingState.error(
+                  'No streaming links available',
+                ),
               ),
-            ));
+            );
           }
         },
       );
@@ -174,7 +186,7 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
     }
     return [
       preferredServer,
-      ...defaultServers.where((s) => s != preferredServer)
+      ...defaultServers.where((s) => s != preferredServer),
     ];
   }
 
@@ -219,9 +231,7 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
     final currentPosition = _videoPlayerService.player.state.position;
     final provider = state.movie?.provider ?? 'flixhq';
 
-    emit(state.copyWith(
-      streamingState: const StreamingState.loading(),
-    ));
+    emit(state.copyWith(streamingState: const StreamingState.loading()));
 
     await _loadStreamingLinks(
       emit,
@@ -246,9 +256,7 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
 
     final provider = state.movie?.provider ?? 'flixhq';
 
-    emit(state.copyWith(
-      streamingState: const StreamingState.loading(),
-    ));
+    emit(state.copyWith(streamingState: const StreamingState.loading()));
 
     await _loadStreamingLinks(
       emit,
@@ -263,7 +271,8 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
     Emitter<VideoPlayerState> emit,
   ) async {
     debugPrint(
-        '📥 VideoPlayerBloc: Updating movie details for ${event.movie.title}');
+      '📥 VideoPlayerBloc: Updating movie details for ${event.movie.title}',
+    );
     // Only update movie data without triggering playback reset
     emit(state.copyWith(movie: event.movie));
   }
@@ -295,10 +304,12 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
         isQualitySwitch: true,
       );
 
-      emit(state.copyWith(
-        currentQuality: event.quality,
-        streamingState: loadedState.copyWith(selectedQuality: event.quality),
-      ));
+      emit(
+        state.copyWith(
+          currentQuality: event.quality,
+          streamingState: loadedState.copyWith(selectedQuality: event.quality),
+        ),
+      );
     } catch (e) {
       debugPrint('❌ Error switching quality: $e');
     }

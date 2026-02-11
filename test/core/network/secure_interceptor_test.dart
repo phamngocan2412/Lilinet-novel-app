@@ -22,16 +22,15 @@ void main() {
         },
       );
 
-      final options = RequestOptions(
-        path: '/test-endpoint',
-        method: 'GET',
-      );
+      final options = RequestOptions(path: '/test-endpoint', method: 'GET');
 
       final handler = RequestInterceptorHandler();
       interceptor.onRequest(options, handler);
 
-      expect(logs.any((log) => log.contains('Request: GET /test-endpoint')),
-          isTrue);
+      expect(
+        logs.any((log) => log.contains('Request: GET /test-endpoint')),
+        isTrue,
+      );
     });
 
     test('redacts Authorization header', () {
@@ -53,8 +52,9 @@ void main() {
       final handler = RequestInterceptorHandler();
       interceptor.onRequest(options, handler);
 
-      final headerLog =
-          logs.firstWhere((log) => log.contains('Request Headers:'));
+      final headerLog = logs.firstWhere(
+        (log) => log.contains('Request Headers:'),
+      );
       expect(headerLog, contains('Authorization: ***REDACTED***'));
       expect(headerLog, contains('Content-Type: application/json'));
       expect(headerLog, isNot(contains('secret_token')));
@@ -70,10 +70,7 @@ void main() {
 
       final options = RequestOptions(
         path: '/login',
-        data: {
-          'email': 'test@example.com',
-          'password': 'secret_password',
-        },
+        data: {'email': 'test@example.com', 'password': 'secret_password'},
       );
 
       final handler = RequestInterceptorHandler();
@@ -95,9 +92,7 @@ void main() {
 
       final options = RequestOptions(
         path: '/refresh',
-        data: {
-          'token': 'secret_token',
-        },
+        data: {'token': 'secret_token'},
       );
 
       final handler = RequestInterceptorHandler();
@@ -116,10 +111,7 @@ void main() {
         },
       );
 
-      final options = RequestOptions(
-        path: '/search',
-        data: 'plain text query',
-      );
+      final options = RequestOptions(path: '/search', data: 'plain text query');
 
       final handler = RequestInterceptorHandler();
       interceptor.onRequest(options, handler);
@@ -207,8 +199,8 @@ void main() {
         data: {
           'user': {
             'password': 'nested_secret_password',
-            'email': 'test@example.com'
-          }
+            'email': 'test@example.com',
+          },
         },
       );
 
@@ -232,7 +224,7 @@ void main() {
         path: '/bulk',
         data: [
           {'password': 'secret_pass_1'},
-          {'password': 'secret_pass_2'}
+          {'password': 'secret_pass_2'},
         ],
       );
 
@@ -268,13 +260,19 @@ void main() {
         final requestLog = logs.firstWhere((log) => log.contains('Request:'));
 
         expect(
-            requestLog,
-            anyOf(contains('api_key=***REDACTED***'),
-                contains('api_key=%2A%2A%2AREDACTED%2A%2A%2A')));
+          requestLog,
+          anyOf(
+            contains('api_key=***REDACTED***'),
+            contains('api_key=%2A%2A%2AREDACTED%2A%2A%2A'),
+          ),
+        );
         expect(
-            requestLog,
-            anyOf(contains('token=***REDACTED***'),
-                contains('token=%2A%2A%2AREDACTED%2A%2A%2A')));
+          requestLog,
+          anyOf(
+            contains('token=***REDACTED***'),
+            contains('token=%2A%2A%2AREDACTED%2A%2A%2A'),
+          ),
+        );
         expect(requestLog, contains('public=public_value'));
 
         expect(requestLog, isNot(contains('secret_api_key')));
@@ -307,8 +305,9 @@ void main() {
         final handler = MockResponseInterceptorHandler();
         interceptor.onResponse(response, handler);
 
-        final responseLog =
-            logs.firstWhere((log) => log.contains('Response Body:'));
+        final responseLog = logs.firstWhere(
+          (log) => log.contains('Response Body:'),
+        );
         expect(responseLog, contains('"token": "***REDACTED***"'));
         expect(responseLog, contains('"email": "user@example.com"'));
         expect(responseLog, isNot(contains('secret_response_token')));
@@ -344,8 +343,9 @@ void main() {
         final handler = MockErrorInterceptorHandler();
         interceptor.onError(error, handler);
 
-        final errorLog =
-            logs.firstWhere((log) => log.contains('Error Response Body:'));
+        final errorLog = logs.firstWhere(
+          (log) => log.contains('Error Response Body:'),
+        );
         expect(errorLog, contains('"access_token": "***REDACTED***"'));
         expect(errorLog, isNot(contains('leaked_access_token')));
 

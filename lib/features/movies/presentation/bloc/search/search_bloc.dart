@@ -49,11 +49,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     final newOptions = state.filterOptions.copyWith(mediaType: mediaType);
     final filtered = _applyFilters(state.rawMovies, newOptions);
 
-    emit(state.copyWith(
-      activeFilter: event.filter,
-      filterOptions: newOptions,
-      movies: filtered,
-    ));
+    emit(
+      state.copyWith(
+        activeFilter: event.filter,
+        filterOptions: newOptions,
+        movies: filtered,
+      ),
+    );
   }
 
   void _onSearchOptionsChanged(
@@ -71,11 +73,13 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
     final filtered = _applyFilters(state.rawMovies, event.options);
 
-    emit(state.copyWith(
-      filterOptions: event.options,
-      activeFilter: activeFilter,
-      movies: filtered,
-    ));
+    emit(
+      state.copyWith(
+        filterOptions: event.options,
+        activeFilter: activeFilter,
+        movies: filtered,
+      ),
+    );
   }
 
   Future<void> _onSearchQueryChanged(

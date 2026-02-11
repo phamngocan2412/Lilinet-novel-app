@@ -102,8 +102,9 @@ class AppTheme {
       ),
       dialogTheme: const DialogTheme(
         shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.all(Radius.circular(AppBorderRadius.xlarge)),
+          borderRadius: BorderRadius.all(
+            Radius.circular(AppBorderRadius.xlarge),
+          ),
         ),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
@@ -218,8 +219,9 @@ class AppTheme {
       ),
       dialogTheme: const DialogTheme(
         shape: RoundedRectangleBorder(
-          borderRadius:
-              BorderRadius.all(Radius.circular(AppBorderRadius.xlarge)),
+          borderRadius: BorderRadius.all(
+            Radius.circular(AppBorderRadius.xlarge),
+          ),
         ),
       ),
       bottomSheetTheme: const BottomSheetThemeData(

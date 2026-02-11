@@ -113,7 +113,8 @@ class HomeTrendingListWidget extends StatelessWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                            AppLocalizations.of(context)!.cannotOpenMockVideo),
+                          AppLocalizations.of(context)!.cannotOpenMockVideo,
+                        ),
                         duration: const Duration(seconds: 2),
                       ),
                     );

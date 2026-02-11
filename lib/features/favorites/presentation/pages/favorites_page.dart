@@ -124,15 +124,15 @@ class _FavoritesViewState extends State<FavoritesView> {
                   final folders = {
                     'All',
                     ...state.favorites.map((f) => f.folder).toSet().toList()
-                      ..sort()
+                      ..sort(),
                   };
 
                   // Filter favorites based on selected folder
                   final filteredFavorites = _selectedFolder == 'All'
                       ? state.favorites
                       : state.favorites
-                          .where((f) => f.folder == _selectedFolder)
-                          .toList();
+                            .where((f) => f.folder == _selectedFolder)
+                            .toList();
 
                   return Column(
                     children: [
@@ -170,9 +170,9 @@ class _FavoritesViewState extends State<FavoritesView> {
                               )
                             : RefreshIndicator(
                                 onRefresh: () async {
-                                  context
-                                      .read<FavoritesBloc>()
-                                      .add(const LoadFavorites());
+                                  context.read<FavoritesBloc>().add(
+                                    const LoadFavorites(),
+                                  );
                                 },
                                 child: ListenableBuilder(
                                   listenable: getIt<MiniplayerHeightNotifier>(),
@@ -190,11 +190,11 @@ class _FavoritesViewState extends State<FavoritesView> {
                                       ),
                                       gridDelegate:
                                           const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 2,
-                                        childAspectRatio: 0.7,
-                                        crossAxisSpacing: 12,
-                                        mainAxisSpacing: 12,
-                                      ),
+                                            crossAxisCount: 2,
+                                            childAspectRatio: 0.7,
+                                            crossAxisSpacing: 12,
+                                            mainAxisSpacing: 12,
+                                          ),
                                       itemCount: filteredFavorites.length,
                                       itemBuilder: (context, index) {
                                         final favorite =
