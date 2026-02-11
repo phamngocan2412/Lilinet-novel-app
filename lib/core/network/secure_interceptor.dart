@@ -33,19 +33,7 @@ class SecureInterceptor extends Interceptor {
           if (data is FormData) {
             _log('Request Body: [FormData]', name: 'SecureLogger');
           } else {
-            final sanitized = _sanitizeData(data);
-            if (sanitized is Map || sanitized is List) {
-              try {
-                final prettyJson = const JsonEncoder.withIndent(
-                  '  ',
-                ).convert(sanitized);
-                _log('Request Body:\n$prettyJson', name: 'SecureLogger');
-              } catch (e) {
-                _log('Request Body: $sanitized', name: 'SecureLogger');
-              }
-            } else {
-              _log('Request Body: $sanitized', name: 'SecureLogger');
-            }
+            _logBody(data, 'Request Body');
           }
         }
       } catch (e) {
