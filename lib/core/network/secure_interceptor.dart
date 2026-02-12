@@ -33,7 +33,18 @@ class SecureInterceptor extends Interceptor {
           if (data is FormData) {
             _log('Request Body: [FormData]', name: 'SecureLogger');
           } else {
-            _logBody(data, 'Request Body');
+            final sanitized = SecurityUtils.sanitizeData(data);
+            if (sanitized is Map || sanitized is List) {
+              try {
+                final prettyJson =
+                    const JsonEncoder.withIndent('  ').convert(sanitized);
+                _log('Request Body:\n$prettyJson', name: 'SecureLogger');
+              } catch (e) {
+                _log('Request Body: $sanitized', name: 'SecureLogger');
+              }
+            } else {
+              _log('Request Body: $sanitized', name: 'SecureLogger');
+            }
           }
         }
       } catch (e) {
@@ -47,10 +58,10 @@ class SecureInterceptor extends Interceptor {
   void onResponse(Response response, ResponseInterceptorHandler handler) {
     if (kDebugMode) {
       try {
-        _log(
-          'Response: ${response.statusCode} ${response.requestOptions.uri}',
-          name: 'SecureLogger',
-        );
+        final sanitizedUri =
+            SecurityUtils.sanitizeUri(response.requestOptions.uri);
+        _log('Response: ${response.statusCode} $sanitizedUri',
+            name: 'SecureLogger');
 
         // Log Headers (sanitized)
         final headers = response.headers.map;
@@ -74,12 +85,19 @@ class SecureInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) {
     if (kDebugMode) {
       try {
-        _log('Error: ${err.error} ${err.message}', name: 'SecureLogger');
+        final sanitizedMessage =
+            SecurityUtils.sanitizeUrlInString(err.message ?? '');
+        _log(
+          'Error: ${err.error} $sanitizedMessage',
+          name: 'SecureLogger',
+        );
 
         final response = err.response;
         if (response != null) {
+          final sanitizedUri =
+              SecurityUtils.sanitizeUri(response.requestOptions.uri);
           _log(
-            'Error Response: ${response.statusCode} ${response.requestOptions.uri}',
+            'Error Response: ${response.statusCode} $sanitizedUri',
             name: 'SecureLogger',
           );
 

@@ -44,7 +44,8 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server(tGenericError))),
+          equals(const Left(Failure.server(
+              'An unexpected error occurred. Please try again later.'))),
         );
       },
     );
@@ -72,7 +73,8 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server(tGenericError))),
+          equals(const Left(Failure.server(
+              'An unexpected error occurred. Please try again later.'))),
         );
       },
     );
@@ -93,7 +95,8 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server(tGenericError))),
+          equals(const Left(Failure.server(
+              'An unexpected error occurred. Please try again later.'))),
         );
       },
     );
@@ -114,7 +117,8 @@ void main() {
         // Assert
         expect(
           result,
-          equals(const Left(Failure.server(tGenericError))),
+          equals(const Left(Failure.server(
+              'An unexpected error occurred. Please try again later.'))),
         );
       },
     );
