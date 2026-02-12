@@ -21,6 +21,8 @@ void main() {
   const tPassword = 'password123';
   const tSensitiveError = 'Database connection failed: 192.168.1.5';
 
+  const tGenericError = 'An unexpected error occurred. Please try again later.';
+
   group('signInWithEmail', () {
     test(
       'should return sanitized Failure when a generic Exception occurs',
@@ -105,8 +107,9 @@ void main() {
       'should return sanitized Failure when a generic Exception occurs',
       () async {
         // Arrange
-        when(() => mockDataSource.sendPasswordResetEmail(any()))
-            .thenThrow(Exception(tSensitiveError));
+        when(
+          () => mockDataSource.sendPasswordResetEmail(any()),
+        ).thenThrow(Exception(tSensitiveError));
 
         // Act
         final result = await repository.sendPasswordResetEmail(tEmail);

@@ -104,8 +104,10 @@ class SecureInterceptor extends Interceptor {
           final headers = response.headers.map;
           if (headers.isNotEmpty) {
             final sanitizedHeaders = SecurityUtils.sanitizeData(headers);
-            _log('Error Response Headers: $sanitizedHeaders',
-                name: 'SecureLogger');
+            _log(
+              'Error Response Headers: $sanitizedHeaders',
+              name: 'SecureLogger',
+            );
           }
 
           final data = response.data;
@@ -124,8 +126,9 @@ class SecureInterceptor extends Interceptor {
     final sanitized = SecurityUtils.sanitizeData(data);
     if (sanitized is Map || sanitized is List) {
       try {
-        final prettyJson =
-            const JsonEncoder.withIndent('  ').convert(sanitized);
+        final prettyJson = const JsonEncoder.withIndent(
+          '  ',
+        ).convert(sanitized);
         _log('$label:\n$prettyJson', name: 'SecureLogger');
       } catch (e) {
         _log('$label: $sanitized', name: 'SecureLogger');

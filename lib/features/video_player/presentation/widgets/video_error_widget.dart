@@ -49,10 +49,9 @@ class VideoErrorWidget extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: Theme.of(
-                context,
-              ).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
             ),
             const SizedBox(height: AppSpacing.xl),
             Wrap(
@@ -66,8 +65,9 @@ class VideoErrorWidget extends StatelessWidget {
                     icon: const Icon(Icons.home),
                     label: const Text('Back to Home'),
                     style: TextButton.styleFrom(
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onSurfaceVariant,
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 if (onClose != null)
@@ -76,8 +76,9 @@ class VideoErrorWidget extends StatelessWidget {
                     icon: const Icon(Icons.close),
                     label: const Text('Close'),
                     style: TextButton.styleFrom(
-                      foregroundColor:
-                          Theme.of(context).colorScheme.onSurfaceVariant,
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSurfaceVariant,
                     ),
                   ),
                 FilledButton.icon(

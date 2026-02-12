@@ -154,9 +154,7 @@ class SettingsView extends StatelessWidget {
                         label: Text(l10n.resetAllSettings),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: colorScheme.error,
-                          side: BorderSide(
-                            color: colorScheme.error,
-                          ),
+                          side: BorderSide(color: colorScheme.error),
                           padding: const EdgeInsets.symmetric(
                             vertical: AppSpacing.lg,
                           ),

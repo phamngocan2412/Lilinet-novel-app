@@ -128,10 +128,12 @@ class CommentCubit extends Cubit<CommentState> {
 
             // Only emit if the comments are actually different
             if (_commentsChanged(currentState.comments, sorted)) {
-              emit(currentState.copyWith(
-                comments: sorted,
-                likedCommentIds: likedIds,
-              ));
+              emit(
+                currentState.copyWith(
+                  comments: sorted,
+                  likedCommentIds: likedIds,
+                ),
+              );
             }
           },
         );
@@ -165,22 +167,19 @@ class CommentCubit extends Cubit<CommentState> {
 
           state.mapOrNull(
             loaded: (loadedState) {
-              commentsResult.fold(
-                (l) => null,
-                (newComments) {
-                  // Filter out replies - only show root comments (parentId is null)
-                  final rootComments =
-                      newComments.where((c) => c.parentId == null).toList();
-                  final sorted = _sortComments(
-                    rootComments,
-                    loadedState.sortType,
-                  );
-                  // Only emit if the comments are actually different
-                  if (_commentsChanged(loadedState.comments, sorted)) {
-                    emit(loadedState.copyWith(comments: sorted));
-                  }
-                },
-              );
+              commentsResult.fold((l) => null, (newComments) {
+                // Filter out replies - only show root comments (parentId is null)
+                final rootComments =
+                    newComments.where((c) => c.parentId == null).toList();
+                final sorted = _sortComments(
+                  rootComments,
+                  loadedState.sortType,
+                );
+                // Only emit if the comments are actually different
+                if (_commentsChanged(loadedState.comments, sorted)) {
+                  emit(loadedState.copyWith(comments: sorted));
+                }
+              });
             },
           );
         });
@@ -285,15 +284,19 @@ class CommentCubit extends Cubit<CommentState> {
               optimisticComment,
             ];
           }
-          emit(loadedState.copyWith(
-            comments: updatedComments,
-            expandedReplies: updatedExpandedReplies,
-          ));
+          emit(
+            loadedState.copyWith(
+              comments: updatedComments,
+              expandedReplies: updatedExpandedReplies,
+            ),
+          );
         } else {
           // Optimistic root comment: prepend to list
-          emit(loadedState.copyWith(
-            comments: [optimisticComment, ...loadedState.comments],
-          ));
+          emit(
+            loadedState.copyWith(
+              comments: [optimisticComment, ...loadedState.comments],
+            ),
+          );
         }
         debugPrint('⚡ Optimistic comment shown: $tempId');
 
@@ -327,18 +330,23 @@ class CommentCubit extends Cubit<CommentState> {
               cleanedReplies[key] =
                   replies.where((r) => r.id != tempId).toList();
             });
-            emit(currentState.copyWith(
-              comments: cleaned,
-              expandedReplies: cleanedReplies,
-              isAddingComment: false,
-              errorMessage: failure.message,
-            ));
+            emit(
+              currentState.copyWith(
+                comments: cleaned,
+                expandedReplies: cleanedReplies,
+                isAddingComment: false,
+                errorMessage: failure.message,
+              ),
+            );
           },
           (newComment) async {
             debugPrint('✅ Comment added successfully: ${newComment.id}');
             // Replace optimistic comment with real one
-            final replaced =
-                _replaceComment(currentState.comments, tempId, newComment);
+            final replaced = _replaceComment(
+              currentState.comments,
+              tempId,
+              newComment,
+            );
             final replacedReplies = Map<String, List<Comment>>.from(
               currentState.expandedReplies,
             );
@@ -346,11 +354,13 @@ class CommentCubit extends Cubit<CommentState> {
               replacedReplies[key] =
                   replies.map((r) => r.id == tempId ? newComment : r).toList();
             });
-            emit(currentState.copyWith(
-              comments: replaced,
-              expandedReplies: replacedReplies,
-              isAddingComment: false,
-            ));
+            emit(
+              currentState.copyWith(
+                comments: replaced,
+                expandedReplies: replacedReplies,
+                isAddingComment: false,
+              ),
+            );
             _silentRefresh();
           },
         );

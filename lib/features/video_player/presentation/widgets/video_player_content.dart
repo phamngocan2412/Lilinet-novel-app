@@ -125,8 +125,9 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     }
 
     // Listen to player playing state
-    _playingSubscription =
-        _videoService.player.stream.playing.listen((playing) {
+    _playingSubscription = _videoService.player.stream.playing.listen((
+      playing,
+    ) {
       // Handle playing state changes
     });
 
@@ -658,9 +659,9 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
                             widget.miniplayerController.animateToHeight(
                               state: PanelState.MIN,
                             );
-                            context
-                                .read<VideoPlayerBloc>()
-                                .add(MinimizeVideo());
+                            context.read<VideoPlayerBloc>().add(
+                                  MinimizeVideo(),
+                                );
                           },
                           onDownload: () {
                             final url = _videoService

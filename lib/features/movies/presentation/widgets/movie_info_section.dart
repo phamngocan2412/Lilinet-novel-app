@@ -50,10 +50,9 @@ class MovieInfoSection extends StatelessWidget {
               Text(
                 movie.description!,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withOpacity(0.8),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.8),
                       height: 1.6,
                     ),
               ),
@@ -69,8 +68,9 @@ class MovieInfoSection extends StatelessWidget {
 
                   return ActionChip(
                     label: Text(genre),
-                    backgroundColor:
-                        Theme.of(context).colorScheme.surfaceContainerHighest,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     labelStyle: TextStyle(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 12,

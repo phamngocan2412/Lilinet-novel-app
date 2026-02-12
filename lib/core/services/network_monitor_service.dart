@@ -72,8 +72,9 @@ class NetworkMonitorService {
   /// Start monitoring network speed
   void _startMonitoring() {
     _timer?.cancel();
-    _timer =
-        Timer.periodic(const Duration(milliseconds: _sampleInterval), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: _sampleInterval), (
+      timer,
+    ) {
       if (_isConnected) {
         _sampleNetworkSpeed();
       }
@@ -96,8 +97,9 @@ class NetworkMonitorService {
         'bytes=0-1023',
       ); // Download only 1KB
 
-      final response =
-          await request.close().timeout(const Duration(seconds: 10));
+      final response = await request.close().timeout(
+            const Duration(seconds: 10),
+          );
 
       if (response.statusCode == 200 || response.statusCode == 206) {
         final endTime = DateTime.now();

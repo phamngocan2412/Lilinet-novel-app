@@ -208,9 +208,9 @@ class _DownloadItem extends StatelessWidget {
                     : Container(
                         width: 80,
                         height: 120,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .surfaceContainerHighest,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.surfaceContainerHighest,
                         child: Icon(
                           Icons.movie,
                           size: 40,
@@ -258,8 +258,9 @@ class _DownloadItem extends StatelessWidget {
                           file.formattedSize,
                           style: TextStyle(
                             fontSize: 12,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                         const SizedBox(width: AppSpacing.lg),
@@ -273,8 +274,9 @@ class _DownloadItem extends StatelessWidget {
                           _formatDate(file.downloadedAt),
                           style: TextStyle(
                             fontSize: 12,
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],

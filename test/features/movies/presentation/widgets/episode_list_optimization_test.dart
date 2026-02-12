@@ -8,8 +8,9 @@ import 'package:lilinet_app/features/movies/presentation/widgets/episode_item.da
 
 void main() {
   group('EpisodeList Optimization', () {
-    testWidgets('EpisodeList correctly maps WatchProgress to Episode',
-        (tester) async {
+    testWidgets('EpisodeList correctly maps WatchProgress to Episode', (
+      tester,
+    ) async {
       final episodes = List.generate(
         10,
         (index) => Episode(
@@ -91,8 +92,9 @@ void main() {
       expect(item0Finder, findsOneWidget);
     });
 
-    testWidgets('EpisodeSliverList correctly maps WatchProgress to Episode',
-        (tester) async {
+    testWidgets('EpisodeSliverList correctly maps WatchProgress to Episode', (
+      tester,
+    ) async {
       final episodes = List.generate(
         10,
         (index) => Episode(
