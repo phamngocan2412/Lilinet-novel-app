@@ -8,6 +8,7 @@ class SecureStorageAdapter extends LocalStorage {
       : _storage = storage ??
             const FlutterSecureStorage(
               aOptions: AndroidOptions(
+                // ignore: deprecated_member_use
                 encryptedSharedPreferences: true,
               ),
               iOptions: IOSOptions(
