@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:lilinet_app/core/constants/streaming_config.dart';
 import 'package:lilinet_app/l10n/app_localizations.dart';
 import 'package:miniplayer/miniplayer.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
@@ -81,10 +80,7 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
   String? currentServer = 'vidcloud';
   String? _playbackError;
 
-  String? _movieProvider;
-  String? _animeProvider;
   VideoQuality _defaultQuality = VideoQuality.auto;
-  PreferredServer _preferredServer = PreferredServer.auto;
 
   // Offline handling - used for auto-resume when connection restored
   bool _wasPlayingBeforeOffline = false;
@@ -174,7 +170,6 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     // Reload if episode changed
     if (widget.state.episodeId != oldWidget.state.episodeId ||
         widget.state.mediaId != oldWidget.state.mediaId) {
-
       // Reset error state
       setState(() {
         _playbackError = null;
@@ -220,19 +215,12 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
   Future<void> _loadSettings() async {
     final result = await getIt<SettingsRepository>().getSettings();
     result.fold(
-      (l) {
-        // If fails, use defaults (Fastest)
-        _movieProvider = 'flixhq';
-        _animeProvider = 'animepahe';
-      },
+      (l) {},
       (settings) {
         if (mounted) {
           setState(() {
             _autoPlayEnabled = settings.autoPlay;
-            _movieProvider = settings.movieProvider;
-            _animeProvider = settings.animeProvider;
             _defaultQuality = settings.defaultQuality;
-            _preferredServer = settings.preferredServer;
           });
         }
       },
@@ -341,8 +329,7 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
                   PreloadNextEpisode(
                     episodeId: nextEpisode.id,
                     mediaId: widget.state.mediaId!,
-                    provider: movie.provider ?? _movieProvider,
-                    preferredServer: _preferredServer,
+                    provider: movie.provider,
                   ),
                 );
           }
@@ -505,7 +492,8 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
             context.read<VideoPlayerBloc>().add(ResumeVideoPlayback());
           } else {
             // Reload if it failed initially due to network
-            if (_streamingCubit.state is StreamingError) {
+            final videoState = context.read<VideoPlayerBloc>().state;
+            if (videoState.streamingState is StreamingError) {
               _loadVideo();
             }
           }
@@ -521,109 +509,109 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
             child: Column(
               children: [
                 // Video Area
-                  if (widget.isMini)
-                    Expanded(child: _buildVideoPlayer())
-                  else
-                    SizedBox(
-                      height: 250 > widget.height ? widget.height : 250,
-                      child: Stack(
-                        children: [
-                          _buildVideoPlayer(),
-                          if (isOffline)
-                            Container(
-                              color: Colors.black.withOpacity(0.7),
-                              child: const Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.wifi_off_rounded,
+                if (widget.isMini)
+                  Expanded(child: _buildVideoPlayer())
+                else
+                  SizedBox(
+                    height: 250 > widget.height ? widget.height : 250,
+                    child: Stack(
+                      children: [
+                        _buildVideoPlayer(),
+                        if (isOffline)
+                          Container(
+                            color: Colors.black.withOpacity(0.7),
+                            child: const Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.wifi_off_rounded,
+                                    color: Colors.white,
+                                    size: 48,
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    'No Internet Connection',
+                                    style: TextStyle(
                                       color: Colors.white,
-                                      size: 48,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    SizedBox(height: 16),
-                                    Text(
-                                      'No Internet Connection',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                  ),
+                                  Text(
+                                    'Waiting for network...',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 14,
                                     ),
-                                    Text(
-                                      'Waiting for network...',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
+                  ),
 
-                  // Expanded Content Area - Only render when needed to prevent
-                  // blank space showing in miniplayer
-                  if (!widget.isMini && widget.height > 300)
-                    Expanded(
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          // Absorb tap to prevent miniplayer gesture detection
+                // Expanded Content Area - Only render when needed to prevent
+                // blank space showing in miniplayer
+                if (!widget.isMini && widget.height > 300)
+                  Expanded(
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        // Absorb tap to prevent miniplayer gesture detection
+                      },
+                      child: ExpandedPlayerContent(
+                        state: widget.state,
+                        onMinimize: () {
+                          widget.miniplayerController.animateToHeight(
+                            state: PanelState.MIN,
+                          );
+                          context.read<VideoPlayerBloc>().add(
+                                MinimizeVideo(),
+                              );
                         },
-                        child: ExpandedPlayerContent(
-                          state: widget.state,
-                          onMinimize: () {
-                            widget.miniplayerController.animateToHeight(
-                              state: PanelState.MIN,
-                            );
+                        onDownload: () {
+                          final url = _videoService
+                              .player.state.playlist.medias.firstOrNull?.uri;
+                          if (url != null) {
+                            final fileName =
+                                '${widget.state.title ?? "video"}_${widget.state.episodeTitle ?? "episode"}.mp4'
+                                    .replaceAll(RegExp(r'[^\w\s\.-]'), '')
+                                    .replaceAll(' ', '_');
+
                             context.read<VideoPlayerBloc>().add(
-                                  MinimizeVideo(),
+                                  DownloadCurrentVideo(
+                                    url: url,
+                                    fileName: fileName,
+                                    movieId: widget.state.mediaId,
+                                    movieTitle: widget.state.title,
+                                    episodeTitle: widget.state.episodeTitle,
+                                    posterUrl: widget.state.posterUrl,
+                                  ),
                                 );
-                          },
-                          onDownload: () {
-                            final url = _videoService
-                                .player.state.playlist.medias.firstOrNull?.uri;
-                            if (url != null) {
-                              final fileName =
-                                  '${widget.state.title ?? "video"}_${widget.state.episodeTitle ?? "episode"}.mp4'
-                                      .replaceAll(RegExp(r'[^\w\s\.-]'), '')
-                                      .replaceAll(' ', '_');
 
-                              context.read<VideoPlayerBloc>().add(
-                                    DownloadCurrentVideo(
-                                      url: url,
-                                      fileName: fileName,
-                                      movieId: widget.state.mediaId,
-                                      movieTitle: widget.state.title,
-                                      episodeTitle: widget.state.episodeTitle,
-                                      posterUrl: widget.state.posterUrl,
-                                    ),
-                                  );
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Download started...'),
-                                ),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('No video loaded to download'),
-                                ),
-                              );
-                            }
-                          },
-                        ),
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Download started...'),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('No video loaded to download'),
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
-          );
+          ),
+        );
       },
     );
   }
@@ -655,9 +643,7 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
     }
 
     // Sync local state with actual server used by Cubit
-    if (state.selectedServer != null) {
-      currentServer = state.selectedServer;
-    }
+    currentServer = state.selectedServer;
 
     // Check if we're on a slow connection (mobile data with poor signal)
     final networkMonitor = NetworkMonitorService();
@@ -817,8 +803,7 @@ class _VideoPlayerContentState extends State<VideoPlayerContent>
           miniplayerController: widget.miniplayerController,
           showCountdown: _showCountdown,
           nextEpisodeTitle: _nextEpisodeTitle,
-          availableServers: state.availableServers ??
-              (loadedState?.availableServers ?? []),
+          availableServers: state.availableServers ?? [],
           currentServer: loadedState?.selectedServer,
           availableQualities: loadedState?.links ?? [],
           currentQuality: _videoService.player.state.playlist.medias.firstOrNull

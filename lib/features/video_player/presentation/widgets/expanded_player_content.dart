@@ -84,54 +84,54 @@ class _ExpandedPlayerContentState extends State<ExpandedPlayerContent> {
         );
 
         return GestureDetector(
-              // FIX: Absorb tap gestures in content area to prevent miniplayer
-              // from minimizing when tapping on empty spaces in the content
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                // Empty onTap to absorb the gesture without any action
-                // This prevents the gesture from propagating to miniplayer
-              },
-              child: CustomScrollView(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsets.all(16),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate(contentChildren),
+          // FIX: Absorb tap gestures in content area to prevent miniplayer
+          // from minimizing when tapping on empty spaces in the content
+          behavior: HitTestBehavior.opaque,
+          onTap: () {
+            // Empty onTap to absorb the gesture without any action
+            // This prevents the gesture from propagating to miniplayer
+          },
+          child: CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate(contentChildren),
+                ),
+              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              if (widget.state.mediaId != null) ...[
+                const SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  sliver: PlayerCommentsHeaderSliver(),
+                ),
+                const SliverPadding(
+                  padding: EdgeInsets.symmetric(horizontal: 16),
+                  sliver: PlayerCommentsListSliver(),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 24)),
+              ] else
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'Comments will appear once the video loads.',
+                      style: TextStyle(color: Colors.white54),
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                  if (widget.state.mediaId != null) ...[
-                    const SliverPadding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      sliver: PlayerCommentsHeaderSliver(),
+                ),
+              if (widget.state.movie?.recommendations != null &&
+                  widget.state.movie!.recommendations!.isNotEmpty) ...[
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverToBoxAdapter(
+                    child: PlayerRecommendationsSection(
+                      recommendations: widget.state.movie!.recommendations!,
                     ),
-                    const SliverPadding(
-                      padding: EdgeInsets.symmetric(horizontal: 16),
-                      sliver: PlayerCommentsListSliver(),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 24)),
-                  ] else
-                    const SliverToBoxAdapter(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          'Comments will appear once the video loads.',
-                          style: TextStyle(color: Colors.white54),
-                        ),
-                      ),
-                    ),
-                  if (widget.state.movie?.recommendations != null &&
-                      widget.state.movie!.recommendations!.isNotEmpty) ...[
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverToBoxAdapter(
-                        child: PlayerRecommendationsSection(
-                          recommendations: widget.state.movie!.recommendations!,
-                        ),
-                      ),
-                    ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 16)),
-                  ],
+                  ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 16)),
+              ],
             ],
           ),
         );

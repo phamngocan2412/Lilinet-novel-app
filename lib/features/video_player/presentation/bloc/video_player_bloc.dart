@@ -9,7 +9,6 @@ import '../../../../core/errors/failures.dart';
 import '../../../../core/services/video_player_service.dart';
 import '../../../../core/services/cast_service.dart';
 import '../../../../core/services/download_service.dart';
-import '../../../movies/domain/entities/streaming_link.dart';
 import '../../../movies/domain/entities/streaming_response.dart';
 import '../../../movies/domain/usecases/get_streaming_links.dart';
 import '../../../movies/domain/usecases/get_available_servers.dart';
@@ -119,7 +118,8 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
     PreloadNextEpisode event,
     Emitter<VideoPlayerState> emit,
   ) async {
-    debugPrint('📦 VideoPlayerBloc: Preloading next episode ${event.episodeId}');
+    debugPrint(
+        '📦 VideoPlayerBloc: Preloading next episode ${event.episodeId}');
 
     // Use default provider if not specified
     final provider = event.provider ?? StreamingConfig.defaultProvider;
@@ -268,7 +268,8 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
 
     // 2. If specific server was requested, don't try fallbacks
     if (server != null) {
-      if (!_isRequestStale(requestId) && state.streamingState is! StreamingLoaded) {
+      if (!_isRequestStale(requestId) &&
+          state.streamingState is! StreamingLoaded) {
         emit(
           state.copyWith(
             streamingState: const StreamingState.error(
@@ -311,7 +312,8 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
     }
 
     // 4. If all fail
-    if (!_isRequestStale(requestId) && state.streamingState is! StreamingLoaded) {
+    if (!_isRequestStale(requestId) &&
+        state.streamingState is! StreamingLoaded) {
       emit(
         state.copyWith(
           streamingState: const StreamingState.error(
@@ -616,13 +618,13 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
           );
         }
       } else {
-         emit(
-            state.copyWith(
-              streamingState: const StreamingState.error(
-                'No streaming links available',
-              ),
+        emit(
+          state.copyWith(
+            streamingState: const StreamingState.error(
+              'No streaming links available',
             ),
-          );
+          ),
+        );
       }
     }
   }
