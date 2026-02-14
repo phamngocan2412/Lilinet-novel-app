@@ -7,6 +7,7 @@ import 'package:lilinet_app/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:lilinet_app/features/auth/presentation/bloc/auth_event.dart';
 import 'package:lilinet_app/features/auth/presentation/bloc/auth_state.dart';
 import 'package:lilinet_app/features/auth/presentation/widgets/auth_dialog.dart';
+import 'package:lilinet_app/l10n/app_localizations.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
@@ -26,6 +27,8 @@ void main() {
 
   Widget createWidgetUnderTest() {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: BlocProvider<AuthBloc>(
         create: (_) => mockAuthBloc,
         child: const Scaffold(body: AuthDialog()),
