@@ -15,6 +15,7 @@ import 'package:lilinet_app/features/comments/presentation/widgets/home_trending
 import 'package:lilinet_app/features/favorites/presentation/bloc/favorites_bloc.dart';
 import 'package:lilinet_app/features/favorites/presentation/bloc/favorites_state.dart';
 import 'package:lilinet_app/features/favorites/presentation/bloc/favorites_event.dart';
+import 'package:lilinet_app/core/services/miniplayer_height_notifier.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockTrendingMoviesBloc
@@ -42,6 +43,9 @@ void main() {
     // Setup GetIt
     GetIt.instance.registerFactory<HomeTrendingCubit>(
       () => mockHomeTrendingCubit,
+    );
+    GetIt.instance.registerSingleton<MiniplayerHeightNotifier>(
+      MiniplayerHeightNotifier(),
     );
 
     // Stub HomeTrendingCubit
