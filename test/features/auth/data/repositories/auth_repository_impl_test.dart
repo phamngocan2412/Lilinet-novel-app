@@ -21,8 +21,6 @@ void main() {
   const tPassword = 'password123';
   const tSensitiveError = 'Database connection failed: 192.168.1.5';
 
-  const tGenericError = 'An unexpected error occurred. Please try again later.';
-
   group('signInWithEmail', () {
     test(
       'should return sanitized Failure when a generic Exception occurs',
