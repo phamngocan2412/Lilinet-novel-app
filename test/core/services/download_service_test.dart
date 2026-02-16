@@ -65,8 +65,7 @@ void main() {
     // ../../evil.sh -> .._.._evil.sh -> ______evil.sh
     const safeFileName = '______evil.sh';
     const url = 'http://example.com/video.mp4';
-    // Double downloads because mockDirectory.path is /mock/path/downloads and code appends /downloads
-    const expectedPath = '/mock/path/downloads/downloads/$safeFileName';
+    const expectedPath = '/mock/path/downloads/$safeFileName';
 
     // Mock dio download
     when(() => mockDio.download(
@@ -83,7 +82,8 @@ void main() {
     when(() => mockDirectory.exists()).thenAnswer((_) async => true);
     when(() => mockDirectory.create(recursive: any(named: 'recursive')))
         .thenAnswer((_) async => mockDirectory);
-    when(() => mockDirectory.path).thenReturn('/mock/path/downloads');
+    // Correctly mock the directory path to avoid double nesting in test
+    when(() => mockDirectory.path).thenReturn('/mock/path');
 
     final mockFile = MockFile();
     when(() => mockFile.length()).thenAnswer((_) async => 1024);
