@@ -121,6 +121,11 @@ class _HomePageViewState extends State<HomePageView>
                 //     (130 * devicePixelRatio).toInt();
 
                 final genres = AppConstants.genres;
+                // Optimization: Convert Iterables to Lists to avoid O(N) access in loops
+                final genreEntries = genres.entries.toList();
+                final categoryKeys = categories.keys.toList();
+                final categoryItemMemCacheWidth =
+                    (130 * devicePixelRatio).toInt();
 
                 if (trendingMovies.isEmpty && categories.isEmpty) {
                   return const Center(child: Text('No anime found'));
@@ -141,10 +146,10 @@ class _HomePageViewState extends State<HomePageView>
                           cacheExtent: 300,
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: genres.length,
+                          itemCount: genreEntries.length,
                           separatorBuilder: (_, __) => const SizedBox(width: 8),
                           itemBuilder: (context, index) {
-                            final entry = genres.entries.elementAt(index);
+                            final entry = genreEntries[index];
                             return Center(
                               child: CategoryChip(
                                 label: entry.key,
@@ -197,14 +202,11 @@ class _HomePageViewState extends State<HomePageView>
                     if (categories.isNotEmpty)
                       SliverList(
                         delegate: SliverChildBuilderDelegate((context, index) {
-                          final categoryName = categories.keys.elementAt(index);
+                          final categoryName = categoryKeys[index];
                           final categoryMovies = categories[categoryName]!;
 
-                          // Optimization: Calculate explicit cache width (130px * pixelRatio)
-                          // to avoid LayoutBuilder overhead in MovieCard -> AppCachedImage
-                          final memCacheWidth =
-                              (130 * MediaQuery.of(context).devicePixelRatio)
-                                  .toInt();
+                          // Optimization: Use pre-calculated cache width to avoid expensive context lookups in loop
+                          final memCacheWidth = categoryItemMemCacheWidth;
 
                           if (categoryMovies.isEmpty) {
                             return const SizedBox.shrink();
