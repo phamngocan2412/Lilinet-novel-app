@@ -22,6 +22,14 @@ class DownloadService {
 
   ValueNotifier<double>? getProgressNotifier(String url) => _progressMap[url];
 
+  /// Sanitize filename to prevent path traversal attacks
+  String _sanitizeFileName(String fileName) {
+    // Replace dangerous characters with underscore
+    return fileName
+        .replaceAll(RegExp(r'[\\/|:*?"<>]'), '_')
+        .replaceAll('..', '__');
+  }
+
   Future<bool> _requestPermission() async {
     if (Platform.isAndroid) {
       // For Android 13+, notifications permission is enough for foreground service
@@ -80,7 +88,7 @@ class DownloadService {
       // Show initial notification
       await _notificationService.showDownloadProgress(
         notificationId: notificationId,
-        title: movieTitle ?? fileName,
+        title: movieTitle ?? safeFileName,
         progress: 0,
         maxProgress: 100,
       );
@@ -97,7 +105,7 @@ class DownloadService {
             if ((progress * 100).toInt() % 5 == 0) {
               _notificationService.showDownloadProgress(
                 notificationId: notificationId,
-                title: movieTitle ?? fileName,
+                title: movieTitle ?? safeFileName,
                 progress: (progress * 100).toInt(),
                 maxProgress: 100,
               );
@@ -116,7 +124,7 @@ class DownloadService {
       await _addToRegistry(
         DownloadedFile(
           id: url.hashCode.toString(),
-          fileName: fileName,
+          fileName: safeFileName,
           filePath: savePath,
           movieId: movieId,
           movieTitle: movieTitle,
@@ -134,7 +142,7 @@ class DownloadService {
       // Show completion notification
       await _notificationService.showDownloadComplete(
         title: movieTitle ?? 'Video',
-        fileName: fileName,
+        fileName: safeFileName,
         movieId: movieId,
       );
 
