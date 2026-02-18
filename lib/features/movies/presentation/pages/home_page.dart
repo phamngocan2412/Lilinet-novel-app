@@ -145,7 +145,7 @@ class _HomePageViewState extends State<HomePageView>
                           cacheExtent: 300,
                           scrollDirection: Axis.horizontal,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: genres.length,
+                          itemCount: genreEntries.length,
                           separatorBuilder: (_, __) => const SizedBox(width: 8),
                           itemBuilder: (context, index) {
                             final entry = genreEntries[index];
