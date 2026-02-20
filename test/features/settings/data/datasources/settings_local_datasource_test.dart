@@ -21,7 +21,8 @@ void main() {
   setUp(() {
     mockSharedPreferences = MockSharedPreferences();
     mockSecureStorage = MockFlutterSecureStorage();
-    dataSource = SettingsLocalDataSource(mockSharedPreferences, mockSecureStorage);
+    dataSource =
+        SettingsLocalDataSource(mockSharedPreferences, mockSecureStorage);
   });
 
   group('getSettings', () {
@@ -63,7 +64,8 @@ void main() {
       verify(() => mockSecureStorage.read(key: pinCodeKey));
     });
 
-    test('should prioritise secure PIN over shared prefs PIN (migration scenario)',
+    test(
+        'should prioritise secure PIN over shared prefs PIN (migration scenario)',
         () async {
       // arrange
       const tSecurePin = '1234';
@@ -92,7 +94,8 @@ void main() {
       final tSettings = const AppSettings().copyWith(pinCode: tPinCode);
 
       when(() => mockSecureStorage.write(
-          key: any(named: 'key'), value: any(named: 'value'))).thenAnswer((_) async {});
+          key: any(named: 'key'),
+          value: any(named: 'value'))).thenAnswer((_) async {});
       when(() => mockSharedPreferences.setString(any(), any()))
           .thenAnswer((_) async => true);
 
@@ -102,8 +105,10 @@ void main() {
       // assert
       verify(() => mockSecureStorage.write(key: pinCodeKey, value: tPinCode));
 
-      final captured = verify(() => mockSharedPreferences.setString(settingsKey, captureAny()))
-          .captured.first as String;
+      final captured = verify(
+              () => mockSharedPreferences.setString(settingsKey, captureAny()))
+          .captured
+          .first as String;
 
       final savedJson = jsonDecode(captured) as Map<String, dynamic>;
       expect(savedJson.containsKey('pinCode'), false);
@@ -130,7 +135,8 @@ void main() {
   group('resetSettings', () {
     test('should clear both storage locations', () async {
       // arrange
-      when(() => mockSharedPreferences.remove(any())).thenAnswer((_) async => true);
+      when(() => mockSharedPreferences.remove(any()))
+          .thenAnswer((_) async => true);
       when(() => mockSecureStorage.delete(key: any(named: 'key')))
           .thenAnswer((_) async {});
 
