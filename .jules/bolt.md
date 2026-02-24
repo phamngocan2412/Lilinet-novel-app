@@ -9,3 +9,7 @@
 ## 2026-02-15 - Optimized Map Iteration in Builders
 **Learning:** Using `keys.elementAt(index)` inside a `ListView.builder` or `SliverChildBuilderDelegate` results in O(N^2) complexity because `elementAt` iterates from the start of the map for every item.
 **Action:** Convert map entries to a `List` before the builder (O(N)) and access by index (O(1)). Also hoist repeated `MediaQuery.of(context)` calls out of loops.
+
+## 2026-02-24 - Targeted MediaQuery Selectors
+**Learning:** `MediaQuery.of(context)` causes a widget to rebuild whenever *any* property of `MediaQueryData` changes (e.g., `viewInsets` when the keyboard opens). This is a major performance issue for heavy widgets like images that are often used in lists with inputs.
+**Action:** Use specific selectors like `MediaQuery.devicePixelRatioOf(context)` or `MediaQuery.sizeOf(context)` to only rebuild when the relevant property changes.
