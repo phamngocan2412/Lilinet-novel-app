@@ -159,7 +159,11 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i102.LocalNotificationService>(
         () => _i102.LocalNotificationService());
     gh.lazySingleton<_i361.Dio>(() => registerModule.dio);
+    gh.lazySingleton<_i558.FlutterSecureStorage>(
+        () => registerModule.secureStorage);
     gh.lazySingleton<_i454.SupabaseClient>(() => registerModule.supabaseClient);
+    gh.lazySingleton<_i558.FlutterSecureStorage>(
+        () => registerModule.secureStorage);
     gh.lazySingleton<_i895.Connectivity>(() => registerModule.connectivity);
     gh.lazySingleton<_i111.MiniplayerHeightNotifier>(
         () => registerModule.miniplayerHeightNotifier);
