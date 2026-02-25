@@ -121,11 +121,7 @@ class _FavoritesViewState extends State<FavoritesView> {
                   }
 
                   // Extract folders
-                  final folders = {
-                    'All',
-                    ...state.favorites.map((f) => f.folder).toSet().toList()
-                      ..sort(),
-                  }.toList();
+                  final folders = state.folders;
 
                   // Filter favorites based on selected folder
                   final filteredFavorites = _selectedFolder == 'All'
