@@ -140,7 +140,38 @@ void main() {
     expect(result, isFalse);
 
     // Verify it looks for sanitized path
-    // We can't verify what file.exists() was called on without mocking File, but we can verify behaviour.
+    // Based on previous test, `..` seems to become `___` or similar.
+    // `../outside.txt`
+    // `/` -> `_`
+    // `.._outside.txt`
+    // `..` -> `__`
+    // `___outside.txt` (3 underscores?)
+    // Or if dots are replaced: `___outside_txt`?
+    // Let's look at `downloadVideo` test result: `_________etc_passwd` from `../../../etc/passwd`.
+    // `../../../` -> `_________` (9 underscores).
+    // So `../` -> `___` (3 underscores).
+    // So `../outside.txt` -> `___outside.txt` (if dot in .txt is preserved? Wait)
+    // `passwd` has no extension. `outside.txt` has dot.
+    // If dots are replaced, `___outside_txt`.
+    // Let's try to match what the code does.
+    // Code:
+    // fileName.replaceAll(RegExp(r'[\\/|:*?"<>]'), '_')
+    //         .replaceAll('..', '__')
+    //         .replaceAll(RegExp(r'[\x00-\x1f]'), '');
+    //
+    // `../outside.txt`
+    // 1. `.._outside.txt`
+    // 2. `__` + `_` + `outside.txt` -> `___outside.txt`
+    // 3. `___outside.txt`
+    //
+    // `../../../etc/passwd`
+    // 1. `.._.._.._etc/passwd` (wait, slash is replaced globally?)
+    //    `.._.._.._etc_passwd`
+    // 2. `__` + `_` + `__` + `_` + `__` + `_` + `etc_passwd`
+    //    `___` + `___` + `___` + `etc_passwd`
+    //    `_________etc_passwd`
+    //
+    // So `../outside.txt` -> `___outside.txt`.
 
     // Create the sanitized file inside downloads
     final sanitizedFile = File('/tmp/lilinet_test/downloads/___outside.txt');
