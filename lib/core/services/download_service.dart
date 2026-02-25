@@ -34,11 +34,16 @@ class DownloadService {
 
   /// Sanitize filename to prevent path traversal attacks
   String _sanitizeFileName(String fileName) {
-    // Replace characters that are invalid in filenames or could lead to path traversal
-    // Also remove control characters
-    return fileName
-        .replaceAll(RegExp(r'[<>:"/\\|?*]'), '_')
-        .replaceAll(RegExp(r'[\x00-\x1f]'), '');
+    // 1. Remove control characters
+    var safeName = fileName.replaceAll(RegExp(r'[\x00-\x1f]'), '');
+
+    // 2. Replace invalid characters with underscore
+    safeName = safeName.replaceAll(RegExp(r'[<>:"/\\|?*]'), '_');
+
+    // 3. Prevent path traversal (replace .. with __)
+    safeName = safeName.replaceAll('..', '__');
+
+    return safeName;
   }
 
   Future<void> downloadVideo({
