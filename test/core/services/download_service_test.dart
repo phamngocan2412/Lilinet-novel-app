@@ -223,7 +223,8 @@ void main() {
     expect(result2, isTrue);
   });
 
-  test('downloadVideo uses default filename if input is invalid/empty', () async {
+  test('downloadVideo uses default filename if input is invalid/empty',
+      () async {
     const fileName = ''; // Empty string
     const url = 'http://example.com/video.mp4';
 
