@@ -46,8 +46,7 @@ class MovieDetailsHeader extends StatelessWidget {
             AppCachedImage(
               imageUrl: movie.poster ?? movie.cover ?? '',
               fit: BoxFit.cover,
-              memCacheWidth:
-                  (screenWidth * devicePixelRatio).toInt(),
+              memCacheWidth: (screenWidth * devicePixelRatio).toInt(),
             ),
             // Gradient Overlay
             Container(
