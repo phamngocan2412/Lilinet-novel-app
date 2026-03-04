@@ -350,8 +350,7 @@ class VideoPlayerBloc extends Bloc<VideoPlayerEvent, VideoPlayerState> {
 
         // Exponential backoff with jitter to prevent thundering herd
         final baseDelay = pow(2, attempts - 1).toInt();
-        // Security enhancement: Use Random.secure() for cryptographic unpredictability
-        final jitter = Random.secure().nextInt(500); // 0-500ms jitter
+        final jitter = Random().nextInt(500); // 0-500ms jitter
         final delay = Duration(milliseconds: (baseDelay * 1000) + jitter);
 
         if (kDebugMode) {

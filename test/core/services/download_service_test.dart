@@ -83,9 +83,8 @@ void main() {
       (int received, int total) {},
     ); // fallback for onReceiveProgress
 
-    when(
-      () => mockNotificationService.requestPermissions(),
-    ).thenAnswer((_) async => true);
+    when(() => mockNotificationService.requestPermissions())
+        .thenAnswer((_) async => true);
     when(
       () => mockNotificationService.showDownloadProgress(
         notificationId: any(named: 'notificationId'),
@@ -95,9 +94,8 @@ void main() {
       ),
     ).thenAnswer((_) async {});
 
-    when(
-      () => mockNotificationService.cancelDownloadProgress(any()),
-    ).thenAnswer((_) async {});
+    when(() => mockNotificationService.cancelDownloadProgress(any()))
+        .thenAnswer((_) async {});
 
     when(
       () => mockNotificationService.showDownloadComplete(

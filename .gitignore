@@ -170,4 +170,3 @@ app.*.symbols
 !lib/core/supabase/
 !test/core/supabase/
 !test/
-.dart_tool
