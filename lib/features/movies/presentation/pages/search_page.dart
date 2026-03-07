@@ -108,8 +108,8 @@ class _SearchPageViewState extends State<SearchPageView> {
                             currentOptions: state.filterOptions,
                             onApply: (options) {
                               context.read<SearchBloc>().add(
-                                    SearchOptionsChanged(options),
-                                  );
+                                SearchOptionsChanged(options),
+                              );
                             },
                           ),
                         );
@@ -171,8 +171,8 @@ class _SearchPageViewState extends State<SearchPageView> {
                 message: state.errorMessage,
                 onRetry: () {
                   context.read<SearchBloc>().add(
-                        SearchQueryChanged(state.query),
-                      );
+                    SearchQueryChanged(state.query),
+                  );
                 },
               ),
             );
@@ -190,8 +190,8 @@ class _SearchPageViewState extends State<SearchPageView> {
           }
 
           // Calculate optimal cache width
-          final screenWidth = MediaQuery.of(context).size.width;
-          final devicePixelRatio = MediaQuery.of(context).devicePixelRatio;
+          final screenWidth = MediaQuery.sizeOf(context).width;
+          final devicePixelRatio = MediaQuery.devicePixelRatioOf(context);
           final cacheWidth = ((screenWidth - 32) / 2 * devicePixelRatio).ceil();
 
           return ListenableBuilder(

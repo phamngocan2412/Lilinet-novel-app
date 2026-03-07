@@ -47,9 +47,10 @@ class ScaffoldWithPlayer extends StatelessWidget {
             // If Nav Bar is visible, Miniplayer sits on top of it (no bottom padding needed)
             // If Nav Bar is hidden, Miniplayer sits at bottom of screen (needs bottom padding)
             final double baseHeight = 60;
-            final double bottomPadding = MediaQuery.of(context).padding.bottom;
-            final double miniplayerHeight =
-                showNavBar ? baseHeight : (baseHeight + bottomPadding);
+            final double bottomPadding = MediaQuery.paddingOf(context).bottom;
+            final double miniplayerHeight = showNavBar
+                ? baseHeight
+                : (baseHeight + bottomPadding);
 
             // Update miniplayer height notifier
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -88,7 +89,7 @@ class ScaffoldWithPlayer extends StatelessWidget {
                       top: isExpanded ? 0 : null,
                       child: MiniplayerWidget(
                         miniplayerHeight: miniplayerHeight,
-                        maxWidth: MediaQuery.of(context).size.width,
+                        maxWidth: MediaQuery.sizeOf(context).width,
                       ),
                     ),
                 ],
