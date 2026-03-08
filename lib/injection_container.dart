@@ -56,16 +56,6 @@ abstract class RegisterModule {
   @lazySingleton
   SupabaseClient get supabaseClient => SupabaseConfig.client;
 
-  @lazySingleton
-  FlutterSecureStorage get secureStorage => const FlutterSecureStorage(
-        aOptions: AndroidOptions(
-          // ignore: deprecated_member_use
-          encryptedSharedPreferences: true,
-        ),
-        iOptions: IOSOptions(
-          accessibility: KeychainAccessibility.first_unlock,
-        ),
-      );
 
   @preResolve
   Future<Box<WatchProgressModel>> get watchHistoryBox =>
@@ -90,9 +80,4 @@ abstract class RegisterModule {
   MiniplayerHeightNotifier get miniplayerHeightNotifier =>
       MiniplayerHeightNotifier();
 
-  @lazySingleton
-  FlutterSecureStorage get secureStorage => const FlutterSecureStorage(
-        aOptions: AndroidOptions(),
-        iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
-      );
 }
