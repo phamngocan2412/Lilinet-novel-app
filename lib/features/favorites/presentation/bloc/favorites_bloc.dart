@@ -54,6 +54,10 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
           currentPage: event.page,
           hasMore: favorites.length >= _limit,
           favoriteIds: favorites.map((f) => f.movieId).toSet(),
+          folders: {
+            'All',
+            ...favorites.map((f) => f.folder).toSet().toList()..sort(),
+          }.toList(),
         ),
       ),
     );
@@ -81,6 +85,10 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
           currentPage: nextPage,
           hasMore: newFavorites.length >= _limit,
           favoriteIds: allFavorites.map((f) => f.movieId).toSet(),
+          folders: {
+            'All',
+            ...allFavorites.map((f) => f.folder).toSet().toList()..sort(),
+          }.toList(),
         ),
       );
     });
@@ -120,6 +128,10 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
           currentPage: currentPage,
           hasMore: hasMore,
           favoriteIds: currentFavorites.map((f) => f.movieId).toSet(),
+          folders: {
+            'All',
+            ...currentFavorites.map((f) => f.folder).toSet().toList()..sort(),
+          }.toList(),
         ),
       );
     });
@@ -153,6 +165,10 @@ class FavoritesBloc extends Bloc<FavoritesEvent, FavoritesState> {
           currentPage: currentPage,
           hasMore: hasMore,
           favoriteIds: currentFavorites.map((f) => f.movieId).toSet(),
+          folders: {
+            'All',
+            ...currentFavorites.map((f) => f.folder).toSet().toList()..sort(),
+          }.toList(),
         ),
       );
     });
