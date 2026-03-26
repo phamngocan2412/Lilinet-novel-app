@@ -17,3 +17,7 @@
 ## 2026-05-20 - Preserving Legacy Logic in Fixes
 **Learning:** When fixing build errors in existing files (like `download_service.dart`), verify if existing tests rely on "buggy" behavior (like partial sanitization).
 **Action:** Run tests immediately after fixes. If tests fail on logic you didn't intend to change (just fix compilation), revert to the behavior expected by tests unless the test is clearly wrong.
+
+## 2026-06-15 - Extracting O(N log N) Derivations from Build Methods
+**Learning:** Performing expensive collection operations (like converting Iterables to Sets and Lists, followed by `.sort()`) directly inside a `BlocBuilder`'s `build` method creates a significant performance bottleneck because it runs on every UI frame during animations.
+**Action:** Always extract O(N log N) (sorting) and O(N) (filtering/grouping) derivations out of the widget tree. Instead, pre-compute these derived properties (e.g. `folders` and `favoritesByFolder`) within the Bloc immediately before emitting the new state, allowing the UI to simply read the pre-computed values in O(1).
