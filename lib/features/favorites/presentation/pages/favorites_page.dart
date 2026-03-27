@@ -15,24 +15,19 @@ import '../bloc/favorites_bloc.dart';
 import '../bloc/favorites_event.dart';
 import '../bloc/favorites_state.dart';
 
-class FavoritesPage extends StatelessWidget {
+class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const FavoritesView();
-  }
+  State<FavoritesPage> createState() => _FavoritesPageState();
 }
 
-class FavoritesView extends StatefulWidget {
-  const FavoritesView({super.key});
-
-  @override
-  State<FavoritesView> createState() => _FavoritesViewState();
-}
-
-class _FavoritesViewState extends State<FavoritesView> {
+class _FavoritesPageState extends State<FavoritesPage> {
   String _selectedFolder = 'All';
+
+  // Memoization variables for performance optimization
+  List<Favorite>? _lastFavorites;
+  List<String> _cachedFolders = ['All'];
 
   @override
   Widget build(BuildContext context) {
@@ -120,19 +115,23 @@ class _FavoritesViewState extends State<FavoritesView> {
                     );
                   }
 
-                  // Extract folders
-                  final folders = {
-                    'All',
-                    ...state.favorites.map((f) => f.folder).toSet().toList()
-                      ..sort(),
-                  }.toList();
+                  // Bolt Optimization: Memoize O(N log N) folder extraction
+                  // Only recompute if the underlying data actually changes
+                  if (!identical(_lastFavorites, state.favorites)) {
+                    _lastFavorites = state.favorites;
+                    _cachedFolders = {
+                      'All',
+                      ...state.favorites.map((f) => f.folder).toSet().toList()
+                        ..sort(),
+                    }.toList();
+                  }
 
                   // Filter favorites based on selected folder
                   final filteredFavorites = _selectedFolder == 'All'
                       ? state.favorites
                       : state.favorites
-                          .where((f) => f.folder == _selectedFolder)
-                          .toList();
+                            .where((f) => f.folder == _selectedFolder)
+                            .toList();
 
                   return Column(
                     children: [
@@ -143,11 +142,11 @@ class _FavoritesViewState extends State<FavoritesView> {
                         child: ListView.separated(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           scrollDirection: Axis.horizontal,
-                          itemCount: folders.length,
+                          itemCount: _cachedFolders.length,
                           separatorBuilder: (context, index) =>
                               const SizedBox(width: 8),
                           itemBuilder: (context, index) {
-                            final folder = folders.elementAt(index);
+                            final folder = _cachedFolders[index];
                             return CategoryChip(
                               label: folder,
                               isSelected: folder == _selectedFolder,
@@ -171,8 +170,8 @@ class _FavoritesViewState extends State<FavoritesView> {
                             : RefreshIndicator(
                                 onRefresh: () async {
                                   context.read<FavoritesBloc>().add(
-                                        const LoadFavorites(),
-                                      );
+                                    const LoadFavorites(),
+                                  );
                                 },
                                 child: ListenableBuilder(
                                   listenable: getIt<MiniplayerHeightNotifier>(),
@@ -190,11 +189,11 @@ class _FavoritesViewState extends State<FavoritesView> {
                                       ),
                                       gridDelegate:
                                           const SliverGridDelegateWithFixedCrossAxisCount(
-                                        crossAxisCount: 2,
-                                        childAspectRatio: 0.7,
-                                        crossAxisSpacing: 12,
-                                        mainAxisSpacing: 12,
-                                      ),
+                                            crossAxisCount: 2,
+                                            childAspectRatio: 0.7,
+                                            crossAxisSpacing: 12,
+                                            mainAxisSpacing: 12,
+                                          ),
                                       itemCount: filteredFavorites.length,
                                       itemBuilder: (context, index) {
                                         final favorite =
