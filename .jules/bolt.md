@@ -17,3 +17,7 @@
 ## 2026-05-20 - Preserving Legacy Logic in Fixes
 **Learning:** When fixing build errors in existing files (like `download_service.dart`), verify if existing tests rely on "buggy" behavior (like partial sanitization).
 **Action:** Run tests immediately after fixes. If tests fail on logic you didn't intend to change (just fix compilation), revert to the behavior expected by tests unless the test is clearly wrong.
+
+## 2026-06-25 - BlocBuilder State Memoization
+**Learning:** Using `Set.toSet().toList()..sort()` or `.map()` dynamically directly inside a `BlocBuilder`'s `build` method runs `O(N log N)` calculation repeatedly on every widget rebuild (e.g. from UI interactions like changing a filter or scrolling). This violates Bolt's performance rules.
+**Action:** Extract expensive list/set recalculations inside `StatefulWidget` using cached variables (e.g., `_cachedFolders`) and update them only when the `BlocState` data identity changes (e.g., `!identical(_lastFavorites, state.favorites)`).
