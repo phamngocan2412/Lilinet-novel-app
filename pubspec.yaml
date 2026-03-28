@@ -120,5 +120,4 @@ flutter:
     - .env
 
 dependency_overrides:
-  test_api: 0.7.9
-  matcher: 0.12.18
+  analyzer: '>=7.0.0 <9.0.0'
