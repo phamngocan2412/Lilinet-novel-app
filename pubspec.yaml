@@ -118,3 +118,6 @@ flutter:
     - assets/images/
     - assets/icons/
     - .env
+
+dependency_overrides:
+  analyzer: '>=7.0.0 <9.0.0'
